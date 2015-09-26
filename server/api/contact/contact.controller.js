@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-// Get list of kontragents
+// Get list of contacts
 exports.index = function(req, res) {
   res.json([]);
 };
