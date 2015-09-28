@@ -1,4 +1,4 @@
-// Generated on 2015-09-25 using generator-angular-fullstack 2.0.13
+// Generated on 2015-09-26 using generator-angular-fullstack 2.0.13
 'use strict';
 
 module.exports = function (grunt) {
@@ -10,6 +10,7 @@ module.exports = function (grunt) {
   }
 
   // Load grunt tasks automatically, when needed
+
   require('jit-grunt')(grunt, {
     express: 'grunt-express-server',
     useminPrepare: 'grunt-usemin',
@@ -17,7 +18,8 @@ module.exports = function (grunt) {
     cdnify: 'grunt-google-cdn',
     protractor: 'grunt-protractor-runner',
     injector: 'grunt-asset-injector',
-    buildcontrol: 'grunt-build-control'
+    buildcontrol: 'grunt-build-control',
+    'node-inspector': 'grunt-node-inspector'
   });
 
   // Time how long tasks take. Can help when optimizing build times
@@ -316,7 +318,7 @@ module.exports = function (grunt) {
     ngtemplates: {
       options: {
         // This should be the name of your apps angular module
-        module: 'debtApp',
+        module: 'operationApp',
         htmlmin: {
           collapseBooleanAttributes: true,
           collapseWhitespace: true,
@@ -598,7 +600,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'clean:server',
         'env:all',
-        'injector:sass', 
+        'injector:sass',
         'concurrent:server',
         'injector',
         'wiredep',
@@ -610,7 +612,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'env:all',
-      'injector:sass', 
+      'injector:sass',
       'concurrent:server',
       'injector',
       'wiredep',
@@ -640,7 +642,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'clean:server',
         'env:all',
-        'injector:sass', 
+        'injector:sass',
         'concurrent:test',
         'injector',
         'autoprefixer',
@@ -653,7 +655,7 @@ module.exports = function (grunt) {
         'clean:server',
         'env:all',
         'env:test',
-        'injector:sass', 
+        'injector:sass',
         'concurrent:test',
         'injector',
         'wiredep',
@@ -671,7 +673,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'injector:sass', 
+    'injector:sass',
     'concurrent:dist',
     'injector',
     'wiredep',
