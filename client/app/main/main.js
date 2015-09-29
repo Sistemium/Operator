@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('debtApp')
+angular.module('operationApp')
   .config(function ($stateProvider) {
     $stateProvider
       .state('main', {

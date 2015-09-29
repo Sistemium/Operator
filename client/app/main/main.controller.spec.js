@@ -3,7 +3,8 @@
 describe('Controller: MainCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('debtApp'));
+  beforeEach(module('operationApp'));
+  beforeEach(module('socketMock'));
 
   var MainCtrl,
       scope,

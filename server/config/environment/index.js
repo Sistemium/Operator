@@ -15,6 +15,8 @@ function requiredProcessEnv(name) {
 var all = {
   env: process.env.NODE_ENV,
 
+  auth: 'https://api.sistemium.com/pha/roles',
+
   // Root path of server
   root: path.normalize(__dirname + '/../../..'),
 
@@ -26,7 +28,7 @@ var all = {
 
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
-    session: 'debt-secret'
+    session: 'operation-secret'
   },
 
   // List of user roles
@@ -39,6 +41,12 @@ var all = {
         safe: true
       }
     }
+  },
+
+  facebook: {
+    clientID:     process.env.FACEBOOK_ID || 'id',
+    clientSecret: process.env.FACEBOOK_SECRET || 'secret',
+    callbackURL:  (process.env.DOMAIN || '') + '/auth/facebook/callback'
   },
 
 };
