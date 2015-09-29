@@ -1,17 +1,36 @@
 'use strict';
+var request = require('request');
 
-var express = require('express');
-var passport = require('passport');
-var config = require('../config/environment');
-var User = require('../api/user/user.model');
+module.exports = function () {
+  return function (req, res, next) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.headers['authorization'];
 
-// Passport Configuration
-require('./local/passport').setup(User, config);
-require('./facebook/passport').setup(User, config);
-
-var router = express.Router();
-
-router.use('/local', require('./local'));
-router.use('/facebook', require('./facebook'));
-
-module.exports = router;
+    if (token) {
+      var options = {
+        url: 'https://api.sistemium.com/pha/roles',
+        headers: {
+          'Authorization': token
+        }
+      };
+      request(options, function (err, response, body) {
+        if (err) {
+          return res.json({success: false, message: 'Failed to authenticate'});
+        }
+        if (!err && response.statusCode === 200) {
+          console.log('Successful authorization');
+          next();
+        } else {
+          res.status(response.statusCode).send({
+            success: false,
+            message: 'Could not get response.'
+          });
+        }
+      });
+    } else {
+      return res.status(403).send({
+        success: false,
+        message: 'No token provided.'
+      });
+    }
+  };
+};
