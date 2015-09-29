@@ -13,7 +13,7 @@ module.exports = function () {
           'Authorization': token
         }
       };
-      request(options, function (err, response, body) {
+      request(options, function (err, response) {
         if (err) {
           return res.json({success: false, message: 'Failed to authenticate'});
         }
