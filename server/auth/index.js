@@ -1,5 +1,6 @@
 'use strict';
 var request = require('request');
+var config = require('../config/environment')
 
 module.exports = function () {
   return function (req, res, next) {
@@ -7,7 +8,7 @@ module.exports = function () {
 
     if (token) {
       var options = {
-        url: 'https://api.sistemium.com/pha/roles',
+        url: config.auth,
         headers: {
           'Authorization': token
         }
