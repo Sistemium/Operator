@@ -11,7 +11,7 @@ router.use(function (req, res, next) {
 
   if (token) {
     var options = {
-      url: config.auth.url,
+      url: 'https://api.sistemium.com/pha/roles',
       headers: {
         'Authorization': token
       }
@@ -20,10 +20,11 @@ router.use(function (req, res, next) {
       if (err) {
         return res.json({success: false, message: 'Failed to authenticate'});
       }
-      if (!err && res.statusCode === 200) {
+      if (!err && response.statusCode === 200) {
+        console.log('Successful authorization');
         next();
       } else {
-        res.status(res.statusCode).send({
+        res.status(response.statusCode).send({
           success: false,
           message: 'Could not get response.'
         });
