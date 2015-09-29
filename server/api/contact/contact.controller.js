@@ -5,7 +5,7 @@ var Contact = require('./contact.model');
 
 // Get list of contacts
 exports.index = function(req, res) {
-  Contact.find(function (err, contacts) {
+  Contact.scan().exec(function (err, contacts) {
     if(err) { return handleError(res, err); }
     return res.json(200, contacts);
   });
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 
 // Get a single contact
 exports.show = function(req, res) {
-  Contact.findById(req.params.id, function (err, contact) {
+  Contact.get(req.params.id, function (err, contact) {
     if(err) { return handleError(res, err); }
     if(!contact) { return res.send(404); }
     return res.json(contact);
@@ -30,8 +30,8 @@ exports.create = function(req, res) {
 
 // Updates an existing contact in the DB.
 exports.update = function(req, res) {
-  if(req.body._id) { delete req.body._id; }
-  Contact.findById(req.params.id, function (err, contact) {
+  if(req.body.id) { delete req.body.id; }
+  Contact.get(req.params.id, function (err, contact) {
     if (err) { return handleError(res, err); }
     if(!contact) { return res.send(404); }
     var updated = _.merge(contact, req.body);
@@ -44,10 +44,10 @@ exports.update = function(req, res) {
 
 // Deletes a contact from the DB.
 exports.destroy = function(req, res) {
-  Contact.findById(req.params.id, function (err, contact) {
+  Contact.get(req.params.id, function (err, contact) {
     if(err) { return handleError(res, err); }
     if(!contact) { return res.send(404); }
-    contact.remove(function(err) {
+    contact.delete(function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

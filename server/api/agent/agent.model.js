@@ -4,9 +4,16 @@ var dynamoose = require('dynamoose'),
     Schema = dynamoose.Schema;
 
 var AgentSchema = new Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  id: {
+    type: Number,
+    hashKey: true
+  },
+  name: {
+    type: String
+  },
+  authId: {
+    type: String
+  }
 });
 
 module.exports = dynamoose.model('Agent', AgentSchema);

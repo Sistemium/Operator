@@ -5,7 +5,7 @@ var Agent = require('./agent.model');
 
 // Get list of agents
 exports.index = function(req, res) {
-  Agent.find(function (err, agents) {
+  Agent.scan().exec(function (err, agents) {
     if(err) { return handleError(res, err); }
     return res.json(200, agents);
   });
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 
 // Get a single agent
 exports.show = function(req, res) {
-  Agent.findById(req.params.id, function (err, agent) {
+  Agent.get(req.params.id, function (err, agent) {
     if(err) { return handleError(res, err); }
     if(!agent) { return res.send(404); }
     return res.json(agent);
@@ -31,7 +31,7 @@ exports.create = function(req, res) {
 // Updates an existing agent in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }
-  Agent.findById(req.params.id, function (err, agent) {
+  Agent.get(req.params.id, function (err, agent) {
     if (err) { return handleError(res, err); }
     if(!agent) { return res.send(404); }
     var updated = _.merge(agent, req.body);
@@ -44,10 +44,10 @@ exports.update = function(req, res) {
 
 // Deletes a agent from the DB.
 exports.destroy = function(req, res) {
-  Agent.findById(req.params.id, function (err, agent) {
+  Agent.get(req.params.id, function (err, agent) {
     if(err) { return handleError(res, err); }
     if(!agent) { return res.send(404); }
-    agent.remove(function(err) {
+    agent.delete(function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

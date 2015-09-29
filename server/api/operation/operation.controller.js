@@ -5,7 +5,7 @@ var Operation = require('./operation.model');
 
 // Get list of operations
 exports.index = function(req, res) {
-  Operation.find(function (err, operations) {
+  Operation.scan().exec(function (err, operations) {
     if(err) { return handleError(res, err); }
     return res.json(200, operations);
   });
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 
 // Get a single operation
 exports.show = function(req, res) {
-  Operation.findById(req.params.id, function (err, operation) {
+  Operation.get(req.params.id, function (err, operation) {
     if(err) { return handleError(res, err); }
     if(!operation) { return res.send(404); }
     return res.json(operation);
@@ -30,8 +30,8 @@ exports.create = function(req, res) {
 
 // Updates an existing operation in the DB.
 exports.update = function(req, res) {
-  if(req.body._id) { delete req.body._id; }
-  Operation.findById(req.params.id, function (err, operation) {
+  if(req.body.id) { delete req.body.id; }
+  Operation.get(req.params.id, function (err, operation) {
     if (err) { return handleError(res, err); }
     if(!operation) { return res.send(404); }
     var updated = _.merge(operation, req.body);
@@ -44,10 +44,10 @@ exports.update = function(req, res) {
 
 // Deletes a operation from the DB.
 exports.destroy = function(req, res) {
-  Operation.findById(req.params.id, function (err, operation) {
+  Operation.get(req.params.id, function (err, operation) {
     if(err) { return handleError(res, err); }
     if(!operation) { return res.send(404); }
-    operation.remove(function(err) {
+    operation.delete(function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

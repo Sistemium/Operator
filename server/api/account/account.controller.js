@@ -5,7 +5,7 @@ var Account = require('./account.model');
 
 // Get list of accounts
 exports.index = function(req, res) {
-  Account.find(function (err, accounts) {
+  Account.scan().exec(function (err, accounts) {
     if(err) { return handleError(res, err); }
     return res.json(200, accounts);
   });
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 
 // Get a single account
 exports.show = function(req, res) {
-  Account.findById(req.params.id, function (err, account) {
+  Account.get(req.params.id, function (err, account) {
     if(err) { return handleError(res, err); }
     if(!account) { return res.send(404); }
     return res.json(account);
@@ -31,7 +31,7 @@ exports.create = function(req, res) {
 // Updates an existing account in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }
-  Account.findById(req.params.id, function (err, account) {
+  Account.get(req.params.id, function (err, account) {
     if (err) { return handleError(res, err); }
     if(!account) { return res.send(404); }
     var updated = _.merge(account, req.body);
@@ -44,10 +44,10 @@ exports.update = function(req, res) {
 
 // Deletes a account from the DB.
 exports.destroy = function(req, res) {
-  Account.findById(req.params.id, function (err, account) {
+  Account.get(req.params.id, function (err, account) {
     if(err) { return handleError(res, err); }
     if(!account) { return res.send(404); }
-    account.remove(function(err) {
+    account.delete(function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

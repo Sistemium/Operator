@@ -19,7 +19,7 @@ angular.module('operationApp')
     };
 
     $scope.deleteThing = function(thing) {
-      $http.delete('/api/things/' + thing._id);
+      $http.delete('/api/things/' + thing.id);
     };
 
     $scope.$on('$destroy', function () {

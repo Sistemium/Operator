@@ -5,7 +5,7 @@ var Currency = require('./currency.model');
 
 // Get list of currencys
 exports.index = function(req, res) {
-  Currency.find(function (err, currencys) {
+  Currency.scan().exec(function (err, currencys) {
     if(err) { return handleError(res, err); }
     return res.json(200, currencys);
   });
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 
 // Get a single currency
 exports.show = function(req, res) {
-  Currency.findById(req.params.id, function (err, currency) {
+  Currency.get(req.params.id, function (err, currency) {
     if(err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
     return res.json(currency);
@@ -30,8 +30,8 @@ exports.create = function(req, res) {
 
 // Updates an existing currency in the DB.
 exports.update = function(req, res) {
-  if(req.body._id) { delete req.body._id; }
-  Currency.findById(req.params.id, function (err, currency) {
+  if(req.body.id) { delete req.body.id; }
+  Currency.get(req.params.id, function (err, currency) {
     if (err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
     var updated = _.merge(currency, req.body);
@@ -44,10 +44,10 @@ exports.update = function(req, res) {
 
 // Deletes a currency from the DB.
 exports.destroy = function(req, res) {
-  Currency.findById(req.params.id, function (err, currency) {
+  Currency.get(req.params.id, function (err, currency) {
     if(err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
-    currency.remove(function(err) {
+    currency.delete(function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

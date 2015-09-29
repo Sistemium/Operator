@@ -4,9 +4,13 @@ var dynamoose = require('dynamoose'),
     Schema = dynamoose.Schema;
 
 var AccountSchema = new Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  id: {
+    type: Number,
+    hashKey: true
+  },
+  agentId: {
+    type: Number
+  }
 });
 
 module.exports = dynamoose.model('Account', AccountSchema);
