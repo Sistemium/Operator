@@ -17,8 +17,7 @@ module.exports = function () {
       });
       //do not authorize if token already in memory and token not expired
       if (inMemoryAccount) {
-        var body = JSON.parse(inMemoryAccount.body);
-        var tokenExpiresIn = parseInt(body.token.expiresIn);
+        var tokenExpiresIn = parseInt(inMemoryAccount.body.token.expiresIn);
         //remove account if token expired
         if (tokenExpiresIn < 1) {
           _.remove(inMemoryAccounts, inMemoryAccount);
@@ -43,12 +42,11 @@ module.exports = function () {
           }
           if (!err && response.statusCode === 200) {
             console.log('Successful authorization');
-            //attach account to request
-            req.account = body;
+
             //save authorized account in memory
             var account = {
               token: token,
-              body: body
+              body: JSON.parse(body)
             };
             inMemoryAccounts.push(account);
             next();
