@@ -15,13 +15,21 @@ module.exports = function () {
       var inMemoryAccount = _.find(inMemoryAccounts, function (item) {
         return item.token === token;
       });
-      //do not authorize if token already in memory
+      //do not authorize if token already in memory and token not expired
       if (inMemoryAccount) {
+        var body = JSON.parse(inMemoryAccount.body);
+        var tokenExpiresIn = parseInt(body.token.expiresIn);
+        //remove account if token expired
+        if (tokenExpiresIn < 1) {
+          _.remove(inMemoryAccounts, inMemoryAccount);
+        }
+      }
+
+      if (inMemoryAccount && !(tokenExpiresIn < 1)) {
         console.log('Already authorized');
         next();
       }
-
-      else if (!inMemoryAccount) {
+      else if (!inMemoryAccount || tokenExpiresIn < 1) {
 
         var options = {
           url: config.auth,
@@ -58,6 +66,5 @@ module.exports = function () {
         });
       }
     }
-    ;
   }
 };
