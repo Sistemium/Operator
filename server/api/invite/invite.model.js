@@ -9,13 +9,16 @@ var InviteSchema = new Schema({
     hashKey: true
   },
   owner: {
-    type: String
+    type: String,
+    required: true
   },
   acceptor: {
-    type: String
+    type: String,
+    required: true
   },
   isActive: {
-    type: Boolean
+    type: Boolean,
+    required: true
   },
   permissions: {
     type: Array

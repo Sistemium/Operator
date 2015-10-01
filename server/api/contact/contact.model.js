@@ -9,10 +9,12 @@ var ContactSchema = new Schema({
     hashKey: true
   },
   owner: {
-    type: String
+    type: String,
+    required: true
   },
   agent: {
-    type: String
+    type: String,
+    required: true
   },
   permissions: {
     type: Array

@@ -9,13 +9,16 @@ var AccountSchema = new Schema({
     hashKey: true
   },
   agentId: {
-    type: String
+    type: String,
+    required: true
   },
   authId: {
-    type: String
+    type: String,
+    required: true
   },
   currency: {
-    type: String
+    type: String,
+    required: true
   }
 });
 

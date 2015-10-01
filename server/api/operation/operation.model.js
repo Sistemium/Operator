@@ -5,22 +5,34 @@ var dynamoose = require('dynamoose'),
 
 var OperationSchema = new Schema({
   id: {
-    type: String
+    type: String,
+    hashKey: true
   },
-  sumTotal: Number,
+  sumTotal: {
+    type: Number,
+    required: true
+  },
   currency: {
-    type: String
+    type: String,
+    required: true
   },
   remindDuration: {
-    type: Object
+    type: Number,
+    required: true
   },
   initiator: {
-    type: String
+    type: String,
+    required: true
   },
   executor: {
-    type: String
+    type: String,
+    required: true
   },
-  state: String
+  state: {
+    type: String,
+    required: true,
+    trim: true
+  }
 });
 
 module.exports = dynamoose.model('Operation', OperationSchema);

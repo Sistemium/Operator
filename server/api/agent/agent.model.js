@@ -9,10 +9,15 @@ var AgentSchema = new Schema({
     hashKey: true
   },
   name: {
-    type: String
+    type: String,
+    required: true
   },
   authId: {
-    type: String
+    type: String,
+    required: true
+  },
+  accounts: {
+    type: Array
   }
 });
 
