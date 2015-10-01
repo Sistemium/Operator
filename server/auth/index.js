@@ -48,6 +48,7 @@ module.exports = function () {
               token: token,
               body: JSON.parse(body)
             };
+            req.authId = account.body.account.authId;
             inMemoryAccounts.push(account);
             next();
           } else {
