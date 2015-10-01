@@ -26,6 +26,7 @@ module.exports = function () {
 
       if (inMemoryAccount && !(tokenExpiresIn < 1)) {
         console.log('Already authorized');
+        req.authId = inMemoryAccount.body.account.authId;
         next();
       }
       else if (!inMemoryAccount || tokenExpiresIn < 1) {
