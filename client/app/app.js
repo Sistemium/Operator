@@ -22,7 +22,7 @@ angular.module('operationApp', [
       request: function (config) {
         config.headers = config.headers || {};
         if ($cookieStore.get('token')) {
-          config.headers.Authorization = 'Bearer ' + $cookieStore.get('token');
+          config.headers.Authorization = 'c6dd52d226a821ac9acd45bd92d7a50d@pha';
         }
         return config;
       },

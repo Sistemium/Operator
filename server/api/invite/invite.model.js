@@ -5,7 +5,7 @@ var dynamoose = require('dynamoose'),
 
 var InviteSchema = new Schema({
   id: {
-    type: Number,
+    type: String,
     hashKey: true
   },
   owner: {
@@ -22,4 +22,4 @@ var InviteSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Thing', InviteSchema);
+module.exports = dynamoose.model('Invite', InviteSchema);

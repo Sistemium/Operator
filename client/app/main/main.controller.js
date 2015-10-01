@@ -14,7 +14,7 @@ angular.module('operationApp')
       if($scope.newThing === '') {
         return;
       }
-      $http.post('/api/things', { name: $scope.newThing, id: i++ });
+      $http.post('/api/things', { name: $scope.newThing});
       $scope.newThing = '';
     };
 
