@@ -5,12 +5,10 @@ var dynamoose = require('dynamoose'),
 
 var ThingSchema = new Schema({
   id: {
-    type: Number,
+    type: String,
     hashKey: true
   },
-  name: {
-    type: String
-  }
+  name: String
 });
 
 module.exports = dynamoose.model('Thing', ThingSchema);

@@ -5,11 +5,9 @@ var dynamoose = require('dynamoose'),
 
 var OperationSchema = new Schema({
   id: {
-    type: Number
+    type: String
   },
-  sumTotal: {
-    type: Number
-  },
+  sumTotal: Number,
   currency: {
     type: Object
   },
@@ -22,9 +20,7 @@ var OperationSchema = new Schema({
   executor: {
     type: Object
   },
-  state: {
-    type: String
-  }
+  state: String
 });
 
 module.exports = dynamoose.model('Operation', OperationSchema);

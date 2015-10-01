@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Contact = require('./contact.model');
+var uuid = require('node-uuid');
 
 // Get list of contacts
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new contact in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Contact.create(req.body, function(err, contact) {
     if(err) { return handleError(res, err); }
     return res.json(201, contact);

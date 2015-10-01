@@ -5,7 +5,7 @@ var dynamoose = require('dynamoose'),
 
 var AgentSchema = new Schema({
   id: {
-    type: Number,
+    type: String,
     hashKey: true
   },
   name: {

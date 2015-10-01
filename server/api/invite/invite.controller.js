@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Invite = require('./invite.model');
+var uuid = require('node-uuid');
 
 // Get list of invites
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new invite in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Invite.create(req.body, function(err, invite) {
     if(err) { return handleError(res, err); }
     return res.json(201, invite);

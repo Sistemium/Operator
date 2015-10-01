@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Currency = require('./currency.model');
+var uuid = require('node-uuid');
 
 // Get list of currencys
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new currency in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Currency.create(req.body, function(err, currency) {
     if(err) { return handleError(res, err); }
     return res.json(201, currency);

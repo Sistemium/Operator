@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Agent = require('./agent.model');
+var uuid = require('node-uuid');
 
 // Get list of agents
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new agent in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Agent.create(req.body, function(err, agent) {
     if(err) { return handleError(res, err); }
     return res.json(201, agent);

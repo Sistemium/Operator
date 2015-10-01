@@ -11,6 +11,7 @@
 
 var _ = require('lodash');
 var Thing = require('./thing.model');
+var uuid = require('node-uuid');
 
 // Get list of things
 exports.index = function(req, res) {
@@ -31,6 +32,7 @@ exports.show = function(req, res) {
 
 // Creates a new thing in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Thing.create(req.body, function(err, thing) {
     if(err) { return handleError(res, err); }
     return res.json(201, thing);

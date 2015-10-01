@@ -5,11 +5,17 @@ var dynamoose = require('dynamoose'),
 
 var AccountSchema = new Schema({
   id: {
-    type: Number,
+    type: String,
     hashKey: true
   },
   agentId: {
-    type: Number
+    type: String
+  },
+  authId: {
+    type: String
+  },
+  currency: {
+    type: String
   }
 });
 

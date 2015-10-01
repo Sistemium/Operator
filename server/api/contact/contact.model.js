@@ -5,7 +5,7 @@ var dynamoose = require('dynamoose'),
 
 var ContactSchema = new Schema({
   id: {
-    type: Number,
+    type: String,
     hashKey: true
   },
   owner: {

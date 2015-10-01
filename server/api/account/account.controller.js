@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Account = require('./account.model');
+var uuid = require('node-uuid');
 
 // Get list of accounts
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new account in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Account.create(req.body, function(err, account) {
     if(err) { return handleError(res, err); }
     return res.json(201, account);

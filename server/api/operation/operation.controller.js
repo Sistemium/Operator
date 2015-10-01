@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Operation = require('./operation.model');
+var uuid = require('node-uuid');
 
 // Get list of operations
 exports.index = function(req, res) {
@@ -22,6 +23,7 @@ exports.show = function(req, res) {
 
 // Creates a new operation in the DB.
 exports.create = function(req, res) {
+  req.body.id = uuid.v4();
   Operation.create(req.body, function(err, operation) {
     if(err) { return handleError(res, err); }
     return res.json(201, operation);
