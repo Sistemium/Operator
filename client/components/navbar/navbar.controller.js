@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('operationApp')
+angular.module('debtApp')
   .controller('NavbarCtrl', function ($scope, $location) {
     $scope.menu = [{
-      'title': 'Home',
+      'title': 'Главная',
       'link': '/'
     }];
 

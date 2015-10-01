@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('operationApp', [
+angular.module('debtApp', [
   'ngCookies',
   'ngResource',
   'ngSanitize',

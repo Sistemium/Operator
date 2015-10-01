@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('operationApp')
+angular.module('debtApp')
   .factory('Modal', function ($rootScope, $modal) {
     /**
      * Opens a modal
