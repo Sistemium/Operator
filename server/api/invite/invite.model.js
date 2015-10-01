@@ -12,7 +12,7 @@ var InviteSchema = new Schema({
     type: String
   },
   acceptor: {
-    type: Object
+    type: String
   },
   isActive: {
     type: Boolean

@@ -9,16 +9,16 @@ var OperationSchema = new Schema({
   },
   sumTotal: Number,
   currency: {
-    type: Object
+    type: String
   },
   remindDuration: {
     type: Object
   },
   initiator: {
-    type: Object
+    type: String
   },
   executor: {
-    type: Object
+    type: String
   },
   state: String
 });
