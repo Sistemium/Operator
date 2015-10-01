@@ -24,7 +24,6 @@ module.exports = function (app) {
   app.use(compression());
   app.use(bodyParser.urlencoded({extended: false}));
   app.use(bodyParser.json());
-  app.use(auth());
   app.use(methodOverride());
   app.use(cookieParser());
 
@@ -43,4 +42,5 @@ module.exports = function (app) {
     app.use(morgan('dev'));
     app.use(errorHandler()); // Error handler - has to be last
   }
+  app.use(auth());
 };
