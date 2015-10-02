@@ -55,7 +55,7 @@ angular.module('debtApp')
       },
 
       isLoggedIn: function () {
-        return currentUser.hasOwnProperty('roles');
+        return currentUser.hasOwnProperty('body') || currentUser.hasOwnProperty('roles');
       }
     };
   }]);
