@@ -14,7 +14,6 @@ var cookieParser = require('cookie-parser');
 var errorHandler = require('errorhandler');
 var path = require('path');
 var config = require('./environment');
-var auth = require('../auth/index')
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -42,5 +41,4 @@ module.exports = function (app) {
     app.use(morgan('dev'));
     app.use(errorHandler()); // Error handler - has to be last
   }
-  app.use(auth());
 };

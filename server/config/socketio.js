@@ -23,8 +23,7 @@ function onConnect(socket) {
   require('../api/currency/currency.socket').register(socket);
   require('../api/contact/contact.socket').register(socket);
   require('../api/account/account.socket').register(socket);
-  require('../api/thing/thing.socket').register(socket);
-}
+  }
 
 module.exports = function (socketio) {
   // socket.io (v1.x.x) is powered by debug.

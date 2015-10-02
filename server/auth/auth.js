@@ -2,8 +2,12 @@
 
 var express = require('express');
 var router = express.Router();
+var auth = require('./auth.service');
 
-router.get('/', function (req, res) {
+router.get('/', auth.isAuthenticated(), function(req,res) {
+  return res.json(req.account);
+});
+router.post('/', auth.isAuthenticated(), function (req, res) {
   return res.json(req.account);
 });
 
