@@ -48,6 +48,14 @@ angular.module('debtApp')
         } else {
           cb(false);
         }
+      },
+
+      getCurrentUser: function () {
+        return currentUser;
+      },
+
+      isLoggedIn: function () {
+        return currentUser.hasOwnProperty('roles');
       }
     };
   }]);

@@ -1,13 +1,6 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('AgentCtrl', function ($state, Auth) {
-    var me = this;
+  .controller('AgentCtrl', function () {
 
-    angular.extend(me, {
-      deleteTokenFromCookie: function () {
-        Auth.logout();
-        $state.go('main');
-      }
-    })
   });
