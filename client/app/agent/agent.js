@@ -6,6 +6,8 @@ angular.module('debtApp')
       .state('agent', {
         url: '/agent',
         templateUrl: 'app/agent/agent.html',
-        controller: 'AgentCtrl'
+        controller: 'AgentCtrl',
+        controllerAs: 'ctrl',
+        authenticate: true
       });
   });

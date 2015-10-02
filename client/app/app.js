@@ -24,7 +24,7 @@ angular.module('debtApp', [
       request: function (config) {
         config.headers = config.headers || {};
         if ($cookieStore.get('token')) {
-          config.headers.Authorization = 'c6dd52d226a821ac9acd45bd92d7a50d@pha';
+          config.headers.Authorization = $cookieStore.get('token');
         }
         return config;
       },
@@ -44,15 +44,16 @@ angular.module('debtApp', [
     };
   })
 
-  .run(function ($rootScope) {
+  .run(['$rootScope', '$location', 'Auth', function ($rootScope, $location, Auth) {
     // Redirect to login if route requires auth and you're not logged in
     $rootScope.$on('$stateChangeStart', function (event, next) {
       Auth.isLoggedInAsync(function (loggedIn) {
         if (next.authenticate && !loggedIn) {
+          event.preventDefault();
           $location.path('/login');
         }
       });
     });
 
-  })
+  }])
 ;
