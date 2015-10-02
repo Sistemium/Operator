@@ -4,7 +4,7 @@ angular.module('debtApp')
   .factory('Agent', function ($resource) {
     return $resource('/api/agents');
   })
-  .controller('AgentCtrl', function (Agent) {
+  .controller('AgentCtrl', function ($state, Agent) {
     var me = this;
     me.agents = [];
     var agentsPromise = Agent.query();
@@ -21,16 +21,26 @@ angular.module('debtApp')
       },
 
       save: function (form) {
-        var newAgent = new Agent({name: me.name});
-        newAgent.$save(function (u) {
-          me.name = '';
-          form.$setPristine();
-        });
+        if (me.name) {
+          var newAgent = new Agent({
+            name: me.name
+          });
+
+          newAgent.$save(function (u) {
+            me.agents.push(u);
+            me.name = '';
+            form.$setPristine();
+          });
+        }
       },
 
       cancel: function (form) {
         me.name = '';
         form.$setPristine();
+      },
+
+      goToAccounts: function (id) {
+        $state.go('account', {agentId: id});
       },
 
       refresh: function () {

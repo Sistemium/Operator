@@ -5,10 +5,14 @@
     table.table.table-responsive.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')
       thead
         th Название агента
+        th Счета
       tbody
-        tr(ng-repeat='agent in ctrl.agents')
+        tr(ng-repeat='agent in ctrl.agents track by agent.id')
           td
             | {{agent.name}}
+          td
+            a(href='' ng-click='ctrl.goToAccounts(agent.id)')
+              span.glyphicon.glyphicon-usd
     form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend

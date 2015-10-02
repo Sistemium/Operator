@@ -1,0 +1,21 @@
+.col-md-12
+  h1 Счета агента
+  .container
+    button.btn.btn-primary.pull-right(type='button' ui-sref='agent') Назад
+    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0') Нету счетов
+    table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
+      thead
+        th Валюты
+      tbody
+        tr(ng-repeat='account in ctrl.accounts track by account.id')
+          td
+            | {{account.currency}}
+    form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
+      fieldset
+        legend
+          | Добавить новую валюту
+        .form-group
+          label.control-label(for='currency') Валюта
+          input.form-control(id='currency' placeholder='Валюта' ng-required='true' ng-model='ctrl.currency')
+        button.btn.btn-primary(type='submit' ng-disabled='!form.$valid') Сохранить
+        button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)') Отменить
