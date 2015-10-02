@@ -1,24 +1,49 @@
 'use strict';
 
 angular.module('debtApp')
-  .factory('Auth', ['$cookieStore', '$resource', function ($cookieStore, $resource) {
+
+  .factory('Auth', ['$cookieStore', '$http', '$q', '$resource', function ($cookieStore, $http, $q, $resource) {
     var currentUser = {};
-    currentUser = $resource('/api/auth', {}, {
-      get: {
-        method: 'GET'
-      }
-    }).get();
+    if ($cookieStore.get('token')) {
+      currentUser = $resource('/api/auth?token=' + $cookieStore.get('token')).get();
+    }
 
     return {
-      isLoggedInAsync: function(cb) {
-        if(currentUser.hasOwnProperty('$promise')) {
-          currentUser.$promise.then(function(res) {
-            console.log(res);
+      login: function (token, callback) {
+        var cb = callback || angular.noop;
+        var deferred = $q.defer();
+
+        $http.post('/api/auth', {
+          token: token
+        }).
+          success(function (data) {
+            $cookieStore.put('token', data.token);
+            currentUser = data.body;
+            deferred.resolve(data);
+            return cb();
+          }).
+          error(function (err) {
+            this.logout();
+            deferred.reject(err);
+            return cb(err);
+          }.bind(this));
+
+        return deferred.promise;
+      },
+
+      logout: function () {
+        $cookieStore.remove('token');
+        currentUser = {};
+      },
+
+      isLoggedInAsync: function (cb) {
+        if (currentUser.hasOwnProperty('$promise')) {
+          currentUser.$promise.then(function () {
             cb(true);
-          }).catch(function() {
+          }).catch(function () {
             cb(false);
           });
-        } else if(currentUser.hasOwnProperty('role')) {
+        } else if (currentUser.hasOwnProperty('roles')) {
           cb(true);
         } else {
           cb(false);
