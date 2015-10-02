@@ -1,2 +1,20 @@
 .col-md-12
-    | This is the agent view.
+  h1 Агенты пользователя
+  .container
+    p(ng-if='ctrl.agents && ctrl.agents.length === 0') Нету агентов
+    table.table.table-responsive.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')
+      thead
+        th Название агента
+      tbody
+        tr(ng-repeat='agent in ctrl.agents')
+          td
+            | {{agent.name}}
+    form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
+      fieldset
+        legend
+          | Добавить нового агента
+        .form-group
+          label.control-label(for='name') Название
+          input.form-control(id='name' placeholder='Название' ng-required='true' ng-model='ctrl.name')
+        button.btn.btn-primary(type='submit' ng-disabled='!form.$valid') Сохранить
+        button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)') Отменить

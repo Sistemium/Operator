@@ -24,6 +24,7 @@ exports.show = function(req, res) {
 // Creates a new agent in the DB.
 exports.create = function(req, res) {
   req.body.id = uuid.v4();
+  req.body.authId = req.authId;
   Agent.create(req.body, function(err, agent) {
     if(err) { return handleError(res, err); }
     return res.json(201, agent);
