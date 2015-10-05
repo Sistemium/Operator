@@ -6,6 +6,7 @@
       thead
         th Название агента
         th Счета
+        th
       tbody
         tr(ng-repeat='agent in ctrl.agents track by agent.id')
           td
@@ -13,6 +14,9 @@
           td
             a(href='' ng-click='ctrl.goToAccounts(agent.id)')
               span.glyphicon.glyphicon-usd
+          td
+            a(href='' ng-click='ctrl.goToInvites(agent.id)')
+              span Приглашения
     form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend

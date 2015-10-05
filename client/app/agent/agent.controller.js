@@ -43,6 +43,10 @@ angular.module('debtApp')
         $state.go('account', {agentId: id});
       },
 
+      goToInvites: function (id) {
+        $state.go('invite', {agentId: id});
+      },
+
       refresh: function () {
         me.getData();
       }
