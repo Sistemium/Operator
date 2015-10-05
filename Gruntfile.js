@@ -19,7 +19,9 @@ module.exports = function (grunt) {
     protractor: 'grunt-protractor-runner',
     injector: 'grunt-asset-injector',
     buildcontrol: 'grunt-build-control',
-    'node-inspector': 'grunt-node-inspector'
+    'node-inspector': 'grunt-node-inspector',
+    nggettext_extract: 'grunt-angular-gettext',
+    nggettext_compile: 'grunt-angular-gettext'
   });
 
   // Time how long tasks take. Can help when optimizing build times
@@ -511,6 +513,22 @@ module.exports = function (grunt) {
       }
     },
 
+    nggettext_extract: {
+      pot: {
+        files: {
+          'po/template.pot': ['{.tmp,<%= yeoman.client %>}/{app,components}/**/*.html']
+        }
+      }
+    },
+
+    nggettext_compile: {
+      all: {
+        files: {
+          'client/app/translations.js': ['po/*.po']
+        }
+      }
+    },
+
     injector: {
       options: {
 
@@ -572,7 +590,7 @@ module.exports = function (grunt) {
           ]
         }
       }
-    },
+    }
   });
 
   // Used for delaying livereload until after server has restarted
@@ -618,6 +636,8 @@ module.exports = function (grunt) {
       'wiredep',
       'autoprefixer',
       'express:dev',
+      'nggettext_extract',
+      'nggettext_compile',
       'wait',
       'open',
       'watch'

@@ -7,7 +7,8 @@ angular.module('debtApp', [
   'btford.socket-io',
   'ui.router',
   'ui.bootstrap',
-  'restangular'
+  'restangular',
+  'gettext'
 ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
@@ -56,4 +57,8 @@ angular.module('debtApp', [
     });
 
   }])
+  .run(['gettextCatalog', function (gettextCatalog) {
+    // enable debugging mode to show untranslated strings
+    gettextCatalog.debug = true;
+  }]);
 ;

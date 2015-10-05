@@ -1,0 +1,33 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"X-Generator: Poedit 1.8.5\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en\n"
+
+#: .tmp/app/account/account.html:1
+msgid "Валюта"
+msgstr "Currency"
+
+#: .tmp/app/account/account.html:1
+msgid "Назад"
+msgstr "Back"
+
+#: .tmp/app/account/account.html:1
+msgid "Нет счетов"
+msgstr "No accounts"
+
+#: .tmp/app/account/account.html:1
+msgid "Отменить"
+msgstr "Cancel"
+
+#: .tmp/app/account/account.html:1
+msgid "Сохранить"
+msgstr "Save"
