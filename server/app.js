@@ -11,18 +11,14 @@ var express = require('express');
 var dynamoose = require('dynamoose');
 var config = require('./config/environment');
 
-if (process.env.NODE_ENV === 'development') {
-  //dynamoose.local(url)
-  //
-  //Configure dynamoose to use a DynamoDB local for testing.
-  //url defaults to 'http://localhost:8000'
-  dynamoose.defaults.waitForActiveTimeout = 100;
-  dynamoose.AWS.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION || "eu-west-1"
-  });
-}
+
+dynamoose.defaults.waitForActiveTimeout = 100;
+dynamoose.AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || "eu-west-1"
+});
+
 
 // Setup server
 var app = express();
