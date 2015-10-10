@@ -9,6 +9,8 @@ exports.index = function (req, res) {
     if (err) {
       return handleError(res, err);
     }
+    //filter deleted accounts
+    accounts = _.filter(accounts, 'isDeleted', false);
     return res.json(200, accounts);
   });
 };
@@ -19,7 +21,7 @@ exports.show = function (req, res) {
     if (err) {
       return handleError(res, err);
     }
-    if (!account) {
+    if (!account || !account.isDeleted) {
       return res.send(404);
     }
     return res.json(account);
@@ -32,6 +34,7 @@ exports.create = function (req, res) {
     var createdItems = [];
     _.each(req.body, function (item) {
       checkCanModify(item);
+      restoreDeleted(item);
       Account.create(item, function (err, account) {
         if (err) {
           return handleError(res, err);
@@ -42,6 +45,7 @@ exports.create = function (req, res) {
     });
   } else {
     checkCanModify(req.body);
+    restoreDeleted(req.body);
     Account.create(req.body, function (err, account) {
       if (err) {
         return handleError(res, err);
@@ -66,6 +70,11 @@ exports.update = function (req, res) {
     }
     //check if user can update entity
     checkCanModify(account);
+    //restore item if it was deleted
+    restoreDeleted(account);
+    if (account.isDeleted) {
+      delete account.isDeleted;
+    }
     var updated = _.merge(account, req.body);
     updated.save(function (err) {
       if (err) {
@@ -77,21 +86,31 @@ exports.update = function (req, res) {
 };
 
 // Deletes a account from the DB.
-exports.destroy = function(req, res) {
 exports.destroy = function (req, res) {
   Account.get(req.params.id, function (err, account) {
-    if(err) { return handleError(res, err); }
-    if(!account) { return res.send(404); }
-    account.delete(function(err) {
-      if(err) { return handleError(res, err); }
+    if (err) {
+      return handleError(res, err);
+    }
     if (!account || account.isDeleted) {
       return res.send(404);
     }
+    //check if user can delete entity
+    checkCanModify(account);
     account.isDeleted = true;
+    account.save(function (err) {
+      if (err) {
+        return handleError(res, err);
+      }
       return res.send(204);
     });
   });
 };
+
+function restoreDeleted(account) {
+  if (account.isDeleted) {
+    delete account.isDeleted;
+  }
+}
 
 function checkCanModify(account) {
   if (account.authId !== req.authId) {

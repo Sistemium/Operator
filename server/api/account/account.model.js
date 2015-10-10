@@ -19,7 +19,8 @@ var AccountSchema = new Schema({
   currency: {
     type: String,
     required: true
-  }
+  },
+  isDeleted: Boolean
 });
 
 module.exports = dynamoose.model('Account', AccountSchema);
