@@ -86,6 +86,14 @@ exports.destroy = function(req, res) {
   });
 };
 
+function checkCanModify() {
+  if (account.authId !== req.authId) {
+    return res.status(401).send({
+      message: 'Access denied!'
+    });
+  }
+}
+
 function handleError(res, err) {
   return res.send(500, err);
 }
