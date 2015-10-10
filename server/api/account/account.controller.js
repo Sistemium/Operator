@@ -31,6 +31,7 @@ exports.create = function (req, res) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
+      checkCanModify(item);
       Account.create(item, function (err, account) {
         if (err) {
           return handleError(res, err);
@@ -40,6 +41,7 @@ exports.create = function (req, res) {
       return res.json(201, createdItems);
     });
   } else {
+    checkCanModify(req.body);
     Account.create(req.body, function (err, account) {
       if (err) {
         return handleError(res, err);
@@ -63,7 +65,7 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     //check if user can update entity
-    checkCanModify();
+    checkCanModify(account);
     var updated = _.merge(account, req.body);
     updated.save(function (err) {
       if (err) {
@@ -76,17 +78,22 @@ exports.update = function (req, res) {
 
 // Deletes a account from the DB.
 exports.destroy = function(req, res) {
+exports.destroy = function (req, res) {
   Account.get(req.params.id, function (err, account) {
     if(err) { return handleError(res, err); }
     if(!account) { return res.send(404); }
     account.delete(function(err) {
       if(err) { return handleError(res, err); }
+    if (!account || account.isDeleted) {
+      return res.send(404);
+    }
+    account.isDeleted = true;
       return res.send(204);
     });
   });
 };
 
-function checkCanModify() {
+function checkCanModify(account) {
   if (account.authId !== req.authId) {
     return res.status(401).send({
       message: 'Access denied!'
