@@ -8,13 +8,16 @@ var InviteSchema = new Schema({
     type: String,
     hashKey: true
   },
+  code: {
+    type: String,
+    required: true
+  },
   owner: {
     type: String,
     required: true
   },
   acceptor: {
-    type: String,
-    required: true
+    type: String
   },
   isActive: {
     type: Boolean,
@@ -22,6 +25,10 @@ var InviteSchema = new Schema({
   },
   permissions: {
     type: Array
+  },
+  status: {
+    type: String,
+    required: true
   }
 });
 
