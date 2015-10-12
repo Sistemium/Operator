@@ -16,8 +16,9 @@ var ContactSchema = new Schema({
     type: String,
     required: true
   },
-  permissions: {
-    type: Array
+  invite: {
+    type: String,
+    required: true
   }
 });
 

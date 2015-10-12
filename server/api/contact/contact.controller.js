@@ -2,6 +2,8 @@
 
 var _ = require('lodash');
 var Contact = require('./contact.model');
+var Agent = require('../agent/agent.model');
+var Invite = require('../invite/invite.model');
 
 // Get list of contacts
 exports.index = function (req, res) {
@@ -108,11 +110,35 @@ function restoreDeleted(contact) {
 }
 
 function checkCanModify(contact) {
-  if (contact.authId !== req.authId) {
+  if (contact.owner !== req.authId) {
     return res.status(401).send({
       message: 'Access denied!'
     });
   }
+  checkAgent(contact.agent);
+  checkInvite(contact.invite);
+}
+
+function checkAgent(agentId) {
+  Agent.get(agentId, function (err, agent) {
+    if (err) {
+      return handleError(res, err);
+    }
+    if (!agent || agent.isDeleted) {
+      return res.status(404);
+    }
+  })
+}
+
+function checkInvite(inviteId) {
+  Invite.get(inviteId, function (err, invite) {
+    if (err) {
+      return handleError(res, err);
+    }
+    if (!invite || invite.isDeleted || !invite.isActive) {
+      return res.status(404);
+    }
+  })
 }
 
 function handleError(res, err) {
