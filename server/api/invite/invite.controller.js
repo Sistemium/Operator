@@ -2,17 +2,26 @@
 
 var _ = require('lodash');
 var Invite = require('./invite.model');
+var crypto = require('crypto');
 
 // Get list of invites
 exports.index = function (req, res) {
-  Invite.scan().exec(function (err, invites) {
-    if (err) {
-      return handleError(res, err);
-    }
-    //filter deleted invites
-    invites = _.filter(invites, 'isDeleted', false);
-    return res.json(200, invites);
-  });
+  if (req.params.code) {
+
+  }
+  // on get without code get only invites where user id in owner or acceptor
+  Invite.query('acceptor')
+    .eq(req.authId)
+    .or('owner')
+    .eq(req.authId)
+    .exec(function (err, invites) {
+      if (err) {
+        return handleError(res, err);
+      }
+      //filter deleted invites
+      invites = _.filter(invites, 'isDeleted', false);
+      return res.json(200, invites);
+    });
 };
 
 // Get a single invite
@@ -30,11 +39,20 @@ exports.show = function (req, res) {
 
 // Creates a new invite in the DB.
 exports.create = function (req, res) {
+  function prepareData(invite) {
+    checkCanModify(invite);
+    if (invite.acceptor) {
+      checkAcceptor(invite.acceptor);
+    }
+    restoreDeleted(invite);
+    setStatus(invite);
+    generateCode(invite);
+  }
+
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
-      checkCanModify(item);
-      restoreDeleted(item);
+      prepareData(item);
       Invite.create(item, function (err, invite) {
         if (err) {
           return handleError(res, err);
@@ -44,6 +62,7 @@ exports.create = function (req, res) {
       return res.json(201, createdItems);
     })
   } else {
+    prepareData(req.body);
     Invite.create(req.body, function (err, invite) {
       if (err) {
         return handleError(res, err);
@@ -97,6 +116,18 @@ exports.destroy = function (req, res) {
   });
 };
 
+function setStatus(invite) {
+  if (invite.isActive && !invite.acceptor) {
+    invite.status = 'open';
+  } else if (invite.isActive && invite.acceptor) {
+    invite.status = 'accepted';
+  } else if (!invite.isActive && invite.acceptor) {
+    invite.status = 'disabled';
+  } else if (!invite.isActive && !invite.acceptor) {
+    invite.status = 'deleted';
+  }
+}
+
 function restoreDeleted(invite) {
   if (invite.isDeleted) {
     delete invite.isDeleted;
@@ -104,11 +135,32 @@ function restoreDeleted(invite) {
 }
 
 function checkCanModify(invite) {
-  if (invite.authId !== req.authId) {
+  if (invite.owner !== req.authId) {
     return res.status(401).send({
       message: 'Access denied!'
     });
   }
+}
+
+function checkAcceptor(agentId) {
+  Agent.get(agentId, function (err, agent) {
+    if (err) {
+      handleError(res, err);
+    }
+    if (!agent || agent.isDeleted) {
+      return res.send(404);
+    }
+  });
+}
+
+function generateCode(invite) {
+  function randomValueHex(len) {
+    return crypto.randomBytes(Math.ceil(len / 2))
+      .toString('hex') // convert to hexadecimal format
+      .slice(0, len);   // return required number of characters
+  }
+
+  invite.code = randomValueHex(10);
 }
 
 function handleError(res, err) {
