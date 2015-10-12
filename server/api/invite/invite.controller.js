@@ -7,7 +7,27 @@ var crypto = require('crypto');
 // Get list of invites
 exports.index = function (req, res) {
   if (req.params.code) {
-
+    Invite.query('code')
+      .eq(req.params.code)
+      .exec(function (err, invite) {
+        if (err) {
+          handleError(res, err);
+        }
+        if (!invite || invite.isDeleted) {
+          return res.send(404);
+        }
+        if (invite.status === 'open') {
+          return res.json(200, invite);
+        } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status)) {
+          if (invite.acceptor === req.authId || invite.owner === req.authId) {
+            return res.json(200, invite);
+          } else {
+            return res.status(401).send({
+              message: 'Access denied!'
+            });
+          }
+        }
+      });
   }
   // on get without code get only invites where user id in owner or acceptor
   Invite.query('acceptor')
