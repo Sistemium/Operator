@@ -23,9 +23,6 @@ var InviteSchema = new Schema({
     type: Boolean,
     required: true
   },
-  permissions: {
-    type: Array
-  },
   status: {
     type: String,
     required: true

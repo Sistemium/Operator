@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Invite = require('./invite.model');
+var Agent = require('../agent/agent.model');
 var crypto = require('crypto');
 
 // Get list of invites
@@ -60,10 +61,11 @@ exports.show = function (req, res) {
 // Creates a new invite in the DB.
 exports.create = function (req, res) {
   function prepareData(invite) {
-    checkCanModify(invite);
-    if (invite.acceptor) {
-      checkAcceptor(invite.acceptor);
-    }
+    invite.isActive = true;
+    checkCanModify(req.authId, invite);
+    //if (invite.acceptor) {
+    //  checkAcceptor(invite.acceptor);
+    //}
     restoreDeleted(invite);
     setStatus(invite);
     generateCode(invite);
@@ -105,7 +107,7 @@ exports.update = function (req, res) {
     if (!invite) {
       return res.send(404);
     }
-    checkCanModify(invite);
+    checkCanModify(req.authId, invite);
     restoreDeleted(invite);
     var updated = _.merge(invite, req.body);
     updated.save(function (err) {
@@ -126,7 +128,7 @@ exports.destroy = function (req, res) {
     if (!invite || invite.isDeleted) {
       return res.send(404);
     }
-    checkCanModify(invite);
+    checkCanModify(req.authId, invite);
     invite.save(function (err) {
       if (err) {
         return handleError(res, err);
@@ -154,24 +156,24 @@ function restoreDeleted(invite) {
   }
 }
 
-function checkCanModify(invite) {
-  if (invite.owner !== req.authId) {
+function checkCanModify(authId, invite) {
+  if (invite.owner !== authId) {
     return res.status(401).send({
       message: 'Access denied!'
     });
   }
 }
 
-function checkAcceptor(agentId) {
-  Agent.get(agentId, function (err, agent) {
-    if (err) {
-      handleError(res, err);
-    }
-    if (!agent || agent.isDeleted) {
-      return res.send(404);
-    }
-  });
-}
+//function checkAcceptor(agentId) {
+//  Agent.get(agentId, function (err, agent) {
+//    if (err) {
+//      handleError(res, err);
+//    }
+//    if (!agent || agent.isDeleted) {
+//      return res.send(404);
+//    }
+//  });
+//}
 
 function generateCode(invite) {
   function randomValueHex(len) {
