@@ -15,9 +15,6 @@ var AgentSchema = new Schema({
   authId: {
     type: String,
     required: true
-  },
-  accounts: {
-    type: Array
   }
 });
 
