@@ -32,9 +32,7 @@ exports.index = function (req, res) {
       });
   }
   // on get without code get only invites where user id in owner or acceptor
-  Invite.query('acceptor')
-    .eq(req.authId)
-    .or('owner')
+  Invite.scan('acceptor owner')
     .eq(req.authId)
     .exec(function (err, invites) {
       if (err) {
