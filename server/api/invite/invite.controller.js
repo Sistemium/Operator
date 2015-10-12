@@ -18,7 +18,7 @@ exports.index = function (req, res) {
         }
         if (invite.status === 'open') {
           return res.json(200, invite);
-        } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status)) {
+        } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status) >= 0) {
           if (invite.acceptor === req.authId || invite.owner === req.authId) {
             return res.json(200, invite);
           } else {
@@ -26,6 +26,8 @@ exports.index = function (req, res) {
               message: 'Access denied!'
             });
           }
+        } else {
+          return res.json(404);
         }
       });
   }
