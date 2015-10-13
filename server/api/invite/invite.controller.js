@@ -31,18 +31,23 @@ exports.index = function (req, res) {
           return res.json(404);
         }
       });
+  } else {
+    // on get without code get only invites where user id in owner or acceptor
+    Invite.scan()
+      .exec(function (err, invites) {
+        if (err) {
+          return handleError(res, err);
+        }
+        //filter deleted invites
+        invites = _.filter(invites, function (invite) {
+          return !invite.isDeleted;
+        });
+        invites = _.filter(invites, function (invite) {
+          return invite.owner === req.authId || invite.acceptor === req.authId;
+        });
+        return res.json(200, invites);
+      });
   }
-  // on get without code get only invites where user id in owner or acceptor
-  Invite.scan('acceptor owner')
-    .eq(req.authId)
-    .exec(function (err, invites) {
-      if (err) {
-        return handleError(res, err);
-      }
-      //filter deleted invites
-      invites = _.filter(invites, 'isDeleted', false);
-      return res.json(200, invites);
-    });
 };
 
 // Get a single invite
