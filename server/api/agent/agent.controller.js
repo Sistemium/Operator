@@ -33,7 +33,7 @@ exports.create = function (req, res) {
     var createdItems = [];
     var newItemsCount = req.body.length;
     _.each(req.body, function (item) {
-      checkCanModify(item, req.authId);
+      checkCanModify(res, item, req.authId);
       restoreDeleted(item);
       Agent.create(item, function (err, agent) {
         if (err) {
@@ -46,7 +46,7 @@ exports.create = function (req, res) {
       });
     });
   } else {
-    checkCanModify(req.body, req.authId);
+    checkCanModify(res, req.body, req.authId);
     restoreDeleted(req.body);
     Agent.create(req.body, function (err, agent) {
       if (err) {
@@ -110,7 +110,13 @@ function restoreDeleted(agent) {
   }
 }
 
-function checkCanModify(agent, authId) {
+function checkCanModify(res, agent, authId) {
+  if (!agent.authId) {
+    return res.status(401).send({
+      message: 'AuthId not provided'
+    });
+  }
+
   if (agent.authId !== authId) {
     return res.status(401).send({
       message: 'Access denied!'

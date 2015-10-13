@@ -8,18 +8,12 @@ var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
 
-describe('GET /api/invites', function () {
+describe.skip('GET /api/invites', function () {
   this.timeout(15000);
 
-  var agent1 = {
+  var agent = {
     id: uuid.v4(),
     name: 'agent1',
-    authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
-  };
-
-  var agent2 = {
-    id: uuid.v4(),
-    name: 'agent2',
     authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
   };
 
@@ -27,7 +21,7 @@ describe('GET /api/invites', function () {
     request(app)
       .post('/api/agents')
       .set(headers)
-      .send([agent1, agent2])
+      .send(agent)
       .expect(201)
       .expect('Content-Type', /json/);
   });
@@ -35,8 +29,7 @@ describe('GET /api/invites', function () {
   it('should create new invite', function (done) {
     var invite = {
       id: uuid.v4(),
-      owner: agent1.id,
-      acceptor: agent2.id
+      owner: agent.id
     };
 
     request(app)

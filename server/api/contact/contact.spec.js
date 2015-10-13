@@ -10,7 +10,7 @@ var uuid = require('node-uuid');
 var owner = uuid.v4();
 var agent = uuid.v4();
 
-describe('GET /api/contacts', function() {
+describe.skip('GET /api/contacts', function() {
 
   it('should respond with JSON array', function(done) {
     request(app)
