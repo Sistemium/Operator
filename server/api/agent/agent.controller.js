@@ -31,19 +31,22 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
+    var newItemsCount = req.body.length;
     _.each(req.body, function (item) {
-      checkCanModify(item);
+      checkCanModify(item, req.authId);
       restoreDeleted(item);
       Agent.create(item, function (err, agent) {
         if (err) {
           return handleError(res, err);
         }
         createdItems.push(agent);
+        if (createdItems.length === newItemsCount) {
+          return res.json(201, createdItems);
+        }
       });
-      return res.json(201, createdItems);
-    })
+    });
   } else {
-    checkCanModify(req.body);
+    checkCanModify(req.body, req.authId);
     restoreDeleted(req.body);
     Agent.create(req.body, function (err, agent) {
       if (err) {
@@ -107,8 +110,8 @@ function restoreDeleted(agent) {
   }
 }
 
-function checkCanModify(agent) {
-  if (agent.authId !== req.authId) {
+function checkCanModify(agent, authId) {
+  if (agent.authId !== authId) {
     return res.status(401).send({
       message: 'Access denied!'
     });
