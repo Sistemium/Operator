@@ -8,7 +8,8 @@ var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
 
-describe('GET /api/invites', function() {
+describe('GET /api/invites', function () {
+  this.timeout(15000);
 
   var agent1 = {
     id: uuid.v4(),
@@ -23,25 +24,18 @@ describe('GET /api/invites', function() {
   };
 
   before(function () {
-    it('should create two agents', function (done) {
-      request(app)
-        .post('/api/agents')
-        .set(headers)
-        .send([agent1, agent2])
-        .expect(201)
-        .expect('Content-Type', /json/)
-        .end(function (err, res) {
-          if (err) return done(err);
-          res.body.should.be.instanceOf(Array);
-          done();
-        });
-    });
+    request(app)
+      .post('/api/agents')
+      .set(headers)
+      .send([agent1, agent2])
+      .expect(201)
+      .expect('Content-Type', /json/);
   });
 
-  it('should create new invite', function(done) {
+  it('should create new invite', function (done) {
     var invite = {
       id: uuid.v4(),
-      owner: agent1.authId,
+      owner: agent1.id,
       acceptor: agent2.id
     };
 
@@ -51,7 +45,7 @@ describe('GET /api/invites', function() {
       .send(invite)
       .expect(201)
       .expect('Content-Type', /json/)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.body.status.should.equal('accepted');
         should.exist(res.body.code);
@@ -59,13 +53,13 @@ describe('GET /api/invites', function() {
       });
   });
 
-  it('should respond with JSON array', function(done) {
+  it('should respond with JSON array', function (done) {
     request(app)
       .get('/api/invites')
       .set(headers)
       .expect(200)
       .expect('Content-Type', /json/)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Array);
         done();
