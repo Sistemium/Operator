@@ -5,7 +5,7 @@ var Agent = require('./agent.model');
 
 // Get list of agents
 exports.index = function (req, res) {
-  Agent.scan().exec(function (err, agents) {
+  Agent.scan({}, function (err, agents) {
     if (err) {
       return handleError(res, err);
     }
@@ -34,7 +34,6 @@ exports.create = function (req, res) {
     var newItemsCount = req.body.length;
     _.each(req.body, function (item) {
       checkCanModify(res, item, req.authId);
-      restoreDeleted(item);
       Agent.create(item, function (err, agent) {
         if (err) {
           return handleError(res, err);
@@ -47,7 +46,6 @@ exports.create = function (req, res) {
     });
   } else {
     checkCanModify(res, req.body, req.authId);
-    restoreDeleted(req.body);
     Agent.create(req.body, function (err, agent) {
       if (err) {
         return handleError(res, err);

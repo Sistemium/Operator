@@ -4,6 +4,8 @@ var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
 var uuid = require('node-uuid');
+var Agent = require('./agent.model');
+var sinon = require('sinon');
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
@@ -11,6 +13,7 @@ var headers = {
 describe('GET /api/agents', function() {
   this.timeout(10000);
 
+  var stub = sinon.stub(Agent, 'scan').yields(null, ['hello', 'he']);
   it('should respond with JSON array', function(done) {
     request(app)
       .get('/api/agents')
@@ -20,6 +23,7 @@ describe('GET /api/agents', function() {
       .end(function(err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Array);
+        stub.calledOnce;
         done();
       });
   });
@@ -61,5 +65,13 @@ describe('POST /api/agents', function() {
         res.body.message.should.be.equal('AuthId not provided');
         done();
       })
+  });
+
+  it('should restore record if deleted', function(done) {
+    var agent = {
+      id: uuid.v4(),
+      name: 'test',
+
+    }
   })
 });
