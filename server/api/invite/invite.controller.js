@@ -76,11 +76,6 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   function prepareData(invite) {
     invite.isActive = true;
-    checkCanModify(req.authId, invite);
-    //if (invite.acceptor) {
-    //  checkAcceptor(invite.acceptor);
-    //}
-    restoreDeleted(invite);
     setStatus(invite);
     generateCode(invite);
   }
@@ -88,22 +83,26 @@ exports.create = function (req, res) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
-      prepareData(item);
-      Invite.create(item, function (err, invite) {
+      checkCanModify(res, req.authId, item, function () {
+        prepareData(item);
+        Invite.create(item, function (err, invite) {
+          if (err) {
+            return handleError(res, err);
+          }
+          createdItems.push(invite);
+        });
+        return res.json(201, createdItems);
+      });
+    })
+  } else {
+    checkCanModify(res, req.authId, req.body, function () {
+      prepareData(req.body);
+      Invite.create(req.body, function (err, invite) {
         if (err) {
           return handleError(res, err);
         }
-        createdItems.push(invite);
+        return res.json(201, invite);
       });
-      return res.json(201, createdItems);
-    })
-  } else {
-    prepareData(req.body);
-    Invite.create(req.body, function (err, invite) {
-      if (err) {
-        return handleError(res, err);
-      }
-      return res.json(201, invite);
     });
   }
 };
@@ -170,24 +169,23 @@ function restoreDeleted(invite) {
   }
 }
 
-function checkCanModify(authId, invite) {
-  if (invite.owner !== authId) {
-    return res.status(401).send({
-      message: 'Access denied!'
-    });
-  }
+function checkCanModify(res, authId, invite, next) {
+  var id = invite.owner;
+  Agent.get(id, function (err, agent) {
+    if (err) {
+      handleError(res, err);
+    }
+    if (!agent || agent.isDeleted) {
+      return res.send(404);
+    }
+    if (agent.authId !== authId) {
+      return res.status(401).send({
+        message: 'Access denied!'
+      });
+    }
+    next();
+  });
 }
-
-//function checkAcceptor(agentId) {
-//  Agent.get(agentId, function (err, agent) {
-//    if (err) {
-//      handleError(res, err);
-//    }
-//    if (!agent || agent.isDeleted) {
-//      return res.send(404);
-//    }
-//  });
-//}
 
 function generateCode(invite) {
   function randomValueHex(len) {

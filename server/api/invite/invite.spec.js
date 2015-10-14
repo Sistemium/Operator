@@ -11,16 +11,17 @@ var sinon = require('sinon');
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
+//auth id for Albert Kovalevskij user
 var agents = [
   {
     id: uuid.v4(),
     name: 'test1',
-    authId: 'testAuthId'
+    authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
   },
   {
     id: uuid.v4(),
     name: 'test2',
-    authId: 'testAuthId'
+    authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
   }
 ];
 var invites = [
@@ -34,11 +35,12 @@ var invites = [
   }
 ];
 
-describe.skip('GET /api/invites without code', function () {
+describe('GET /api/invites without code', function () {
+  var agentStub, inviteStub;
   it('should get records which user given access to', function (done) {
     //arrange
-    var agentStub = sinon.stub(Agent, 'scan').yields(null, agents);
-    var inviteStub = sinon.stub(Invite, 'scan').yields(null, invites);
+    agentStub = sinon.stub(Agent, 'scan').yields(null, agents);
+    inviteStub = sinon.stub(Invite, 'scan').yields(null, invites);
 
     //act
     request(app)
@@ -52,12 +54,11 @@ describe.skip('GET /api/invites without code', function () {
         res.body.length.should.be.equal(2);
         done();
       });
-
-    after(function () {
-      agentStub.restore();
-      inviteStub.restore();
-    });
   });
+  after(function () {
+    agentStub.restore();
+    inviteStub.restore();
+  })
 });
 
 describe('GET /api/invites/ with code', function () {
@@ -133,3 +134,38 @@ describe('GET /api/invites/ with code', function () {
       });
   });
 });
+
+describe('POST /api/invites', function () {
+  var agentStub, inviteStub;
+  beforeEach(function () {
+    agentStub = sinon.stub(Agent, 'get').yields(null, agents[0]);
+
+    var invite = {
+      id: uuid.v4(),
+      owner: agents[0].id
+    };
+    inviteStub = sinon.stub(Invite, 'create').yields(null, invite);
+  });
+  it('should create invite', function (done) {
+    var invite = {
+      id: uuid.v4(),
+      owner: agents[0].id
+    };
+    request(app)
+      .post('/api/invites')
+      .set(headers)
+      .send(invite)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) done(err);
+        var inviteCreateArg = inviteStub.args[0][0];
+        inviteCreateArg.should.have.property('status');
+        inviteCreateArg.status.should.be.equal('open');
+        inviteCreateArg.should.have.property('code');
+        inviteStub.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});
+
