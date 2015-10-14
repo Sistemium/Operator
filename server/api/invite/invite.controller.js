@@ -33,17 +33,29 @@ exports.index = function (req, res) {
       });
   } else {
     // on get without code get only invites where user id in owner or acceptor
-    Invite.scan()
-      .exec(function (err, invites) {
-        if (err) {
-          return handleError(res, err);
-        }
-        //filter deleted invites
-        invites = _.filter(invites, function (invite) {
-          return !invite.isDeleted;
-        });
-        invites = _.filter(invites, function (invite) {
-          return invite.owner === req.authId || invite.acceptor === req.authId;
+    // get agents that belongs to user
+    Agent.scan({authId: req.authId}, function(err, agents) {
+      if (err) {
+        return handleError(res, err);
+      }
+      if (!agents) {
+        return res.status(404);
+      }
+      Invite.scan({}, function (err, invites) {
+          if (err) {
+            return handleError(res, err);
+          }
+          //filter deleted invites
+          //filter invites that belongs to user,
+          //TODO: investigate how to query dynamodb instead
+          invites = _.filter(invites, function (invite) {
+            return !invite.isDeleted;
+          });
+          var agentIds = _.pluck(agents, 'id');
+          invites = _.filter(invites, function (invite) {
+            return _.include(agentIds, invite.owner) || _.include(agentIds, invite.acceptor);
+          });
+          return res.json(200, invites);
         });
         return res.json(200, invites);
       });

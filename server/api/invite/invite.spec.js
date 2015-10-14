@@ -4,49 +4,44 @@ var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
 var uuid = require('node-uuid');
+var Invite = require('./invite.model');
+var Agent = require('../agent/agent.model');
+var sinon = require('sinon');
+
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
 
-describe.skip('GET /api/invites', function () {
-  this.timeout(15000);
+describe('GET /api/invites', function () {
 
-  var agent = {
-    id: uuid.v4(),
-    name: 'agent1',
-    authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
-  };
+  it('should get records which user given access to', function (done) {
+    //arrange
+    var agents = [
+      {
+        id: uuid.v4(),
+        name: 'test1',
+        authId: 'testAuthId'
+      },
+      {
+        id: uuid.v4(),
+        name: 'test2',
+        authId: 'testAuthId'
+      }
+    ];
+    var invites = [
+      {
+        id: uuid.v4(),
+        owner: agents[0].id
+      },
+      {
+        id: uuid.v4(),
+        owner: agents[1].id
+      }
+    ];
+    var agentStub = sinon.stub(Agent, 'scan').yields(null, agents);
+    var inviteStub = sinon.stub(Invite, 'scan').yields(null, invites);
 
-  before(function () {
-    request(app)
-      .post('/api/agents')
-      .set(headers)
-      .send(agent)
-      .expect(201)
-      .expect('Content-Type', /json/);
-  });
-
-  it('should create new invite', function (done) {
-    var invite = {
-      id: uuid.v4(),
-      owner: agent.id
-    };
-
-    request(app)
-      .post('/api/invites')
-      .set(headers)
-      .send(invite)
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end(function (err, res) {
-        if (err) return done(err);
-        res.body.status.should.equal('accepted');
-        should.exist(res.body.code);
-        done();
-      });
-  });
-
-  it('should respond with JSON array', function (done) {
+    //act
     request(app)
       .get('/api/invites')
       .set(headers)
@@ -54,8 +49,14 @@ describe.skip('GET /api/invites', function () {
       .expect('Content-Type', /json/)
       .end(function (err, res) {
         if (err) return done(err);
-        res.body.should.be.instanceof(Array);
+        res.body.should.be.instanceOf(Array);
+        res.body.length.should.be.equal(2);
         done();
       });
+
+    after(function () {
+      agentStub.restore();
+      inviteStub.restore();
+    })
   });
 });

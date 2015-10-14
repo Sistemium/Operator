@@ -27,6 +27,10 @@ describe('GET /api/agents', function() {
         done();
       });
   });
+
+  after(function () {
+    stub.restore();
+  })
 });
 
 describe('POST /api/agents', function() {
