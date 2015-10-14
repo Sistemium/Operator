@@ -13,7 +13,7 @@ var headers = {
 describe('GET /api/agents', function() {
   this.timeout(10000);
 
-  var stub = sinon.stub(Agent, 'scan').yields(null, ['hello', 'he']);
+  var stub = sinon.stub(Agent, 'scan').yields(null, []);
   it('should respond with JSON array', function(done) {
     request(app)
       .get('/api/agents')
@@ -23,13 +23,27 @@ describe('GET /api/agents', function() {
       .end(function(err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Array);
-        stub.calledOnce;
+        stub.calledOnce.should.be.equal(true);
         done();
       });
   });
 });
 
 describe('POST /api/agents', function() {
+  var stub;
+  before(function () {
+    var agent = {
+      id: uuid.v4(),
+      name: 'test',
+      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+    };
+    stub = sinon.stub(Agent, 'create').yields(null, agent);
+  });
+
+  afterEach(function () {
+    stub.restore();
+  });
+
   it('should create new agent', function(done) {
     var agent = {
       id: uuid.v4(),
@@ -45,6 +59,7 @@ describe('POST /api/agents', function() {
       .end(function(err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Object);
+        stub.calledOnce.should.be.equal(true);
         done();
       })
   });
@@ -63,15 +78,31 @@ describe('POST /api/agents', function() {
       .end(function(err, res) {
         if (err) return done(err);
         res.body.message.should.be.equal('AuthId not provided');
+        stub.calledOnce.should.be.equal(true);
         done();
       })
   });
-
-  it('should restore record if deleted', function(done) {
-    var agent = {
-      id: uuid.v4(),
-      name: 'test',
-
-    }
-  })
 });
+
+//describe('PUT /api/invites', function () {
+//  it('should update agent', function(done) {
+//    var agent = {
+//      id: uuid.v4(),
+//      name: 'test',
+//      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+//    };
+//    var stubGet = sinon.stub(Agent, 'get').yields(null, agent);
+//    var modelStub = sinon.stub(Agent, 'save');
+//    request(app)
+//      .put('/api/agents')
+//      .set(headers)
+//      .expect(200)
+//      .expect('Content-Type', /json/)
+//      .end(function (err, res) {
+//        if (err) return done(err);
+//        stubGet.calledOnce.should.be.equal(true);
+//        modelStub.calledOnce.should.be.equal(true);
+//        done();
+//      });
+//  });
+//});
