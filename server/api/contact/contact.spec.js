@@ -84,14 +84,14 @@ describe('POST /api/contacts', function () {
   var url = '/api/contacts';
   beforeEach(function () {
     inviteQueryStub = sinon.stub(Invite, 'query');
-    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yields(null, invites[0]);
-    inviteUpdateStub = sinon.stub(Invite, 'update').yields(null);
+    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yieldsAsync(null, invites[0]);
+    inviteUpdateStub = sinon.stub(Invite, 'update').yieldsAsync(null);
     agentStub = sinon.stub(Agent, 'get');
-    agentStub.withArgs(agents[0].id).yields(null, agents[0]);
-    agentStub.withArgs(agents[1].id).yields(null, agents[1]);
+    agentStub.withArgs(agents[0].id).yieldsAsync(null, agents[0]);
+    agentStub.withArgs(agents[1].id).yieldsAsync(null, agents[1]);
     contactStub = sinon.stub(Contact, 'create');
-    contactStub.onFirstCall().yields(null, contact);
-    contactStub.onSecondCall().yields(null, true);
+    contactStub.onFirstCall().yieldsAsync(null, contact);
+    contactStub.onSecondCall().yieldsAsync(null, true);
   });
   afterEach(function () {
     agentStub.restore();
@@ -115,7 +115,7 @@ describe('POST /api/contacts', function () {
   it('should return status 404 if contact owner not found', function (done) {
     var cnt = contact;
     cnt.owner = 'owner not exists';
-    agentStub.withArgs(cnt.owner).yields(null, undefined);
+    agentStub.withArgs(cnt.owner).yieldsAsync(null, undefined);
     request(app)
       .post(url)
       .set(headers)
@@ -130,7 +130,7 @@ describe('POST /api/contacts', function () {
   it('should return status 404 if contact agent not found', function (done) {
     var cnt = contact;
     cnt.agent = 'agent not exists';
-    agentStub.withArgs(cnt.agent).yields(null, undefined);
+    agentStub.withArgs(cnt.agent).yieldsAsync(null, undefined);
     request(app)
       .post(url)
       .set(headers)
@@ -145,7 +145,7 @@ describe('POST /api/contacts', function () {
   it('should return status 404 if invite not found', function (done) {
     var cnt = contact;
     cnt.invite = 'invite not exists';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields(null, undefined);
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync(null, undefined);
     request(app)
       .post(url)
       .set(headers)
@@ -160,7 +160,7 @@ describe('POST /api/contacts', function () {
   it('should return status 401 if contact invite status not open', function (done) {
     var cnt = contact;
     cnt.invite = 'not open';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields(null, {status: 'not open', isActive: true});
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync(null, {status: 'not open', isActive: true});
     request(app)
       .post(url)
       .set(headers)
@@ -175,7 +175,7 @@ describe('POST /api/contacts', function () {
   it('should return status 500 if error occurs on contact agent check', function (done) {
     var cnt = contact;
     cnt.agent = 'agent error';
-    agentStub.withArgs(cnt.agent).yields({err: 'Houston we have a problem..'});
+    agentStub.withArgs(cnt.agent).yieldsAsync({err: 'Houston we have a problem..'});
     request(app)
       .post(url)
       .set(headers)
@@ -190,7 +190,7 @@ describe('POST /api/contacts', function () {
   it('should return status 500 if error occurs on contact owner check', function (done) {
     var cnt = contact;
     cnt.owner = 'owner error';
-    agentStub.withArgs(cnt.owner).yields({err: 'error'});
+    agentStub.withArgs(cnt.owner).yieldsAsync({err: 'error'});
     request(app)
       .post(url)
       .set(headers)
@@ -205,7 +205,7 @@ describe('POST /api/contacts', function () {
   it('should return status 500 if error occurs on contract invite check', function (done) {
     var cnt = contact;
     cnt.invite = 'invite error';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields({err: 'err'});
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync({err: 'err'});
     request(app)
       .post(url)
       .set(headers)

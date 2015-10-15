@@ -68,13 +68,10 @@ exports.update = function (req, res) {
     if (!agent) {
       return res.send(404);
     }
-    checkCanModify(agent);
+    checkCanModify(res, agent, req.authId);
     restoreDeleted(agent);
-    if (agent.isDeleted) {
-      delete agent.isDeleted;
-    }
     var updated = _.merge(agent, req.body);
-    updated.save(function (err) {
+    Agent.update({id: updated.id}, updated, function (err) {
       if (err) {
         handleError(res, err);
       }

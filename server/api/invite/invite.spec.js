@@ -39,8 +39,8 @@ describe('GET /api/invites without code', function () {
   var agentStub, inviteStub;
   it('should get records which user given access to', function (done) {
     //arrange
-    agentStub = sinon.stub(Agent, 'scan').yields(null, agents);
-    inviteStub = sinon.stub(Invite, 'scan').yields(null, invites);
+    agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
+    inviteStub = sinon.stub(Invite, 'scan').yieldsAsync(null, invites);
 
     //act
     request(app)
@@ -66,7 +66,7 @@ describe('GET /api/invites/ with code', function () {
   var url = '/api/invites?code=123';
 
   beforeEach(function () {
-    agentStub = sinon.stub(Agent, 'scan').yields(null, agents);
+    agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
   });
 
   afterEach(function () {
@@ -78,7 +78,7 @@ describe('GET /api/invites/ with code', function () {
       id: uuid.v4(),
       status: 'open'
     };
-    inviteStub = sinon.stub(Invite, 'query').yields(null, invite);
+    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -99,7 +99,7 @@ describe('GET /api/invites/ with code', function () {
       status: 'accepted',
       owner: agents[0].id
     };
-    inviteStub = sinon.stub(Invite, 'query').yields(null, invite);
+    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -121,7 +121,7 @@ describe('GET /api/invites/ with code', function () {
       //not the id of authorized user
       owner: uuid.v4()
     };
-    inviteStub = sinon.stub(Invite, 'query').yields(null, invite);
+    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -140,13 +140,13 @@ describe('GET /api/invites/ with code', function () {
 describe('POST /api/invites', function () {
   var agentStub, inviteStub;
   beforeEach(function () {
-    agentStub = sinon.stub(Agent, 'get').yields(null, agents[0]);
+    agentStub = sinon.stub(Agent, 'get').yieldsAsync(null, agents[0]);
 
     var invite = {
       id: uuid.v4(),
       owner: agents[0].id
     };
-    inviteStub = sinon.stub(Invite, 'create').yields(null, invite);
+    inviteStub = sinon.stub(Invite, 'create').yieldsAsync(null, invite);
   });
   afterEach(function () {
     agentStub.restore();
