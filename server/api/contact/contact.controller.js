@@ -4,6 +4,7 @@ var _ = require('lodash');
 var Contact = require('./contact.model');
 var Agent = require('../agent/agent.model');
 var Invite = require('../invite/invite.model');
+var q = require('q');
 
 // Get list of contacts
 exports.index = function (req, res) {
