@@ -120,14 +120,15 @@ exports.update = function (req, res) {
     if (!invite) {
       return res.send(404);
     }
-    checkCanModify(req.authId, invite);
-    restoreDeleted(invite);
-    var updated = _.merge(invite, req.body);
-    updated.save(function (err) {
-      if (err) {
-        handleError(res, err);
-      }
-      return res.json(200, invite);
+    checkCanModify(res, req.authId, invite, function () {
+      restoreDeleted(invite);
+      var updated = _.merge(invite, req.body);
+      Invite.update({id: updated.id}, updated, function (err) {
+        if (err) {
+          handleError(res, err);
+        }
+        return res.json(200, invite);
+      });
     });
   });
 };

@@ -178,7 +178,7 @@ describe('POST /api/invites', function () {
 describe('DELETE /api/invites/:id', function () {
   var url = '/api/invites/';
   var inviteGetStub, inviteUpdateStub, agentGetStub;
-  beforeEach(function() {
+  beforeEach(function () {
     inviteGetStub = sinon.stub(Invite, 'get');
     inviteUpdateStub = sinon.stub(Invite, 'update');
     agentGetStub = sinon.stub(Agent, 'get');
@@ -214,6 +214,60 @@ describe('DELETE /api/invites/:id', function () {
         inviteUpdateStub.args[0][1].should.have.property('isDeleted');
         inviteUpdateStub.args[0][1].isDeleted.should.be.equal(true);
         agentGetStub.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});
+
+describe('PUT /api/invites/:id', function () {
+  var url = '/api/invites/';
+  var inviteGetStub, agentGetStub, inviteUpdateStub;
+  beforeEach(function () {
+    inviteGetStub = sinon.stub(Invite, 'get');
+    agentGetStub = sinon.stub(Agent, 'get');
+    inviteUpdateStub = sinon.stub(Invite, 'update');
+  });
+  afterEach(function () {
+    inviteGetStub.restore();
+    agentGetStub.restore();
+    inviteUpdateStub.restore();
+  });
+
+  it('should update invite', function (done) {
+    var agent = {
+      id: uuid.v4(),
+      name: 'test',
+      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+    };
+    var inviteId = uuid.v4();
+    var invite = {
+      id: inviteId,
+      owner: agent.id,
+      code: 'old',
+      status: 'open'
+    };
+    var updated = {
+      id: inviteId,
+      owner: agent.id,
+      code: 'updated',
+      status: 'this should change'
+    };
+
+    inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
+    agentGetStub.withArgs(agent.id).yieldsAsync(null, agent);
+    inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
+    request(app)
+      .put(url + inviteId)
+      .set(headers)
+      .send(updated)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        inviteGetStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledOnce.should.be.equal(true);
+        inviteUpdateStub.calledOnce.should.be.equal(true);
+        inviteUpdateStub.args[0][1].code.should.be.equal('updated');
         done();
       });
   });
