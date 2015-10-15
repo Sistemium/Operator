@@ -10,7 +10,7 @@ var q = require('q');
 exports.index = function (req, res) {
   Contact.scan().exec(function (err, contacts) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     contacts = _.filter(contacts, 'isDeleted', false);
     return res.json(200, contacts);
@@ -21,7 +21,7 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!contact || !contact.isDeleted) {
       return res.send(404);
@@ -35,24 +35,24 @@ exports.create = function (req, res) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
-      checkCanModify(item);
-      restoreDeleted(item);
-      Contact.create(item, function (err, contact) {
-        if (err) {
-          return handleError(res, err);
-        }
-        createdItems.push(contact);
+      checkCanModify(res, item, function () {
+        Contact.create(item, function (err, contact) {
+          if (err) {
+            handleError(res, err);
+          }
+          createdItems.push(contact);
+        });
       });
-      return res.json(201, createdItems);
     });
+    return res.json(201, createdItems);
   } else {
-    checkCanModify(req.body);
-    restoreDeleted(req.body);
-    Contact.create(req.body, function (err, contact) {
-      if (err) {
-        return handleError(res, err);
-      }
-      return res.json(201, contact);
+    checkCanModify(res, req.body, function (cntInfo) {
+      Contact.create(req.body, function (err, contact) {
+        if (err) {
+          handleError(res, err);
+        }
+        return res.json(201, contact);
+      });
     });
   }
 };
@@ -64,7 +64,7 @@ exports.update = function (req, res) {
   }
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!contact) {
       return res.send(404);
@@ -77,7 +77,7 @@ exports.update = function (req, res) {
     var updated = _.merge(contact, req.body);
     updated.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.json(200, contact);
     });
@@ -88,7 +88,7 @@ exports.update = function (req, res) {
 exports.destroy = function (req, res) {
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!contact || contact.isDeleted) {
       return res.send(404);
@@ -97,7 +97,7 @@ exports.destroy = function (req, res) {
     contact.isDeleted = true;
     contact.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.send(204);
     });
@@ -110,36 +110,53 @@ function restoreDeleted(contact) {
   }
 }
 
-function checkCanModify(contact) {
-  if (contact.owner !== req.authId) {
-    return res.status(401).send({
-      message: 'Access denied!'
-    });
-  }
-  checkAgent(contact.agent);
-  checkInvite(contact.invite);
+function checkCanModify(res, contact, next) {
+
+  q.all([
+    checkAgent(res, contact.owner),
+    checkAgent(res, contact.agent),
+    checkInvite(res, contact.invite)
+  ]).then(function (invite) {
+    var cntInfo = {
+      invite: invite[2],
+      owner: contact.owner,
+      agent: contact.agent
+    };
+    next(cntInfo);
+  });
 }
 
-function checkAgent(agentId) {
+function checkAgent(res, agentId) {
+  var deferred = q.defer();
   Agent.get(agentId, function (err, agent) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!agent || agent.isDeleted) {
       return res.status(404);
     }
-  })
+    deferred.resolve();
+  });
+  return deferred.promise;
 }
 
-function checkInvite(inviteId) {
-  Invite.get(inviteId, function (err, invite) {
+function checkInvite(res, inviteCode) {
+  var deferred = q.defer();
+  Invite.query({'code': {eq: inviteCode}}, function (err, invite) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!invite || invite.isDeleted || !invite.isActive) {
       return res.status(404);
     }
-  })
+    if (invite.status !== 'open') {
+      return res.status(401).send({
+        message: 'Access denied!'
+      });
+    }
+    deferred.resolve(invite);
+  });
+  return deferred.promise;
 }
 
 function handleError(res, err) {
