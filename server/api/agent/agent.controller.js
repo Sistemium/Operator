@@ -49,6 +49,7 @@ exports.create = function (req, res) {
     Agent.create(req.body, function (err, agent) {
       if (err) {
         handleError(res, err);
+        return;
       }
       return res.json(201, agent);
     });
@@ -87,15 +88,17 @@ exports.destroy = function (req, res) {
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
       handleError(res, err);
+      return;
     }
     if (!agent || agent.isDeleted) {
       return res.send(404);
     }
-    checkCanModify(agent);
+    checkCanModify(res, agent, req.authId);
     agent.isDeleted = true;
-    agent.save(function (err) {
+    Agent.update({id: agent.id}, agent, function (err) {
       if (err) {
         handleError(res, err);
+        return;
       }
       return res.send(204);
     });
