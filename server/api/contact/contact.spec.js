@@ -74,7 +74,7 @@ describe.skip('GET /api/contacts', function() {
 });
 
 describe('POST /api/contacts', function () {
-  var agentStub, inviteStub, contactStub;
+  var agentStub, inviteQueryStub, inviteUpdateStub, contactStub;
   var contact = {
     id: uuid.v4(),
     owner: agents[0].id,
@@ -82,15 +82,19 @@ describe('POST /api/contacts', function () {
     invite: invites[0].code
   };
   beforeEach(function () {
-    inviteStub = sinon.stub(Invite, 'query').yields(null, invites[0]);
+    inviteQueryStub = sinon.stub(Invite, 'query').yields(null, invites[0]);
+    inviteUpdateStub = sinon.stub(Invite, 'update').yields(null);
     agentStub = sinon.stub(Agent, 'get');
     agentStub.withArgs(agents[0].id).yields(null, agents[0]);
     agentStub.withArgs(agents[1].id).yields(null, agents[1]);
-    contactStub = sinon.stub(Contact, 'create').yields(null, contact);
+    contactStub = sinon.stub(Contact, 'create');
+    contactStub.onFirstCall().yields(null, contact);
+    contactStub.onSecondCall().yields(null, true);
   });
   afterEach(function () {
     agentStub.restore();
-    inviteStub.restore();
+    inviteQueryStub.restore();
+    inviteUpdateStub.restore();
     contactStub.restore();
   });
   it('should create contact', function (done) {

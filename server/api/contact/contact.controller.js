@@ -5,6 +5,7 @@ var Contact = require('./contact.model');
 var Agent = require('../agent/agent.model');
 var Invite = require('../invite/invite.model');
 var q = require('q');
+var uuid = require('node-uuid');
 
 // Get list of contacts
 exports.index = function (req, res) {
@@ -47,11 +48,31 @@ exports.create = function (req, res) {
     return res.json(201, createdItems);
   } else {
     checkCanModify(res, req.body, function (cntInfo) {
-      Contact.create(req.body, function (err, contact) {
+      var invite = cntInfo.invite;
+      invite.acceptor = cntInfo.owner;
+      Invite.update({id: invite.id}, invite, function(err) {
         if (err) {
           handleError(res, err);
         }
-        return res.json(201, contact);
+        Contact.create(req.body, function (err, contact) {
+          if (err) {
+            handleError(res, err);
+          }
+          var respondingContact = {
+            id: uuid.v4(),
+            owner: invite.owner,
+            agent: cntInfo.owner,
+            invite: invite.id
+          };
+          Contact.create(respondingContact, function (err, resContact) {
+            if (err) {
+              handleError(res, err);
+            }
+            if (resContact) {
+              return res.json(201, contact);
+            }
+          });
+        });
       });
     });
   }
