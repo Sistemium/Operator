@@ -71,7 +71,6 @@ describe('GET /api/invites/ with code', function () {
 
   afterEach(function () {
     agentStub.restore();
-    inviteStub.restore();
   });
 
   it('should get invite with "open" status', function (done) {
@@ -86,11 +85,12 @@ describe('GET /api/invites/ with code', function () {
       .expect(200)
       .expect('Content-Type', /json/)
       .end(function (err, res) {
-        if (err) done(err);
+        if (err) return done(err);
         res.body.should.have.property('status');
         res.body.status.should.be.equal('open');
+        inviteStub.restore();
         done();
-      })
+      });
   });
 
   it('should get invite with "accepted" status', function (done) {
@@ -106,9 +106,10 @@ describe('GET /api/invites/ with code', function () {
       .expect(200)
       .expect('Content-Type', /json/)
       .end(function (err, res) {
-        if (err) done(err);
+        if (err) return done(err);
         res.body.should.have.property('status');
         res.body.status.should.be.equal('accepted');
+        inviteStub.restore();
         done();
       });
   });
@@ -127,9 +128,10 @@ describe('GET /api/invites/ with code', function () {
       .expect(401)
       .expect('Content-Type', /json/)
       .end(function (err, res) {
-        if (err) done(err);
+        if (err) return done(err);
         res.body.should.have.property('message');
         res.body.message.should.be.equal('Access denied!');
+        inviteStub.restore();
         done();
       });
   });
@@ -146,6 +148,10 @@ describe('POST /api/invites', function () {
     };
     inviteStub = sinon.stub(Invite, 'create').yields(null, invite);
   });
+  afterEach(function () {
+    agentStub.restore();
+    inviteStub.restore();
+  });
   it('should create invite', function (done) {
     var invite = {
       id: uuid.v4(),
@@ -158,7 +164,7 @@ describe('POST /api/invites', function () {
       .expect(201)
       .expect('Content-Type', /json/)
       .end(function (err) {
-        if (err) done(err);
+        if (err) return done(err);
         var inviteCreateArg = inviteStub.args[0][0];
         inviteCreateArg.should.have.property('status');
         inviteCreateArg.status.should.be.equal('open');
