@@ -134,9 +134,9 @@ function restoreDeleted(contact) {
 function checkCanModify(res, contact, next) {
 
   q.all([
-    checkAgent(res, contact.owner),
-    checkAgent(res, contact.agent),
-    checkInvite(res, contact.invite)
+    checkAgent(contact.owner),
+    checkAgent(contact.agent),
+    checkInvite(contact.invite)
   ]).then(function (invite) {
     var cntInfo = {
       invite: invite[2],
@@ -144,36 +144,43 @@ function checkCanModify(res, contact, next) {
       agent: contact.agent
     };
     next(cntInfo);
+  }, function (status, message) {
+    return res.send(status, message);
   });
 }
 
-function checkAgent(res, agentId) {
+function checkAgent(agentId) {
   var deferred = q.defer();
   Agent.get(agentId, function (err, agent) {
     if (err) {
-      handleError(res, err);
+      deferred.reject(500, err);
+      return;
     }
     if (!agent || agent.isDeleted) {
-      return res.status(404);
+      deferred.reject(404);
+      return;
     }
     deferred.resolve();
   });
   return deferred.promise;
 }
 
-function checkInvite(res, inviteCode) {
+function checkInvite(inviteCode) {
   var deferred = q.defer();
   Invite.query({'code': {eq: inviteCode}}, function (err, invite) {
     if (err) {
-      handleError(res, err);
+      deferred.reject(500, err);
+      return;
     }
     if (!invite || invite.isDeleted || !invite.isActive) {
-      return res.status(404);
+      deferred.reject(404);
+      return;
     }
     if (invite.status !== 'open') {
-      return res.status(401).send({
+      deferred.reject(401, {
         message: 'Access denied!'
       });
+      return;
     }
     deferred.resolve(invite);
   });

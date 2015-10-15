@@ -81,8 +81,10 @@ describe('POST /api/contacts', function () {
     agent: agents[1].id,
     invite: invites[0].code
   };
+  var url = '/api/contacts';
   beforeEach(function () {
-    inviteQueryStub = sinon.stub(Invite, 'query').yields(null, invites[0]);
+    inviteQueryStub = sinon.stub(Invite, 'query');
+    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yields(null, invites[0]);
     inviteUpdateStub = sinon.stub(Invite, 'update').yields(null);
     agentStub = sinon.stub(Agent, 'get');
     agentStub.withArgs(agents[0].id).yields(null, agents[0]);
@@ -99,12 +101,117 @@ describe('POST /api/contacts', function () {
   });
   it('should create contact', function (done) {
     request(app)
-      .post('/api/contacts')
+      .post(url)
       .set(headers)
       .send(contact)
       .expect(201)
       .expect('Content-Type', /json/)
-      .end(function (err, res) {
+      .end(function (err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 404 if contact owner not found', function (done) {
+    var cnt = contact;
+    cnt.owner = 'owner not exists';
+    agentStub.withArgs(cnt.owner).yields(null, undefined);
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(404)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 404 if contact agent not found', function (done) {
+    var cnt = contact;
+    cnt.agent = 'agent not exists';
+    agentStub.withArgs(cnt.agent).yields(null, undefined);
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(404)
+      .end(function (err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 404 if invite not found', function (done) {
+    var cnt = contact;
+    cnt.invite = 'invite not exists';
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields(null, undefined);
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(404)
+      .end(function (err){
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 401 if contact invite status not open', function (done) {
+    var cnt = contact;
+    cnt.invite = 'not open';
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields(null, {status: 'not open', isActive: true});
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(401)
+      .end(function (err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 500 if error occurs on contact agent check', function (done) {
+    var cnt = contact;
+    cnt.agent = 'agent error';
+    agentStub.withArgs(cnt.agent).yields({err: 'Houston we have a problem..'});
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(500)
+      .end(function (err) {
+        if (err) return done(err);
+        done();
+      })
+  });
+
+  it('should return status 500 if error occurs on contact owner check', function (done) {
+    var cnt = contact;
+    cnt.owner = 'owner error';
+    agentStub.withArgs(cnt.owner).yields({err: 'error'});
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(500)
+      .end(function (err){
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return status 500 if error occurs on contract invite check', function (done) {
+    var cnt = contact;
+    cnt.invite = 'invite error';
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yields({err: 'err'});
+    request(app)
+      .post(url)
+      .set(headers)
+      .send(cnt)
+      .expect(500)
+      .end(function (err){
         if (err) return done(err);
         done();
       });
