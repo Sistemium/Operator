@@ -11,7 +11,7 @@ var headers = {
 };
 
 describe('GET /api/agents', function () {
-  var stub = sinon.stub(Agent, 'scan').yields(null, []);
+  var stub = sinon.stub(Agent, 'scan').yieldsAsync(null, []);
   it('should respond with JSON array', function (done) {
     request(app)
       .get('/api/agents')
@@ -48,7 +48,7 @@ describe('POST /api/agents', function () {
       name: 'test',
       authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
     };
-    stub.withArgs(agent).yields(null, agent)
+    stub.withArgs(agent).yieldsAsync(null, agent)
     request(app)
       .post(url)
       .set(headers)
@@ -68,7 +68,7 @@ describe('POST /api/agents', function () {
       id: uuid.v4(),
       name: 'test'
     };
-    stub.withArgs(agent).yields(null, agent);
+    stub.withArgs(agent).yieldsAsync(null, agent);
     request(app)
       .post(url)
       .set(headers)
@@ -89,7 +89,7 @@ describe('POST /api/agents', function () {
       name: 'test2',
       authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
     };
-    stub.withArgs(agent).yields(true);
+    stub.withArgs(agent).yieldsAsync(true);
     request(app)
       .post(url)
       .set(headers)
@@ -102,28 +102,46 @@ describe('POST /api/agents', function () {
   });
 });
 
-//describe('PUT /api/invites', function () {
-//  it('should update agent', function(done) {
-//    var agent = {
-//      id: uuid.v4(),
-//      name: 'test',
-//      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
-//    };
-//    var stubGet = sinon.stub(Agent, 'get').yields(null, agent);
-//    var modelStub = sinon.stub(Agent, 'save');
-//    request(app)
-//      .put('/api/agents')
-//      .set(headers)
-//      .expect(200)
-//      .expect('Content-Type', /json/)
-//      .end(function (err, res) {
-//        if (err) return done(err);
-//        stubGet.calledOnce.should.be.equal(true);
-//        modelStub.calledOnce.should.be.equal(true);
-//        done();
-//      });
-//  });
-//});
+describe('PUT /api/invites/:id', function () {
+  var agentGetStub, agentUpdateStub;
+  var url = '/api/agents/';
+  beforeEach(function () {
+    agentGetStub = sinon.stub(Agent, 'get');
+    agentUpdateStub = sinon.stub(Agent, 'update');
+  });
+  afterEach(function () {
+    agentGetStub.restore();
+    agentUpdateStub.restore();
+  });
+
+  it('should update agent', function(done) {
+    var agent = {
+      id: uuid.v4(),
+      name: 'test',
+      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+    };
+    var updated = {
+      id: agent.id,
+      name: 'updated',
+      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+    };
+    agentGetStub.withArgs(agent.id).yieldsAsync(null, agent);
+    agentUpdateStub.withArgs({id: agent.id}).yieldsAsync(null);
+    request(app)
+      .put(url + agent.id)
+      .set(headers)
+      .send(updated)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        agentGetStub.calledOnce.should.be.equal(true);
+        agentUpdateStub.args[0][1].should.have.property('name');
+        agentUpdateStub.args[0][1].name.should.be.equal('updated');
+        done();
+      });
+  });
+});
 
 
 describe('DELETE /api/agents/:id', function () {
@@ -148,8 +166,8 @@ describe('DELETE /api/agents/:id', function () {
       name: 'test',
       authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
     };
-    agentGetStub.withArgs(agentId).yields(null, agent);
-    agentUpdateStub.withArgs({id: agentId}).yields(null);
+    agentGetStub.withArgs(agentId).yieldsAsync(null, agent);
+    agentUpdateStub.withArgs({id: agentId}).yieldsAsync(null);
     request(app)
       .delete(url + agentId)
       .set(headers)
@@ -164,7 +182,7 @@ describe('DELETE /api/agents/:id', function () {
 
   it('should return status 500 if error occurs in Agent.get', function (done) {
     agentId = uuid.v4();
-    agentGetStub.withArgs(agentId).yields(true);
+    agentGetStub.withArgs(agentId).yieldsAsync(true);
     request(app)
       .delete(url + agentId)
       .set(headers)
@@ -177,7 +195,7 @@ describe('DELETE /api/agents/:id', function () {
 
   it('should return status 404 if agent undefined', function (done) {
     agentId = uuid.v4();
-    agentGetStub.withArgs(agentId).yields(null, undefined);
+    agentGetStub.withArgs(agentId).yieldsAsync(null, undefined);
     request(app)
       .delete(url + agentId)
       .set(headers)
@@ -194,7 +212,7 @@ describe('DELETE /api/agents/:id', function () {
       id: agentId,
       name: 'test'
     };
-    agentGetStub.withArgs(agentId).yields(null, agent);
+    agentGetStub.withArgs(agentId).yieldsAsync(null, agent);
     request(app)
       .delete(url + agentId)
       .set(headers)
@@ -215,7 +233,7 @@ describe('DELETE /api/agents/:id', function () {
       name: 'test',
       authId: 'fake'
     };
-    agentGetStub.withArgs(agentId).yields(null, agent);
+    agentGetStub.withArgs(agentId).yieldsAsync(null, agent);
     request(app)
       .delete(url + agentId)
       .set(headers)
