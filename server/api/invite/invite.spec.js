@@ -175,3 +175,46 @@ describe('POST /api/invites', function () {
   });
 });
 
+describe('DELETE /api/invites/:id', function () {
+  var url = '/api/invites/';
+  var inviteGetStub, inviteUpdateStub, agentGetStub;
+  beforeEach(function() {
+    inviteGetStub = sinon.stub(Invite, 'get');
+    inviteUpdateStub = sinon.stub(Invite, 'update');
+    agentGetStub = sinon.stub(Agent, 'get');
+  });
+  afterEach(function () {
+    inviteGetStub.restore();
+    inviteUpdateStub.restore();
+    agentGetStub.restore();
+  });
+
+  it('should delete invite', function (done) {
+    var inviteId = uuid.v4();
+    var invite = {
+      id: inviteId,
+      owner: uuid.v4()
+    };
+    var agent = {
+      id: invite.owner,
+      name: 'test',
+      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+    };
+    inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
+    inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
+    agentGetStub.withArgs(invite.owner).yieldsAsync(null, agent);
+    request(app)
+      .delete(url + inviteId)
+      .set(headers)
+      .expect(204)
+      .end(function (err) {
+        if (err) return done(err);
+        inviteGetStub.calledOnce.should.be.equal(true);
+        inviteUpdateStub.calledOnce.should.be.equal(true);
+        inviteUpdateStub.args[0][1].should.have.property('isDeleted');
+        inviteUpdateStub.args[0][1].isDeleted.should.be.equal(true);
+        agentGetStub.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});

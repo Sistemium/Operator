@@ -141,12 +141,14 @@ exports.destroy = function (req, res) {
     if (!invite || invite.isDeleted) {
       return res.send(404);
     }
-    checkCanModify(req.authId, invite);
-    invite.save(function (err) {
-      if (err) {
-        handleError(res, err);
-      }
-      return res.send(204);
+    checkCanModify(res, req.authId, invite, function () {
+      invite.isDeleted = true;
+      Invite.update({id: invite.id}, invite, function (err) {
+        if (err) {
+          handleError(res, err);
+        }
+        return res.send(204);
+      });
     });
   });
 };
