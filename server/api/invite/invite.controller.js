@@ -10,7 +10,7 @@ exports.index = function (req, res) {
   // get agents that belongs to user
   Agent.scan({authId: req.authId}, function (err, agents) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!agents) {
       return res.status(404);
@@ -42,7 +42,7 @@ exports.index = function (req, res) {
       // on get without code get only invites where user id in owner or acceptor
       Invite.scan({}, function (err, invites) {
         if (err) {
-          return handleError(res, err);
+          handleError(res, err);
         }
         //filter deleted invites
         //filter invites that belongs to user,
@@ -63,7 +63,7 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   Invite.get(req.params.id, function (err, invite) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!invite || !invite.isDeleted) {
       return res.send(404);
@@ -87,7 +87,7 @@ exports.create = function (req, res) {
         prepareData(item);
         Invite.create(item, function (err, invite) {
           if (err) {
-            return handleError(res, err);
+            handleError(res, err);
           }
           createdItems.push(invite);
         });
@@ -99,7 +99,7 @@ exports.create = function (req, res) {
       prepareData(req.body);
       Invite.create(req.body, function (err, invite) {
         if (err) {
-          return handleError(res, err);
+          handleError(res, err);
         }
         return res.json(201, invite);
       });
@@ -115,7 +115,7 @@ exports.update = function (req, res) {
   }
   Invite.get(req.params.id, function (err, invite) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!invite) {
       return res.send(404);
@@ -125,7 +125,7 @@ exports.update = function (req, res) {
     var updated = _.merge(invite, req.body);
     updated.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.json(200, invite);
     });
@@ -136,7 +136,7 @@ exports.update = function (req, res) {
 exports.destroy = function (req, res) {
   Invite.get(req.params.id, function (err, invite) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!invite || invite.isDeleted) {
       return res.send(404);
@@ -144,7 +144,7 @@ exports.destroy = function (req, res) {
     checkCanModify(req.authId, invite);
     invite.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.send(204);
     });

@@ -7,7 +7,7 @@ var Agent = require('./agent.model');
 exports.index = function (req, res) {
   Agent.scan({}, function (err, agents) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     agents = _.filter(agents, 'isDeleted', false);
     return res.json(200, agents);
@@ -18,7 +18,7 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!agent || !agent.isDeleted) {
       return res.send(404);
@@ -36,7 +36,7 @@ exports.create = function (req, res) {
       checkCanModify(res, item, req.authId);
       Agent.create(item, function (err, agent) {
         if (err) {
-          return handleError(res, err);
+          handleError(res, err);
         }
         createdItems.push(agent);
         if (createdItems.length === newItemsCount) {
@@ -48,7 +48,7 @@ exports.create = function (req, res) {
     checkCanModify(res, req.body, req.authId);
     Agent.create(req.body, function (err, agent) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.json(201, agent);
     });
@@ -62,7 +62,7 @@ exports.update = function (req, res) {
   }
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!agent) {
       return res.send(404);
@@ -75,7 +75,7 @@ exports.update = function (req, res) {
     var updated = _.merge(agent, req.body);
     updated.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.json(200, agent);
     });
@@ -86,7 +86,7 @@ exports.update = function (req, res) {
 exports.destroy = function (req, res) {
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
-      return handleError(res, err);
+      handleError(res, err);
     }
     if (!agent || agent.isDeleted) {
       return res.send(404);
@@ -95,7 +95,7 @@ exports.destroy = function (req, res) {
     agent.isDeleted = true;
     agent.save(function (err) {
       if (err) {
-        return handleError(res, err);
+        handleError(res, err);
       }
       return res.send(204);
     });
