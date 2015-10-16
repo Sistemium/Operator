@@ -2,10 +2,11 @@
 
 var _ = require('lodash');
 var Agent = require('./agent.model');
+var Contact = require('../contact/contact.model');
 
 // Get list of agents
 exports.index = function (req, res) {
-  Agent.scan({}, function (err, agents) {
+  Agent.scan({authId: req.authId}, function (err, agents) {
     if (err) {
       handleError(res, err);
     }

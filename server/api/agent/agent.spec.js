@@ -11,8 +11,17 @@ var headers = {
 };
 
 describe('GET /api/agents', function () {
-  var stub = sinon.stub(Agent, 'scan').yieldsAsync(null, []);
+  var stub;
+  beforeEach(function () {
+    stub = sinon.stub(Agent, 'scan');
+  });
+  afterEach(function () {
+    stub.restore();
+  });
+
   it('should respond with JSON array', function (done) {
+
+    stub.withArgs({authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'}).yieldsAsync(null, []);
     request(app)
       .get('/api/agents')
       .set(headers)
@@ -25,10 +34,6 @@ describe('GET /api/agents', function () {
         done();
       });
   });
-
-  after(function () {
-    stub.restore();
-  })
 });
 
 describe('POST /api/agents', function () {
