@@ -233,7 +233,7 @@ describe('PUT /api/invites/:id', function () {
     inviteUpdateStub.restore();
   });
 
-  it.only('should update invite', function (done) {
+  it('should update invite', function (done) {
     var agent = {
       id: uuid.v4(),
       name: 'test',
