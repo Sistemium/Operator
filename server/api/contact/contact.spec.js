@@ -217,3 +217,50 @@ describe('POST /api/contacts', function () {
       });
   });
 });
+
+describe('DELETE /api/contacts/:id', function () {
+  var contactGetStub, contactUpdateStub, agentGetStub, inviteQueryStub;
+  var url = '/api/contacts/';
+  beforeEach(function () {
+    contactGetStub = sinon.stub(Contact, 'get');
+    contactUpdateStub = sinon.stub(Contact, 'update');
+    agentGetStub = sinon.stub(Agent, 'get');
+    inviteQueryStub = sinon.stub(Invite, 'query');
+  });
+
+  afterEach(function () {
+    contactGetStub.restore();
+    contactUpdateStub.restore();
+    agentGetStub.restore();
+    inviteQueryStub.restore();
+  });
+
+  it('should delete contact', function (done) {
+    var contactId = uuid.v4();
+    var contact = {
+      id: contactId,
+      owner: agents[0].id,
+      agent: agents[1].id,
+      invite: invites[0].code
+    };
+    contactGetStub.withArgs(contactId).yieldsAsync(null, contact);
+    agentGetStub.withArgs(contact.owner).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(contact.agent).yieldsAsync(null, agents[1]);
+    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yieldsAsync(null, invites[0]);
+    contactUpdateStub.withArgs({id: contactId}).yieldsAsync(null);
+
+    request(app)
+      .delete(url + contactId)
+      .set(headers)
+      .expect(204)
+      .end(function (err) {
+        if (err) done(err);
+        contactGetStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledTwice.should.be.equal(true);
+        inviteQueryStub.calledOnce.should.be.equal(true);
+        contactUpdateStub.args[0][1].should.have.property('isDeleted');
+        contactUpdateStub.args[0][1].isDeleted.should.be.equal(true);
+        done();
+      });
+  });
+});

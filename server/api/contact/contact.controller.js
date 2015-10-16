@@ -90,13 +90,11 @@ exports.update = function (req, res) {
     if (!contact) {
       return res.send(404);
     }
+
+    var updated = _.merge(contact, req.body);
     checkCanModify(contact);
     restoreDeleted(contact);
-    if (contact.isDeleted) {
-      delete contact.isDeleted;
-    }
-    var updated = _.merge(contact, req.body);
-    updated.save(function (err) {
+    Contact.update({id: updated.id}, updated, function (err) {
       if (err) {
         handleError(res, err);
       }
@@ -114,13 +112,14 @@ exports.destroy = function (req, res) {
     if (!contact || contact.isDeleted) {
       return res.send(404);
     }
-    checkCanModify(contact);
-    contact.isDeleted = true;
-    contact.save(function (err) {
-      if (err) {
-        handleError(res, err);
-      }
-      return res.send(204);
+    checkCanModify(res, contact, function () {
+      contact.isDeleted = true;
+      Contact.update({id: contact.id}, contact, function (err) {
+        if (err) {
+          handleError(res, err);
+        }
+        return res.send(204);
+      });
     });
   });
 };
