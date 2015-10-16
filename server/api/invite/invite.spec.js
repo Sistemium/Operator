@@ -233,7 +233,7 @@ describe('PUT /api/invites/:id', function () {
     inviteUpdateStub.restore();
   });
 
-  it('should update invite', function (done) {
+  it.only('should update invite', function (done) {
     var agent = {
       id: uuid.v4(),
       name: 'test',
@@ -244,13 +244,15 @@ describe('PUT /api/invites/:id', function () {
       id: inviteId,
       owner: agent.id,
       code: 'old',
-      status: 'open'
+      status: 'open',
+      isActive: true
     };
     var updated = {
       id: inviteId,
       owner: agent.id,
-      code: 'updated',
-      status: 'this should change'
+      isActive: true,
+      acceptor: agents[0].id,
+      code: 'updated'
     };
 
     inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
@@ -262,12 +264,13 @@ describe('PUT /api/invites/:id', function () {
       .send(updated)
       .expect(200)
       .expect('Content-Type', /json/)
-      .end(function (err) {
+      .end(function (err, res) {
         if (err) return done(err);
         inviteGetStub.calledOnce.should.be.equal(true);
         agentGetStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.args[0][1].code.should.be.equal('updated');
+        res.body.status.should.be.equal('accepted');
         done();
       });
   });

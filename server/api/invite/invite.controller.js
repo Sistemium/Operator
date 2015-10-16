@@ -121,8 +121,9 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     checkCanModify(res, req.authId, invite, function () {
-      restoreDeleted(invite);
       var updated = _.merge(invite, req.body);
+      setStatus(updated);
+      restoreDeleted(updated);
       Invite.update({id: updated.id}, updated, function (err) {
         if (err) {
           handleError(res, err);
