@@ -10,6 +10,7 @@ var errors = require('./components/errors');
 module.exports = function(app) {
 
   // Insert routes below
+  app.use('/api/counterAgents', require('./api/counterAgent'));
   app.use('/api/invites', require('./api/invite'));
   app.use('/api/agents', require('./api/agent'));
   app.use('/api/operations', require('./api/operation'));
