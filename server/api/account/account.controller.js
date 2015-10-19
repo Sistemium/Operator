@@ -5,7 +5,7 @@ var Account = require('./account.model');
 
 // Get list of accounts
 exports.index = function (req, res) {
-  Account.scan().exec(function (err, accounts) {
+  Account.scan({authId: req.authId}, function (err, accounts) {
     if (err) {
       return handleError(res, err);
     }
@@ -33,7 +33,7 @@ exports.create = function (req, res) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
-      checkCanModify(item);
+      checkCanModify(res, item, req.authId);
       restoreDeleted(item);
       Account.create(item, function (err, account) {
         if (err) {
@@ -44,7 +44,7 @@ exports.create = function (req, res) {
       return res.json(201, createdItems);
     });
   } else {
-    checkCanModify(req.body);
+    checkCanModify(res, req.body, req.authId);
     restoreDeleted(req.body);
     Account.create(req.body, function (err, account) {
       if (err) {
@@ -69,7 +69,7 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     //check if user can update entity
-    checkCanModify(account);
+    checkCanModify(res, account, req.authId);
     //restore item if it was deleted
     restoreDeleted(account);
     if (account.isDeleted) {
@@ -95,7 +95,7 @@ exports.destroy = function (req, res) {
       return res.send(404);
     }
     //check if user can delete entity
-    checkCanModify(account);
+    checkCanModify(res, account, req.authId);
     account.isDeleted = true;
     account.save(function (err) {
       if (err) {
@@ -112,12 +112,31 @@ function restoreDeleted(account) {
   }
 }
 
-function checkCanModify(account) {
-  if (account.authId !== req.authId) {
+function checkCanModify(res, account, authId) {
+  if (account.authId !== authId) {
     return res.status(401).send({
       message: 'Access denied!'
     });
   }
+  checkAgent(res, account, req.authId);
+}
+
+function checkAgent(res, account, authId) {
+  Agent.get(account.agentId, function (err, agent) {
+    if (err) {
+      return handleError(res, err);
+    }
+    if (!agent) {
+      return res.send(404);
+    }
+
+    // check if authorised user's agent
+    if (agent.authId !== authId) {
+      return res.send(401, {
+        message: 'Access denied!'
+      });
+    }
+  });
 }
 
 function handleError(res, err) {

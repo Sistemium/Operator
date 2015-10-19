@@ -8,7 +8,7 @@ var Contact = require('../contact/contact.model');
 exports.index = function (req, res) {
   Agent.scan({authId: req.authId}, function (err, agents) {
     if (err) {
-      handleError(res, err);
+      return handleError(res, err);
     }
     agents = _.filter(agents, 'isDeleted', false);
     return res.json(200, agents);
