@@ -40,7 +40,7 @@ exports.index = function (req, res) {
       });
     } else {
       // on get without code get only invites where user id in owner or acceptor
-      Invite.scan({}, function (err, invites) {
+      Invite.scan({isDeleted: false}, function (err, invites) {
         if (err) {
           handleError(res, err);
         }
