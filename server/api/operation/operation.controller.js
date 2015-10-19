@@ -3,13 +3,26 @@
 var _ = require('lodash');
 var Operation = require('./operation.model');
 var uuid = require('node-uuid');
+var Agent = require('../agent/agent.model');
 
 // Get list of operations
+// Get only operations which initiator or executor belongs to user agents
 exports.index = function(req, res) {
-  Operation.scan().exec(function (err, operations) {
-    if(err) { return handleError(res, err); }
-    return res.json(200, operations);
+  Agent.scan({authId: req.authId}, function (err, agents) {
+    if (err) {
+      return handleError(res, err);
+    }
+    if (!agents) {
+      return res.status(404);
+    }
+
+    var agentIds = _.pluck(agents, 'id');
+    Operation.scan({isDeleted: false, executor: {'in': agentIds}, initiator: {'in': agentIds}}, function (err, operations) {
+      if(err) { return handleError(res, err); }
+      return res.json(200, operations);
+    });
   });
+
 };
 
 // Get a single operation
