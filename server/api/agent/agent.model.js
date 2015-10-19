@@ -15,6 +15,10 @@ var AgentSchema = new Schema({
   authId: {
     type: String,
     required: true
+  },
+  isDeleted: {
+    type: String,
+    default: false
   }
 });
 

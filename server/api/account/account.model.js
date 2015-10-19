@@ -20,7 +20,10 @@ var AccountSchema = new Schema({
     type: String,
     required: true
   },
-  isDeleted: Boolean
+  isDeleted: {
+    type: String,
+    default: false
+  }
 });
 
 module.exports = dynamoose.model('Account', AccountSchema);
