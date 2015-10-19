@@ -11,7 +11,7 @@ var express = require('express');
 var dynamoose = require('dynamoose');
 var config = require('./config/environment');
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
   dynamoose.defaults.waitForActiveTimeout = 100;
   dynamoose.AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
