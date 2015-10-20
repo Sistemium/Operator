@@ -24,7 +24,7 @@ describe('GET /api/counterAgents', function() {
     agentGetStub.restore();
   });
 
-  it.only('should respond with JSON array', function(done) {
+  it('should respond with JSON array', function(done) {
     var agentId = uuid.v4();
     var contacts = [{
       acceptor: agentId
@@ -34,7 +34,7 @@ describe('GET /api/counterAgents', function() {
       name: 'acceptor'
     }];
 
-    contactStub.withArgs({owner: agentId}).yieldsAsync(null, contacts);
+    contactStub.withArgs({owner: agentId, isDeleted: false}).yieldsAsync(null, contacts);
     agentGetStub.withArgs([contacts[0].acceptor]).yieldsAsync(null, agents);
 
     request(app)

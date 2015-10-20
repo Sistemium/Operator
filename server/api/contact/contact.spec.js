@@ -84,7 +84,7 @@ describe('POST /api/contacts', function () {
   var url = '/api/contacts';
   beforeEach(function () {
     inviteQueryStub = sinon.stub(Invite, 'query');
-    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yieldsAsync(null, invites[0]);
+    inviteQueryStub.withArgs({'code': {eq: contact.invite}, isDeleted: false}).yieldsAsync(null, invites[0]);
     inviteUpdateStub = sinon.stub(Invite, 'update').yieldsAsync(null);
     agentStub = sinon.stub(Agent, 'get');
     agentStub.withArgs(agents[0].id).yieldsAsync(null, agents[0]);
@@ -145,7 +145,7 @@ describe('POST /api/contacts', function () {
   it('should return status 404 if invite not found', function (done) {
     var cnt = contact;
     cnt.invite = 'invite not exists';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync(null, undefined);
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}, isDeleted: false}).yieldsAsync(null, undefined);
     request(app)
       .post(url)
       .set(headers)
@@ -160,7 +160,7 @@ describe('POST /api/contacts', function () {
   it('should return status 401 if contact invite status not open', function (done) {
     var cnt = contact;
     cnt.invite = 'not open';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync(null, {status: 'not open', isActive: true});
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}, isDeleted: false}).yieldsAsync(null, {status: 'not open', isActive: true});
     request(app)
       .post(url)
       .set(headers)
@@ -205,7 +205,7 @@ describe('POST /api/contacts', function () {
   it('should return status 500 if error occurs on contract invite check', function (done) {
     var cnt = contact;
     cnt.invite = 'invite error';
-    inviteQueryStub.withArgs({'code': {eq: cnt.invite}}).yieldsAsync({err: 'err'});
+    inviteQueryStub.withArgs({'code': {eq: cnt.invite}, isDeleted: false}).yieldsAsync({err: 'err'});
     request(app)
       .post(url)
       .set(headers)
@@ -246,7 +246,7 @@ describe('DELETE /api/contacts/:id', function () {
     contactGetStub.withArgs(contactId).yieldsAsync(null, contact);
     agentGetStub.withArgs(contact.owner).yieldsAsync(null, agents[0]);
     agentGetStub.withArgs(contact.agent).yieldsAsync(null, agents[1]);
-    inviteQueryStub.withArgs({'code': {eq: contact.invite}}).yieldsAsync(null, invites[0]);
+    inviteQueryStub.withArgs({'code': {eq: contact.invite}, isDeleted: false}).yieldsAsync(null, invites[0]);
     contactUpdateStub.withArgs({id: contactId}).yieldsAsync(null);
 
     request(app)

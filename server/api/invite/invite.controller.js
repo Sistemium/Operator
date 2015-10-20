@@ -8,7 +8,7 @@ var crypto = require('crypto');
 // Get list of invites
 exports.index = function (req, res) {
   // get agents that belongs to user
-  Agent.scan({authId: req.authId}, function (err, agents) {
+  Agent.scan({authId: req.authId, isDeleted: false}, function (err, agents) {
     if (err) {
       handleError(res, err);
     }
@@ -17,11 +17,11 @@ exports.index = function (req, res) {
     }
     var agentIds = _.pluck(agents, 'id');
     if (req.query.code) {
-      Invite.query({'code': {eq: req.query.code}}, function (err, invite) {
+      Invite.query({'code': {eq: req.query.code}, isDeleted: false}, function (err, invite) {
         if (err) {
           handleError(res, err);
         }
-        if (!invite || invite.isDeleted) {
+        if (!invite) {
           return res.send(404);
         }
         if (invite.status === 'open') {
@@ -44,12 +44,6 @@ exports.index = function (req, res) {
         if (err) {
           handleError(res, err);
         }
-        //filter deleted invites
-        //filter invites that belongs to user,
-        //TODO: investigate how to query dynamodb instead
-        invites = _.filter(invites, function (invite) {
-          return !invite.isDeleted;
-        });
         invites = _.filter(invites, function (invite) {
           return _.include(agentIds, invite.owner) || _.include(agentIds, invite.acceptor);
         });

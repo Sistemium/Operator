@@ -21,7 +21,7 @@ describe('GET /api/agents', function () {
 
   it('should respond with JSON array', function (done) {
 
-    stub.withArgs({authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'}).yieldsAsync(null, []);
+    stub.withArgs({authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60', isDeleted: false}).yieldsAsync(null, []);
     request(app)
       .get('/api/agents')
       .set(headers)
@@ -250,5 +250,16 @@ describe('DELETE /api/agents/:id', function () {
         res.body.message.should.be.equal('Access denied!');
         done();
       })
+  })
+});
+
+
+describe('integration tests' , function () {
+  it('should get only not deleted', function (done) {
+    Agent.scan().exec(function (err, agents) {
+      if (err) console.log(err);
+      console.log(agents);
+      done();
+    });
   })
 });

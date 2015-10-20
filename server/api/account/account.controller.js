@@ -5,12 +5,10 @@ var Account = require('./account.model');
 
 // Get list of accounts
 exports.index = function (req, res) {
-  Account.scan({authId: req.authId}, function (err, accounts) {
+  Account.scan({authId: req.authId, isDeleted: false}, function (err, accounts) {
     if (err) {
       return handleError(res, err);
     }
-    //filter deleted accounts
-    accounts = _.filter(accounts, 'isDeleted', false);
     return res.json(200, accounts);
   });
 };
@@ -21,7 +19,7 @@ exports.show = function (req, res) {
     if (err) {
       return handleError(res, err);
     }
-    if (!account || !account.isDeleted) {
+    if (!account || account.isDeleted) {
       return res.send(404);
     }
     return res.json(account);
@@ -72,9 +70,6 @@ exports.update = function (req, res) {
     checkCanModify(res, account, req.authId);
     //restore item if it was deleted
     restoreDeleted(account);
-    if (account.isDeleted) {
-      delete account.isDeleted;
-    }
     var updated = _.merge(account, req.body);
     updated.save(function (err) {
       if (err) {

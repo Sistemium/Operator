@@ -7,7 +7,7 @@ var Agent = require('../agent/agent.model');
 // Get list of counterAgents
 exports.index = function(req, res) {
   if (req.params.agentId) {
-    Contact.scan({owner: req.params.agentId}, function (err, contacts) {
+    Contact.scan({owner: req.params.agentId, isDeleted: false}, function (err, contacts) {
       if (err) {
         handleError(res, err);
       }

@@ -9,11 +9,10 @@ var uuid = require('node-uuid');
 
 // Get list of contacts
 exports.index = function (req, res) {
-  Contact.scan().exec(function (err, contacts) {
+  Contact.scan({isDeleted: false}, function (err, contacts) {
     if (err) {
       handleError(res, err);
     }
-    contacts = _.filter(contacts, 'isDeleted', false);
     return res.json(200, contacts);
   });
 };
@@ -166,7 +165,7 @@ function checkAgent(agentId) {
 
 function checkInvite(inviteCode) {
   var deferred = q.defer();
-  Invite.query({'code': {eq: inviteCode}}, function (err, invite) {
+  Invite.query({'code': {eq: inviteCode}, isDeleted: false}, function (err, invite) {
     if (err) {
       deferred.reject(500, err);
       return;

@@ -6,7 +6,7 @@ var Contact = require('../contact/contact.model');
 
 // Get list of agents
 exports.index = function (req, res) {
-  Agent.scan({authId: req.authId}, function (err, agents) {
+  Agent.scan({authId: req.authId, isDeleted: false}, function (err, agents) {
     if (err) {
       return handleError(res, err);
     }

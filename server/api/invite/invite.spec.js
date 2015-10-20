@@ -37,10 +37,14 @@ var invites = [
 
 describe('GET /api/invites without code', function () {
   var agentStub, inviteStub;
+  beforeEach(function () {
+    agentStub = sinon.stub(Agent, 'scan');
+    inviteStub = sinon.stub(Invite, 'scan');
+  });
   it('should get records which user given access to', function (done) {
     //arrange
-    agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
-    inviteStub = sinon.stub(Invite, 'scan').yieldsAsync(null, invites);
+    agentStub.yieldsAsync(null, agents);
+    inviteStub.yieldsAsync(null, invites);
 
     //act
     request(app)
@@ -67,10 +71,12 @@ describe('GET /api/invites/ with code', function () {
 
   beforeEach(function () {
     agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
+    inviteStub = sinon.stub(Invite, 'query');
   });
 
   afterEach(function () {
     agentStub.restore();
+    inviteStub.restore();
   });
 
   it('should get invite with "open" status', function (done) {
@@ -78,7 +84,7 @@ describe('GET /api/invites/ with code', function () {
       id: uuid.v4(),
       status: 'open'
     };
-    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -88,7 +94,6 @@ describe('GET /api/invites/ with code', function () {
         if (err) return done(err);
         res.body.should.have.property('status');
         res.body.status.should.be.equal('open');
-        inviteStub.restore();
         done();
       });
   });
@@ -99,7 +104,7 @@ describe('GET /api/invites/ with code', function () {
       status: 'accepted',
       owner: agents[0].id
     };
-    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -121,7 +126,7 @@ describe('GET /api/invites/ with code', function () {
       //not the id of authorized user
       owner: uuid.v4()
     };
-    inviteStub = sinon.stub(Invite, 'query').yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, invite);
     request(app)
       .get(url)
       .set(headers)
@@ -271,6 +276,20 @@ describe('PUT /api/invites/:id', function () {
         inviteUpdateStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.args[0][1].code.should.be.equal('updated');
         res.body.status.should.be.equal('accepted');
+        done();
+      });
+  });
+});
+
+describe('integration test', function () {
+  it('should scan for all invites that not deleted', function (done) {
+    this.timeout(10000);
+
+    request(app)
+      .get('/api/invites')
+      .set(headers)
+      .end(function (err, res) {
+        if (err) return done(err);
         done();
       });
   });
