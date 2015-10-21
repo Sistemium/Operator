@@ -6,9 +6,9 @@ var uuid = require('node-uuid');
 
 // Get list of currencys
 exports.index = function(req, res) {
-  Currency.scan().exec(function (err, currencys) {
+  Currency.scan({isDeleted: false}, function (err, currencies) {
     if(err) { return handleError(res, err); }
-    return res.json(200, currencys);
+    return res.json(200, currencies);
   });
 };
 
@@ -16,14 +16,13 @@ exports.index = function(req, res) {
 exports.show = function(req, res) {
   Currency.get(req.params.id, function (err, currency) {
     if(err) { return handleError(res, err); }
-    if(!currency) { return res.send(404); }
+    if(!currency || currency.isDeleted) { return res.send(404); }
     return res.json(currency);
   });
 };
 
 // Creates a new currency in the DB.
 exports.create = function(req, res) {
-  req.body.id = uuid.v4();
   Currency.create(req.body, function(err, currency) {
     if(err) { return handleError(res, err); }
     return res.json(201, currency);
@@ -36,8 +35,9 @@ exports.update = function(req, res) {
   Currency.get(req.params.id, function (err, currency) {
     if (err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
-    var updated = _.merge(currency, req.body);
-    updated.save(function (err) {
+    var updated = _.clone(currency);
+    delete updated.id;
+    Currency.update({id: currency.id}, updated, function (err) {
       if (err) { return handleError(res, err); }
       return res.json(200, currency);
     });
@@ -49,7 +49,10 @@ exports.destroy = function(req, res) {
   Currency.get(req.params.id, function (err, currency) {
     if(err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
-    currency.delete(function(err) {
+    currency.isDeleted = true;
+    var updated = _.clone(currency);
+    delete updated.id;
+    Currency.update({id: currency.id}, updated, function(err) {
       if(err) { return handleError(res, err); }
       return res.send(204);
     });

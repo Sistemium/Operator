@@ -257,7 +257,7 @@ describe('DELETE /api/agents/:id', function () {
 
 
 describe('integration test' , function () {
-  it.only('should CRUD', function (done) {
+  it('should CRUD', function (done) {
     var agent = {
       id: uuid.v4(),
       name: 'test1',
