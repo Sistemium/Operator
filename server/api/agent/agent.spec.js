@@ -2,6 +2,7 @@
 
 var should = require('should');
 var app = require('../../app');
+var _ = require('lodash');
 var request = require('supertest');
 var uuid = require('node-uuid');
 var Agent = require('./agent.model');
@@ -9,6 +10,7 @@ var sinon = require('sinon');
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
+var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
 
 describe('GET /api/agents', function () {
   var stub;
@@ -92,7 +94,7 @@ describe('POST /api/agents', function () {
     var agent = {
       id: uuid.v4(),
       name: 'test2',
-      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+      authId: authId
     };
     stub.withArgs(agent).yieldsAsync(true);
     request(app)
@@ -254,12 +256,64 @@ describe('DELETE /api/agents/:id', function () {
 });
 
 
-describe('integration tests' , function () {
-  it('should get only not deleted', function (done) {
-    Agent.scan().exec(function (err, agents) {
-      if (err) console.log(err);
-      console.log(agents);
-      done();
-    });
-  })
+describe('integration test' , function () {
+  it.only('should CRUD', function (done) {
+    var agent = {
+      id: uuid.v4(),
+      name: 'test1',
+      authId: authId
+    };
+
+    this.timeout(0);
+
+    request(app)
+      .post('/api/agents')
+      .set(headers)
+      .send(agent)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        res.body.id.should.be.equal(agent.id);
+        request(app)
+          .get('/api/agents')
+          .set(headers)
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            if (err) {
+              return done(err);
+            }
+            var agentToUpdate = _.find(res.body, {id: agent.id});
+            agentToUpdate.should.not.be.equal(undefined);
+            agentToUpdate.name = 'updated';
+            request(app)
+              .put('/api/agents/' + agentToUpdate.id)
+              .set(headers)
+              .send(agentToUpdate)
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .end(function (err, res) {
+                if (err) return done(err);
+                res.body.name.should.be.equal(agentToUpdate.name);
+                res.body.id.should.be.equal(agentToUpdate.id);
+                request(app)
+                  .delete('/api/agents/' + agentToUpdate.id)
+                  .set(headers)
+                  .expect(204)
+                  .end(function (err) {
+                    if (err) return done(err);
+                    request(app)
+                      .get('/api/agents/' + agentToUpdate.id)
+                      .set(headers)
+                      .expect(404)
+                      .end(function (err) {
+                        if (err) return done(err);
+                        done()
+                      });
+                  })
+              });
+          });
+      });
+  });
 });

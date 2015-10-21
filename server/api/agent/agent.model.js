@@ -17,7 +17,7 @@ var AgentSchema = new Schema({
     required: true
   },
   isDeleted: {
-    type: String,
+    type: Boolean,
     default: false
   }
 });

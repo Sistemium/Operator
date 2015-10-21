@@ -10,7 +10,6 @@ exports.index = function (req, res) {
     if (err) {
       return handleError(res, err);
     }
-    agents = _.filter(agents, 'isDeleted', false);
     return res.json(200, agents);
   });
 };
@@ -21,7 +20,7 @@ exports.show = function (req, res) {
     if (err) {
       handleError(res, err);
     }
-    if (!agent || !agent.isDeleted) {
+    if (!agent || agent.isDeleted) {
       return res.send(404);
     }
     return res.json(agent);
@@ -71,8 +70,10 @@ exports.update = function (req, res) {
     }
     checkCanModify(res, agent, req.authId);
     restoreDeleted(agent);
-    var updated = _.merge(agent, req.body);
-    Agent.update({id: updated.id}, updated, function (err) {
+    var updated = req.body;
+    agent = _.merge(agent, updated);
+
+    Agent.update({id: agent.id}, updated, function (err) {
       if (err) {
         handleError(res, err);
       }
@@ -93,7 +94,9 @@ exports.destroy = function (req, res) {
     }
     checkCanModify(res, agent, req.authId);
     agent.isDeleted = true;
-    Agent.update({id: agent.id}, agent, function (err) {
+    var updatedAgent = _.clone(agent);
+    delete updatedAgent.id;
+    Agent.update({id: agent.id}, updatedAgent, function (err) {
       if (err) {
         handleError(res, err);
         return;
