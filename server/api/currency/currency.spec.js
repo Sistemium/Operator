@@ -80,7 +80,7 @@ describe('POST /api/currencies', function () {
   });
 });
 
-describe.skip('PUT /api/currencies/:id', function () {
+describe('PUT /api/currencies/:id', function () {
   var currencyGet, currencyUpdate;
   beforeEach(function () {
     currencyGet = sinon.stub(Currency, 'get');
@@ -97,12 +97,12 @@ describe.skip('PUT /api/currencies/:id', function () {
     currencyGet.withArgs(currencies[0].id).yieldsAsync(null, currencies[0]);
     var updated = currencies[0];
     updated.name = 'updated';
-    currencyUpdate.withArgs(currencies[0].id).yieldsAsync(null);
+    currencyUpdate.withArgs({id: currencies[0].id}).yieldsAsync(null);
     request(app)
       .put('/api/currencies/' + currencies[0].id)
       .set(headers)
       .send(updated)
-      .expect(204)
+      .expect(200)
       .end(function (err) {
         if (err) return done(err);
         currencyGet.calledOnce.should.be.equal(true);
@@ -113,7 +113,7 @@ describe.skip('PUT /api/currencies/:id', function () {
 });
 
 
-describe.skip('DELETE /api/currencies/:id', function () {
+describe('DELETE /api/currencies/:id', function () {
   var currencyGet, currencyUpdate;
   beforeEach(function () {
     currencyGet = sinon.stub(Currency, 'get');
@@ -127,7 +127,7 @@ describe.skip('DELETE /api/currencies/:id', function () {
 
   it('should delete currency', function (done) {
     currencyGet.withArgs(currencies[0].id).yieldsAsync(null, currencies[0]);
-    currencyUpdate.withArgs(currencies[0].id).yieldsAsync(null);
+    currencyUpdate.withArgs({id: currencies[0].id}).yieldsAsync(null);
 
     request(app)
       .delete('/api/currencies/' + currencies[0].id)
@@ -138,6 +138,6 @@ describe.skip('DELETE /api/currencies/:id', function () {
         currencyGet.calledOnce.should.be.equal(true);
         currencyUpdate.calledOnce.should.be.equal(true);
         done();
-      })
+      });
   });
 });

@@ -7,10 +7,35 @@ var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
+var Account = require('./account.model');
+var Agent = require('../agent/agent.model');
+var sinon = require('sinon');
+var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
+var uuid = require('node-uuid');
+
+var agent = {
+  id: uuid.v4(),
+  name: 'test',
+  authId: authId
+};
+var account = {
+  id: uuid.v4(),
+  authId: authId,
+  currency: uuid.v4(),
+  agentId: agent.id
+};
 
 describe('GET /api/accounts', function () {
+  var accountScan;
+  beforeEach(function () {
+    accountScan = sinon.stub(Account, 'scan');
+  });
+  afterEach(function () {
+    accountScan.restore();
+  });
 
-  it('should respond with JSON array', function (done) {
+  it('should respond with accounts array', function (done) {
+    accountScan.withArgs({authId: authId, isDeleted: false}).yieldsAsync(null, []);
     request(app)
       .get('/api/accounts')
       .set(headers)
@@ -19,11 +44,115 @@ describe('GET /api/accounts', function () {
       .end(function (err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Array);
+        accountScan.calledOnce.should.be.equal(true);
         done();
       });
   });
+});
 
+describe('POST /api/accounts', function () {
+  var agentGet, accountCreate;
+  beforeEach(function () {
+    agentGet = sinon.stub(Agent, 'get');
+    accountCreate = sinon.stub(Account, 'create');
+  });
 
+  afterEach(function () {
+    agentGet.restore();
+    accountCreate.restore();
+  });
+
+  it('should create account', function(done) {
+    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    accountCreate.withArgs(account).yieldsAsync(null, account);
+
+    request(app)
+      .post('/api/accounts')
+      .set(headers)
+      .send(account)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        agentGet.calledOnce.should.be.equal(true);
+        accountCreate.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});
+
+describe('PUT /api/accounts/:id', function () {
+  var accountGet, agentGet, accountUpdate;
+
+  beforeEach(function () {
+    accountGet = sinon.stub(Account, 'get');
+    agentGet = sinon.stub(Agent, 'get');
+    accountUpdate = sinon.stub(Account, 'update');
+  });
+
+  afterEach(function () {
+    accountGet.restore();
+    agentGet.restore();
+    accountUpdate.restore();
+  });
+
+  it('should update account', function (done) {
+    var updated = {
+      agentId: uuid.v4(),
+      currency: uuid.v4()
+    };
+    accountGet.withArgs(account.id).yieldsAsync(null, account);
+    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    accountUpdate.withArgs({id: account.id}).yieldsAsync(null);
+
+    request(app)
+      .put('/api/accounts/' + account.id)
+      .set(headers)
+      .send(updated)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        accountGet.calledOnce.should.be.equal(true);
+        agentGet.calledOnce.should.be.equal(true);
+        accountUpdate.calledOnce.should.be.equal(true);
+        done();
+      })
+  })
+});
+
+describe('DELETE /api/accounts/:id', function () {
+  var accountGet, accountUpdate, agentGet;
+
+  beforeEach(function () {
+    accountGet = sinon.stub(Account, 'get');
+    accountUpdate = sinon.stub(Account, 'update');
+    agentGet = sinon.stub(Agent, 'get');
+  });
+
+  afterEach(function () {
+    accountGet.restore();
+    accountUpdate.restore();
+    agentGet.restore();
+  });
+
+  it('should delete account', function (done) {
+    accountGet.withArgs(account.id).yieldsAsync(null, account);
+    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    accountUpdate.withArgs({id: account.id}).yieldsAsync(null);
+
+    request(app)
+      .delete('/api/accounts/' + account.id)
+      .set(headers)
+      .expect(204)
+      .end(function (err) {
+        if (err) return done(err);
+        accountGet.calledOnce.should.be.equal(true);
+        agentGet.calledOnce.should.be.equal(true);
+        accountUpdate.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
 });
 
 describe.skip('integration tests', function () {

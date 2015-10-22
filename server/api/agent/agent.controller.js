@@ -49,7 +49,6 @@ exports.create = function (req, res) {
     Agent.create(req.body, function (err, agent) {
       if (err) {
         handleError(res, err);
-        return;
       }
       return res.json(201, agent);
     });

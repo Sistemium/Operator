@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Account = require('./account.model');
+var Agent = require('../agent/agent.model');
 
 // Get list of accounts
 exports.index = function (req, res) {
@@ -32,7 +33,6 @@ exports.create = function (req, res) {
     var createdItems = [];
     _.each(req.body, function (item) {
       checkCanModify(res, item, req.authId);
-      restoreDeleted(item);
       Account.create(item, function (err, account) {
         if (err) {
           return handleError(res, err);
@@ -43,7 +43,6 @@ exports.create = function (req, res) {
     });
   } else {
     checkCanModify(res, req.body, req.authId);
-    restoreDeleted(req.body);
     Account.create(req.body, function (err, account) {
       if (err) {
         return handleError(res, err);
@@ -70,8 +69,7 @@ exports.update = function (req, res) {
     checkCanModify(res, account, req.authId);
     //restore item if it was deleted
     restoreDeleted(account);
-    var updated = _.merge(account, req.body);
-    updated.save(function (err) {
+    Account.update({id: account.id}, req.body, function (err) {
       if (err) {
         return handleError(res, err);
       }
@@ -92,7 +90,7 @@ exports.destroy = function (req, res) {
     //check if user can delete entity
     checkCanModify(res, account, req.authId);
     account.isDeleted = true;
-    account.save(function (err) {
+    Account.update({id: account.id}, account, function (err) {
       if (err) {
         return handleError(res, err);
       }
@@ -113,7 +111,7 @@ function checkCanModify(res, account, authId) {
       message: 'Access denied!'
     });
   }
-  checkAgent(res, account, req.authId);
+  checkAgent(res, account, authId);
 }
 
 function checkAgent(res, account, authId) {

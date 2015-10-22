@@ -39,14 +39,14 @@ describe('GET /api/agents', function () {
 });
 
 describe('POST /api/agents', function () {
-  var stub;
+  var agentCreate;
   var url = '/api/agents';
-  before(function () {
-    stub = sinon.stub(Agent, 'create');
+  beforeEach(function () {
+    agentCreate = sinon.stub(Agent, 'create');
   });
 
   afterEach(function () {
-    stub.restore();
+    agentCreate.restore();
   });
 
   it('should create new agent', function (done) {
@@ -55,7 +55,7 @@ describe('POST /api/agents', function () {
       name: 'test',
       authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
     };
-    stub.withArgs(agent).yieldsAsync(null, agent)
+    agentCreate.withArgs(agent).yieldsAsync(null, agent);
     request(app)
       .post(url)
       .set(headers)
@@ -65,7 +65,7 @@ describe('POST /api/agents', function () {
       .end(function (err, res) {
         if (err) return done(err);
         res.body.should.be.instanceof(Object);
-        stub.calledOnce.should.be.equal(true);
+        agentCreate.calledOnce.should.be.equal(true);
         done();
       })
   });
@@ -75,7 +75,6 @@ describe('POST /api/agents', function () {
       id: uuid.v4(),
       name: 'test'
     };
-    stub.withArgs(agent).yieldsAsync(null, agent);
     request(app)
       .post(url)
       .set(headers)
@@ -85,7 +84,6 @@ describe('POST /api/agents', function () {
       .end(function (err, res) {
         if (err) return done(err);
         res.body.message.should.be.equal('AuthId not provided');
-        stub.calledOnce.should.be.equal(true);
         done();
       });
   });
@@ -96,7 +94,7 @@ describe('POST /api/agents', function () {
       name: 'test2',
       authId: authId
     };
-    stub.withArgs(agent).yieldsAsync(true);
+    agentCreate.withArgs(agent).yieldsAsync(true);
     request(app)
       .post(url)
       .set(headers)
