@@ -255,13 +255,33 @@ describe('DELETE /api/agents/:id', function () {
 
 
 describe('integration test' , function () {
-  it('should CRUD', function (done) {
+  var agent = {
+    id: uuid.v4(),
+    name: 'test1',
+    authId: authId
+  };
+
+  it('should create agent', function (done) {
     var agent = {
       id: uuid.v4(),
       name: 'test1',
       authId: authId
     };
 
+    request(app)
+      .post('/api/agents')
+      .set(headers)
+      .send(agent)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        res.body.id.should.be.equal(agent.id);
+        done();
+      });
+  });
+
+  it('should CRUD', function (done) {
     this.timeout(0);
 
     request(app)

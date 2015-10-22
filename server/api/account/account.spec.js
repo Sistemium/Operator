@@ -3,15 +3,15 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
-var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
+var sinon = require('sinon');
+var uuid = require('node-uuid');
+var Account = require('./account.model');
+var Agent = require('../agent/agent.model');
+var _ = require('lodash');
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
 };
-var Account = require('./account.model');
-var Agent = require('../agent/agent.model');
-var sinon = require('sinon');
 var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
-var uuid = require('node-uuid');
 
 var agent = {
   id: uuid.v4(),
@@ -62,7 +62,7 @@ describe('POST /api/accounts', function () {
     accountCreate.restore();
   });
 
-  it('should create account', function(done) {
+  it('should create account', function (done) {
     agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
     accountCreate.withArgs(account).yieldsAsync(null, account);
 
@@ -155,7 +155,9 @@ describe('DELETE /api/accounts/:id', function () {
   });
 });
 
-describe.skip('integration tests', function () {
+describe('accounts integration tests', function () {
+  this.timeout(0);
+
   it('should CRUD', function (done) {
     request(app)
       .get('/api/agents')
@@ -178,7 +180,7 @@ describe.skip('integration tests', function () {
             if (!currencies.length) {
               return done('Create currency before creating account');
             }
-            if (res)
+
             var account = {
               id: uuid.v4(),
               agentId: agents[0].id,
@@ -194,11 +196,46 @@ describe.skip('integration tests', function () {
               .expect('Content-Type', /json/)
               .end(function (err, res) {
                 if (err) return done(err);
-
+                res.body.id.should.be.equal(account.id);
+                request(app)
+                  .get('/api/accounts')
+                  .set(headers)
+                  .expect(200)
+                  .expect('Content-Type', /json/)
+                  .end(function (err, res) {
+                    if (err) return done(err);
+                    var accountToUpdate = _.find(res.body, {id: account.id});
+                    accountToUpdate.should.not.be.equal(undefined);
+                    accountToUpdate.currency = 'updated';
+                    request(app)
+                      .put('/api/accounts/' + accountToUpdate.id)
+                      .set(headers)
+                      .send(accountToUpdate)
+                      .expect(200)
+                      .expect('Content-Type', /json/)
+                      .end(function (err, res) {
+                        if (err) return done(err);
+                        res.body.currency.should.be.equal(accountToUpdate.currency);
+                        res.body.id.should.be.equal(accountToUpdate.id);
+                        request(app)
+                          .delete('/api/accounts/' + accountToUpdate.id)
+                          .set(headers)
+                          .expect(204)
+                          .end(function (err) {
+                            if (err) return done(err);
+                            request(app)
+                              .get('/api/accounts/' + accountToUpdate.id)
+                              .set(headers)
+                              .expect(404)
+                              .end(function (err) {
+                                if (err) return done(err);
+                                done()
+                              });
+                          })
+                      });
+                  });
               });
           });
-
-      }
-    );
+      });
   });
 });

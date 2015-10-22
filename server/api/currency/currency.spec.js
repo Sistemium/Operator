@@ -143,7 +143,7 @@ describe('DELETE /api/currencies/:id', function () {
   });
 });
 
-describe('integration tests', function () {
+describe('currencies integration tests', function () {
   it('should CRUD', function (done) {
     var currency = {
       id: uuid.v4(),

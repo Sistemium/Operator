@@ -69,11 +69,12 @@ exports.update = function (req, res) {
     checkCanModify(res, account, req.authId);
     //restore item if it was deleted
     restoreDeleted(account);
+    var updated = _.merge(account, req.body);
     Account.update({id: account.id}, req.body, function (err) {
       if (err) {
         return handleError(res, err);
       }
-      return res.json(200, account);
+      return res.json(200, updated);
     });
   });
 };
@@ -90,7 +91,9 @@ exports.destroy = function (req, res) {
     //check if user can delete entity
     checkCanModify(res, account, req.authId);
     account.isDeleted = true;
-    Account.update({id: account.id}, account, function (err) {
+    var updated = _.clone(account);
+    delete updated.id;
+    Account.update({id: account.id}, updated, function (err) {
       if (err) {
         return handleError(res, err);
       }
