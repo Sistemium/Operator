@@ -35,11 +35,11 @@ exports.update = function(req, res) {
   Currency.get(req.params.id, function (err, currency) {
     if (err) { return handleError(res, err); }
     if(!currency) { return res.send(404); }
-    var updated = _.clone(currency);
-    delete updated.id;
-    Currency.update({id: currency.id}, updated, function (err) {
+    var updated = _.merge(currency, req.body);
+
+    Currency.update({id: currency.id}, req.body, function (err) {
       if (err) { return handleError(res, err); }
-      return res.json(200, currency);
+      return res.json(200, updated);
     });
   });
 };

@@ -3,6 +3,7 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
+var _ = require('lodash');
 var Currency = require('./currency.model');
 var sinon = require('sinon');
 var headers = {
@@ -138,6 +139,67 @@ describe('DELETE /api/currencies/:id', function () {
         currencyGet.calledOnce.should.be.equal(true);
         currencyUpdate.calledOnce.should.be.equal(true);
         done();
+      });
+  });
+});
+
+describe('integration tests', function () {
+  it('should CRUD', function (done) {
+    var currency = {
+      id: uuid.v4(),
+      name: '$'
+    };
+
+    this.timeout(0);
+
+    request(app)
+      .post('/api/currencies')
+      .set(headers)
+      .send(currency)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        res.body.id.should.be.equal(currency.id);
+        request(app)
+          .get('/api/currencies')
+          .set(headers)
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            if (err) {
+              return done(err);
+            }
+            var currencyToUpdate = _.find(res.body, {id: currency.id});
+            currencyToUpdate.should.not.be.equal(undefined);
+            currencyToUpdate.name = 'updated';
+            request(app)
+              .put('/api/currencies/' + currencyToUpdate.id)
+              .set(headers)
+              .send(currencyToUpdate)
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .end(function (err, res) {
+                if (err) return done(err);
+                res.body.name.should.be.equal(currencyToUpdate.name);
+                res.body.id.should.be.equal(currencyToUpdate.id);
+                request(app)
+                  .delete('/api/currencies/' + currencyToUpdate.id)
+                  .set(headers)
+                  .expect(204)
+                  .end(function (err) {
+                    if (err) return done(err);
+                    request(app)
+                      .get('/api/currencies/' + currencyToUpdate.id)
+                      .set(headers)
+                      .expect(404)
+                      .end(function (err) {
+                        if (err) return done(err);
+                        done()
+                      });
+                  })
+              });
+          });
       });
   });
 });
