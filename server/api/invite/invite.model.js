@@ -19,10 +19,6 @@ var InviteSchema = new Schema({
   acceptor: {
     type: String
   },
-  isActive: {
-    type: Boolean,
-    required: true
-  },
   status: {
     type: String,
     required: true

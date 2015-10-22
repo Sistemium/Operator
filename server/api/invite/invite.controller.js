@@ -40,13 +40,10 @@ exports.index = function (req, res) {
       });
     } else {
       // on get without code get only invites where user id in owner or acceptor
-      Invite.scan({isDeleted: false}, function (err, invites) {
+      Invite.scan({or: [{isDeleted: false, owner: {in: agentIds}}, {acceptor: {in: agentIds}}]}, function (err, invites) {
         if (err) {
           handleError(res, err);
         }
-        invites = _.filter(invites, function (invite) {
-          return _.include(agentIds, invite.owner) || _.include(agentIds, invite.acceptor);
-        });
         return res.json(200, invites);
       });
     }
@@ -59,7 +56,7 @@ exports.show = function (req, res) {
     if (err) {
       handleError(res, err);
     }
-    if (!invite || !invite.isDeleted) {
+    if (!invite || invite.isDeleted) {
       return res.send(404);
     }
     return res.json(invite);
@@ -115,14 +112,16 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     checkCanModify(res, req.authId, invite, function () {
-      var updated = _.merge(invite, req.body);
+      var updated = _.clone(req.body);
       setStatus(updated);
       restoreDeleted(updated);
-      Invite.update({id: updated.id}, updated, function (err) {
+
+      Invite.update({id: invite.id}, updated, function (err) {
         if (err) {
           handleError(res, err);
         }
-        return res.json(200, invite);
+        updated.id = invite.id;
+        return res.json(200, updated);
       });
     });
   });
@@ -139,7 +138,9 @@ exports.destroy = function (req, res) {
     }
     checkCanModify(res, req.authId, invite, function () {
       invite.isDeleted = true;
-      Invite.update({id: invite.id}, invite, function (err) {
+      var updated = _.clone(invite);
+      delete updated.id;
+      Invite.update({id: invite.id}, updated, function (err) {
         if (err) {
           handleError(res, err);
         }

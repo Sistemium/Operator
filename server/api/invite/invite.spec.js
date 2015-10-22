@@ -7,6 +7,7 @@ var uuid = require('node-uuid');
 var Invite = require('./invite.model');
 var Agent = require('../agent/agent.model');
 var sinon = require('sinon');
+var _ = require('lodash');
 
 var headers = {
   'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
@@ -281,16 +282,72 @@ describe('PUT /api/invites/:id', function () {
   });
 });
 
-describe('integration test', function () {
-  it('should scan for all invites that not deleted', function (done) {
-    this.timeout(10000);
+describe('invite integration tests', function () {
+  it('should CRUD', function (done) {
+    this.timeout(0);
 
     request(app)
-      .get('/api/invites')
+      .get('/api/agents')
       .set(headers)
+      .expect(200)
+      .expect('Content-Type', /json/)
       .end(function (err, res) {
         if (err) return done(err);
-        done();
+        var agents = res.body;
+        if (!agents.length) {
+          return done('Create agent before creating invite');
+        }
+        var invite = {
+          id: uuid.v4(),
+          owner: agents[0].id
+        };
+
+        request(app)
+          .post('/api/invites')
+          .set(headers)
+          .send(invite)
+          .expect(201)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            if (err) return done(err);
+            res.body.id.should.be.equal(invite.id);
+            request(app)
+              .get('/api/invites')
+              .set(headers)
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .end(function (err, res) {
+                if (err) return done(err);
+                var inviteToUpdate = _.find(res.body, {id: invite.id});
+                inviteToUpdate.should.not.be.equal(undefined);
+
+                request(app)
+                  .put('/api/invites/' + inviteToUpdate.id)
+                  .set(headers)
+                  .send(inviteToUpdate)
+                  .expect(200)
+                  .expect('Content-Type', /json/)
+                  .end(function (err, res) {
+                    if (err) return done(err);
+                    res.body.id.should.be.equal(inviteToUpdate.id);
+                    request(app)
+                      .delete('/api/invites/' + inviteToUpdate.id)
+                      .set(headers)
+                      .expect(204)
+                      .end(function (err) {
+                        if (err) return done(err);
+                        request(app)
+                          .get('/api/invites/' + inviteToUpdate.id)
+                          .set(headers)
+                          .expect(404)
+                          .end(function (err) {
+                            if (err) return done(err);
+                            done()
+                          });
+                      });
+                  });
+              });
+          });
       });
   });
 });

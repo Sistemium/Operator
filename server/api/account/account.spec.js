@@ -231,7 +231,7 @@ describe('accounts integration tests', function () {
                                 if (err) return done(err);
                                 done()
                               });
-                          })
+                          });
                       });
                   });
               });
