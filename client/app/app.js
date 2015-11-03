@@ -8,7 +8,8 @@ angular.module('debtApp', [
   'ui.router',
   'ui.bootstrap',
   'restangular',
-  'gettext'
+  'gettext',
+  'ngMaterial'
 ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
@@ -44,6 +45,7 @@ angular.module('debtApp', [
       }
     };
   })
+  .value('authDomain', 'http://localhost:9000/')
 
   .run(['$rootScope', '$state', 'Auth', function ($rootScope, $state, Auth) {
     // Redirect to login if route requires auth and you're not logged in

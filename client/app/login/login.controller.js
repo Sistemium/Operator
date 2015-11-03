@@ -11,6 +11,8 @@ angular.module('debtApp')
             .then( function() {
               // Logged in, redirect to home
               $state.go('main');
+            }, function () {
+              alert('Не ')
             })
             .catch( function(err) {
               $scope.errors.other = err.message;
