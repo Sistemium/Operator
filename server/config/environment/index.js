@@ -15,7 +15,7 @@ function requiredProcessEnv(name) {
 var all = {
   env: process.env.NODE_ENV,
 
-  auth: 'https://api.sistemium.com/pha/roles',
+  auth: 'http://localhost:9000/api/pha/roles',
 
   // Root path of server
   root: path.normalize(__dirname + '/../../..'),

@@ -7,9 +7,11 @@ var sinon = require('sinon');
 var Agent = require('../agent/agent.model');
 var Invite = require('../invite/invite.model');
 var Contact = require('./contact.model');
+var req = require('request');
 var headers = {
-  'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
+  'Authorization': 'authorization token'
 };
+var authId = 'authId';
 var uuid = require('node-uuid');
 var agents = [
   {
@@ -36,7 +38,7 @@ var invites = [
     owner: agents[1].id
   }
 ];
-
+var requestStub;
 
 describe.skip('GET /api/contacts', function() {
 
@@ -92,12 +94,14 @@ describe('POST /api/contacts', function () {
     contactStub = sinon.stub(Contact, 'create');
     contactStub.onFirstCall().yieldsAsync(null, contact);
     contactStub.onSecondCall().yieldsAsync(null, true);
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
     agentStub.restore();
     inviteQueryStub.restore();
     inviteUpdateStub.restore();
     contactStub.restore();
+    requestStub.restore();
   });
   it('should create contact', function (done) {
     request(app)
@@ -226,6 +230,7 @@ describe('DELETE /api/contacts/:id', function () {
     contactUpdateStub = sinon.stub(Contact, 'update');
     agentGetStub = sinon.stub(Agent, 'get');
     inviteQueryStub = sinon.stub(Invite, 'query');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
   afterEach(function () {
@@ -233,6 +238,7 @@ describe('DELETE /api/contacts/:id', function () {
     contactUpdateStub.restore();
     agentGetStub.restore();
     inviteQueryStub.restore();
+    requestStub.restore();
   });
 
   it('should delete contact', function (done) {

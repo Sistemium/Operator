@@ -8,8 +8,9 @@ var Agent = require('../agent/agent.model');
 var Operation = require('./operation.model');
 var uuid = require('node-uuid');
 var _ = require('lodash');
+var req = require('request');
 var headers = {
-  'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
+  'Authorization': 'token'
 };
 var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
 
@@ -35,6 +36,7 @@ var operations = [
     initiator: agents[0].id
   }
 ];
+var requestStub;
 
 describe('GET /api/operations', function () {
 
@@ -42,11 +44,13 @@ describe('GET /api/operations', function () {
   beforeEach(function () {
     agentScanStub = sinon.stub(Agent, 'scan');
     operationScanStub = sinon.stub(Operation, 'scan');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
   afterEach(function () {
     agentScanStub.restore();
     operationScanStub.restore();
+    requestStub.restore();
   });
 
   it('should respond with JSON array', function (done) {
@@ -77,12 +81,14 @@ describe('POST /api/operations', function () {
     agentGetStub = sinon.stub(Agent, 'get');
     operationCreateStub = sinon.stub(Operation, 'create');
     agentScanStub = sinon.stub(Agent, 'scan');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
   afterEach(function () {
     agentGetStub.restore();
     agentScanStub.restore();
     operationCreateStub.restore();
+    requestStub.restore();
   });
 
   it('should create new operation', function (done) {

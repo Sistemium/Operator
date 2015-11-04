@@ -8,11 +8,13 @@ var Invite = require('./invite.model');
 var Agent = require('../agent/agent.model');
 var sinon = require('sinon');
 var _ = require('lodash');
+var req = require('request');
 
 var headers = {
-  'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
+  'Authorization': 'authorization token'
 };
 //auth id for Albert Kovalevskij user
+var authId = 'cbd77f5e-2644-11e5-8000-ffc34d526b60';
 var agents = [
   {
     id: uuid.v4(),
@@ -35,12 +37,19 @@ var invites = [
     owner: agents[1].id
   }
 ];
+var requestStub;
 
 describe('GET /api/invites without code', function () {
   var agentStub, inviteStub;
   beforeEach(function () {
     agentStub = sinon.stub(Agent, 'scan');
     inviteStub = sinon.stub(Invite, 'scan');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
+  });
+  afterEach(function () {
+    agentStub.restore();
+    inviteStub.restore();
+    requestStub.restore();
   });
   it('should get records which user given access to', function (done) {
     //arrange
@@ -60,10 +69,6 @@ describe('GET /api/invites without code', function () {
         done();
       });
   });
-  after(function () {
-    agentStub.restore();
-    inviteStub.restore();
-  })
 });
 
 describe('GET /api/invites/ with code', function () {
@@ -73,11 +78,13 @@ describe('GET /api/invites/ with code', function () {
   beforeEach(function () {
     agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
     inviteStub = sinon.stub(Invite, 'query');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
   afterEach(function () {
     agentStub.restore();
     inviteStub.restore();
+    requestStub.restore();
   });
 
   it('should get invite with "open" status', function (done) {
@@ -153,10 +160,12 @@ describe('POST /api/invites', function () {
       owner: agents[0].id
     };
     inviteStub = sinon.stub(Invite, 'create').yieldsAsync(null, invite);
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
     agentStub.restore();
     inviteStub.restore();
+    requestStub.restore();
   });
   it('should create invite', function (done) {
     var invite = {
@@ -188,11 +197,13 @@ describe('DELETE /api/invites/:id', function () {
     inviteGetStub = sinon.stub(Invite, 'get');
     inviteUpdateStub = sinon.stub(Invite, 'update');
     agentGetStub = sinon.stub(Agent, 'get');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
     inviteGetStub.restore();
     inviteUpdateStub.restore();
     agentGetStub.restore();
+    requestStub.restore();
   });
 
   it('should delete invite', function (done) {
@@ -232,11 +243,13 @@ describe('PUT /api/invites/:id', function () {
     inviteGetStub = sinon.stub(Invite, 'get');
     agentGetStub = sinon.stub(Agent, 'get');
     inviteUpdateStub = sinon.stub(Invite, 'update');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
     inviteGetStub.restore();
     agentGetStub.restore();
     inviteUpdateStub.restore();
+    requestStub.restore();
   });
 
   it('should update invite', function (done) {
@@ -282,7 +295,7 @@ describe('PUT /api/invites/:id', function () {
   });
 });
 
-describe('invite integration tests', function () {
+describe.skip('invite integration tests', function () {
   it('should CRUD', function (done) {
     this.timeout(0);
 

@@ -7,9 +7,12 @@ var Agent = require('../agent/agent.model');
 var sinon = require('sinon');
 var uuid = require('node-uuid');
 var Contact = require('../contact/contact.model');
+var req = require('request');
 var headers = {
-  'Authorization': 'c6dd52d226a821ac9acd45bd92d7a50d@pha'
+  'Authorization': 'authorization token'
 };
+var requestStub;
+var authId = 'authId';
 
 describe('GET /api/counterAgents', function() {
   var contactStub, agentGetStub;
@@ -17,11 +20,13 @@ describe('GET /api/counterAgents', function() {
   beforeEach(function () {
     contactStub = sinon.stub(Contact, 'scan');
     agentGetStub = sinon.stub(Agent, 'batchGet');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
   afterEach(function () {
     contactStub.restore();
     agentGetStub.restore();
+    requestStub.restore();
   });
 
   it('should respond with JSON array', function(done) {
