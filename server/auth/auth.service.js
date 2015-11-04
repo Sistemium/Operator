@@ -18,6 +18,9 @@ function isAuthenticated(req, res, next) {
         console.log('Successful authorization');
 
         //save authorized account in memory
+        if (typeof body === 'string') {
+          body = JSON.parse(body);
+        }
         var account = {
           token: token,
           body: body
