@@ -53,7 +53,7 @@ angular.module('debtApp', [
       Auth.isLoggedInAsync(function (loggedIn) {
         if (next.authenticate && !loggedIn) {
           event.preventDefault();
-          $state.go('login');
+          $state.go('signup');
         }
       });
     });

@@ -13,7 +13,7 @@ angular.module('debtApp')
 
     $scope.logout = function() {
       Auth.logout();
-      $state.go('login');
+      $state.go('signup');
     };
 
     $scope.isActive = function(route) {

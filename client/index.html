@@ -31,10 +31,11 @@
 
     <!-- Add your site or application content here -->
     <div ui-view=""></div>
+    <md-content id="toast-container"></md-content>
     <footer class="footer">
-      <div class="container">
-        <p>Долги</p>
-      </div>
+      <md-toolbar layout="row" layout-align="center center" id="footer" class="fixed-bottom">
+        <div class="md-subhead">© UAB Sistemium 2015</div>
+      </md-toolbar>
     </footer>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
@@ -81,8 +82,6 @@
           <script src="app/agent/agent.js"></script>
           <script src="app/invite/invite.controller.js"></script>
           <script src="app/invite/invite.js"></script>
-          <script src="app/login/login.controller.js"></script>
-          <script src="app/login/login.js"></script>
           <script src="app/main/main.controller.js"></script>
           <script src="app/main/main.js"></script>
           <script src="app/signup/signup.controller.js"></script>
