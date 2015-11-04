@@ -9,7 +9,7 @@ angular.module('debtApp')
       //TODO: add toasts on page
       function redirectToMain() {
         $state.go('main');
-        $mdToast.show($mdToast.simple().content('Удачно подключились'));
+        $mdToast.show(createToast('Удачно подключились'));
       }
 
       function login(code) {
@@ -24,6 +24,14 @@ angular.module('debtApp')
           });
       }
 
+      function createToast(message, el, position) {
+        var toast = $mdToast.simple()
+          .content(message)
+          .parent(el || null)
+          .position(position || 'bottom');
+        return toast;
+      }
+
       me.sendPhoneNumber = function () {
 
         $http.post(authDomain + 'api/pha/auth/' + me.phoneNumber)
@@ -35,11 +43,7 @@ angular.module('debtApp')
               me.code = res.data.code;
             }
           }, function () {
-            var toast = $mdToast.simple()
-              .content('Что то пошло не так')
-              .parent(angular.element(document.getElementById('toast-container')))
-              .position('top');
-            $mdToast.show(toast);
+            $mdToast.show(createToast('Неправильный телефон'));
             //show message when max attempts exceeded
           })
           .catch(function (err) {
@@ -58,7 +62,7 @@ angular.module('debtApp')
             login(res.code);
           }, function (err) {
             if (err.status === 400) {
-              $mdToast.show($mdToast.simple().content('Неправильный телефон'));
+              $mdToast.show(createToast('Неправильный телефон'));
               //show how many retries left
             } else {
               me.code = false;
