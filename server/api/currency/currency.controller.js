@@ -8,6 +8,23 @@ var uuid = require('node-uuid');
 exports.index = function(req, res) {
   Currency.scan({isDeleted: false}, function (err, currencies) {
     if(err) { return handleError(res, err); }
+
+    if (!currencies && !currencies.length) {
+      var currencies = [
+        {
+          id: uuid.v4(),
+          name: 'euro'
+        },
+        {
+          id: uuid.v4(),
+          name: 'dollar'
+        }
+      ];
+
+      Currency.batchPut(currencies, function (err) {
+        if (err) return handleError(res, err);
+      });
+    }
     return res.json(200, currencies);
   });
 };
