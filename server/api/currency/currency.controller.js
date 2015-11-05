@@ -9,7 +9,7 @@ exports.index = function(req, res) {
   Currency.scan({isDeleted: false}, function (err, currencies) {
     if(err) { return handleError(res, err); }
 
-    if (!currencies && !currencies.length) {
+    if (currencies.length === 0) {
       var currencies = [
         {
           id: uuid.v4(),

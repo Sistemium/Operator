@@ -14,11 +14,9 @@ exports.index = function(req, res) {
       if (!contacts) {
         return res.send(404);
       }
-      var acceptorIds = _.map(_.filter(contacts, function (cnt) {
+      var acceptorIds = _.pluck(_.filter(contacts, function (cnt) {
         return !!cnt.acceptor;
-      }), function (cnt) {
-        return cnt.acceptor;
-      });
+      }), 'acceptor');
       Agent.batchGet(acceptorIds, function (err, agents) {
         if (err) {
           handleError(res, err);

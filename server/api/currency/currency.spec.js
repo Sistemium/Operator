@@ -73,7 +73,7 @@ describe('POST /api/currencies', function () {
       id: uuid.v4(),
       name: '€'
     };
-    createStub.withArgs(currency).yieldsAsync(null, currency);
+    createStub.yieldsAsync(null, currency);
     request(app)
       .post('/api/currencies')
       .set(headers)

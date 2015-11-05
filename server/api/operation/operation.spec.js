@@ -101,7 +101,7 @@ describe('POST /api/operations', function () {
 
     agentGetStub.withArgs(operation.executor).yieldsAsync(null, agents[0]);
     agentScanStub.withArgs({authId: authId}).yieldsAsync(null, agents);
-    operationCreateStub.withArgs(operation).yieldsAsync(null, operation);
+    operationCreateStub.yieldsAsync(null, operation);
 
     request(app)
       .post(url)

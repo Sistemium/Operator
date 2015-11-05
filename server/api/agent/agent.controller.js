@@ -16,9 +16,13 @@ exports.index = function (req, res) {
 
 // Get a single agent
 exports.show = function (req, res) {
+
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
       handleError(res, err);
+    }
+    if (agent && agent.authId !== req.authId) {
+      return res.send(401);
     }
     if (!agent || agent.isDeleted) {
       return res.send(404);

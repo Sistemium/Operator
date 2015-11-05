@@ -76,24 +76,6 @@ describe('POST /api/agents', function () {
       })
   });
 
-  it('should check if authId was passed', function (done) {
-    var agent = {
-      id: uuid.v4(),
-      name: 'test'
-    };
-    request(app)
-      .post(url)
-      .set(headers)
-      .send(agent)
-      .expect(401)
-      .expect('Content-Type', /json/)
-      .end(function (err, res) {
-        if (err) return done(err);
-        res.body.message.should.be.equal('AuthId not provided');
-        done();
-      });
-  });
-
   it.skip('should return 500 if error occurs', function (done) {
     var agent = {
       id: uuid.v4(),
