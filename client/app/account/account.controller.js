@@ -20,9 +20,11 @@ angular.module('debtApp')
         if (currenciesPromise.hasOwnProperty('$promise')) {
           currenciesPromise.$promise.then(function (res) {
             me.currencies = res;
+            me.selectedItem = res[0];
           });
         } else {
           me.currencies = currenciesPromise;
+          me.selectedItem = currenciesPromise[0];
         }
         if (accountsPromise.hasOwnProperty('$promise')) {
           accountsPromise.$promise.then(function (res) {
@@ -37,11 +39,11 @@ angular.module('debtApp')
         if (me.currency) {
           var newAccount = new Account({
             id: uuid.v4(),
-            agentId: agentId,
+            agent: agentId,
             currency: me.currency
           });
           newAccount.$save(function (u) {
-            me.account.push(u);
+            me.accounts.push(u);
             me.currency = '';
             form.$setPristine();
           })

@@ -9,14 +9,16 @@ angular.module('debtApp', [
   'ui.bootstrap',
   'restangular',
   'gettext',
-  'ngMaterial'
+  'ngMaterial',
+  'ui.select',
+  'ngSanitize'
 ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
       $urlRouterProvider
         .otherwise('/');
 
-      $locationProvider.html5Mode(true);
+      //$locationProvider.html5Mode(true);
       $httpProvider.interceptors.push('authInterceptor');
     }])
 
