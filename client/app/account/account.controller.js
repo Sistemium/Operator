@@ -2,7 +2,13 @@
 
 angular.module('debtApp')
   .factory('Account', function ($resource) {
-    return $resource('/api/accounts');
+    return $resource('/api/accounts/', {}, {
+      getAgentAccounts: {
+        method: 'GET',
+        params: {agent: '@id'},
+        isArray: true
+      }
+    });
   })
   .factory('Currency', function ($resource) {
     return $resource('/api/currencies')
@@ -12,7 +18,7 @@ angular.module('debtApp')
     me.accounts = [];
     me.currencies = [];
     var agentId = $stateParams.agentId;
-    var accountsPromise = Account.query();
+    var accountsPromise = Account.getAgentAccounts({agent: agentId});
     var currenciesPromise = Currency.query();
 
     angular.extend(me, {

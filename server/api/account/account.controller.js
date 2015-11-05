@@ -7,7 +7,7 @@ var uuid = require('node-uuid');
 
 // Get list of accounts
 exports.index = function (req, res) {
-  Account.scan({authId: req.authId, isDeleted: false}, function (err, accounts) {
+  Account.scan({authId: req.authId, agent: req.query.agent, isDeleted: false}, function (err, accounts) {
     if (err) {
       return handleError(res, err);
     }
