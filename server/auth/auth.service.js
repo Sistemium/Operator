@@ -7,7 +7,7 @@ var _ = require('lodash');
 var inMemoryAccounts = [];
 
 function isAuthenticated(req, res, next) {
-  var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.headers['authorization'];
+  var token = req.body.token || req.query['authorization:'] || req.headers['x-access-token'] || req.headers['authorization'];
 
   function requestAuthService(options) {
     request.get(options, function (err, response, body) {
