@@ -25,7 +25,7 @@ function isAuthenticated(req, res, next) {
           token: token,
           body: body
         };
-        req.authId = account.body.id;
+        req.authId = req.body.authId = account.body.id;
         req.account = account;
         inMemoryAccounts.push(account);
         next();
@@ -55,7 +55,7 @@ function isAuthenticated(req, res, next) {
     //if (inMemoryAccount && !(tokenExpiresIn < 1)) {
     if (inMemoryAccount) {
       console.log('Already authorized');
-      req.authId = inMemoryAccount.body.id;
+      req.authId = req.body.authId = inMemoryAccount.body.id;
       req.account = inMemoryAccount;
       next();
     }

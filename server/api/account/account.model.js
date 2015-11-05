@@ -8,7 +8,7 @@ var AccountSchema = new Schema({
     type: String,
     hashKey: true
   },
-  agentId: {
+  agent: {
     type: String,
     required: true
   },

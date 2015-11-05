@@ -24,6 +24,7 @@ angular.module('debtApp')
       save: function (form) {
         if (me.currency) {
           var newAccount = new Account({
+            id: uuid.v4(),
             agentId: agentId,
             currency: me.currency
           });

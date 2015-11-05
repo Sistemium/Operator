@@ -7,6 +7,7 @@ angular.module('debtApp')
         url: '/:agentId/accounts',
         templateUrl: 'app/account/account.html',
         controller: 'AccountCtrl',
+        controllerAs: 'ctrl',
         authorize: true
       });
   });

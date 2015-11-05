@@ -2,7 +2,9 @@
 
 angular.module('debtApp')
   .factory('Agent', function ($resource) {
-    return $resource('/api/agents');
+    return $resource('/api/agents', {}, {
+      query: {method: 'GET', isArray: true}
+    });
   })
   .controller('AgentCtrl', function ($state, Agent) {
     var me = this;
@@ -23,7 +25,8 @@ angular.module('debtApp')
       save: function (form) {
         if (me.name) {
           var newAgent = new Agent({
-            name: me.name
+            name: me.name,
+            id: uuid.v4()
           });
 
           newAgent.$save(function (u) {

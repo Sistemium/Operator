@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var Account = require('./account.model');
 var Agent = require('../agent/agent.model');
+var uuid = require('node-uuid');
 
 // Get list of accounts
 exports.index = function (req, res) {
@@ -42,6 +43,7 @@ exports.create = function (req, res) {
       return res.json(201, createdItems);
     });
   } else {
+    req.body.id = req.body.id ? req.body.id : uuid.v4();
     checkCanModify(res, req.body, req.authId);
     Account.create(req.body, function (err, account) {
       if (err) {
@@ -118,7 +120,7 @@ function checkCanModify(res, account, authId) {
 }
 
 function checkAgent(res, account, authId) {
-  Agent.get(account.agentId, function (err, agent) {
+  Agent.get(account.agent, function (err, agent) {
     if (err) {
       return handleError(res, err);
     }

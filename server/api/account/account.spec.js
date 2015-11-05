@@ -24,7 +24,7 @@ var account = {
   id: uuid.v4(),
   authId: authId,
   currency: uuid.v4(),
-  agentId: agent.id
+  agent: agent.id
 };
 var requestStub;
 
@@ -71,7 +71,7 @@ describe('POST /api/accounts', function () {
   });
 
   it('should create account', function (done) {
-    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    agentGet.withArgs(account.agent).yieldsAsync(null, agent);
     accountCreate.withArgs(account).yieldsAsync(null, account);
 
     request(app)
@@ -108,11 +108,11 @@ describe('PUT /api/accounts/:id', function () {
 
   it('should update account', function (done) {
     var updated = {
-      agentId: uuid.v4(),
+      agent: uuid.v4(),
       currency: uuid.v4()
     };
     accountGet.withArgs(account.id).yieldsAsync(null, account);
-    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    agentGet.withArgs(account.agent).yieldsAsync(null, agent);
     accountUpdate.withArgs({id: account.id}).yieldsAsync(null);
 
     request(app)
@@ -150,7 +150,7 @@ describe('DELETE /api/accounts/:id', function () {
 
   it('should delete account', function (done) {
     accountGet.withArgs(account.id).yieldsAsync(null, account);
-    agentGet.withArgs(account.agentId).yieldsAsync(null, agent);
+    agentGet.withArgs(account.agent).yieldsAsync(null, agent);
     accountUpdate.withArgs({id: account.id}).yieldsAsync(null);
 
     request(app)
@@ -195,7 +195,7 @@ describe.skip('accounts integration tests', function () {
 
             var account = {
               id: uuid.v4(),
-              agentId: agents[0].id,
+              agent: agents[0].id,
               authId: authId,
               currency: currencies[0].id
             };
