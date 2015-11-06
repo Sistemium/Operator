@@ -21,5 +21,5 @@
             ui-select-choices(repeat='item in ctrl.currencies')
               span(ng-bind='item.name')
 
-        button.btn.btn-primary(type='submit' ng-disabled='!form.$valid' translate) Сохранить
+        button.btn.btn-primary(type='submit' ng-disabled='!ctrl.currency' translate) Сохранить
         button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)' translate) Отменить

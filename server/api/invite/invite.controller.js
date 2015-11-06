@@ -17,13 +17,14 @@ exports.index = function (req, res) {
     }
     var agentIds = _.pluck(agents, 'id');
     if (req.query.code) {
-      Invite.query({'code': {eq: req.query.code}, isDeleted: false}, function (err, invite) {
+      Invite.scan({code: req.query.code, isDeleted: false}, function (err, invites) {
         if (err) {
           handleError(res, err);
         }
-        if (!invite) {
+        if (!invites || invites.length === 0) {
           return res.send(404);
         }
+        var invite = invites[0];
         if (invite.status === 'open') {
           return res.json(200, invite);
         } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status) >= 0) {
@@ -66,7 +67,6 @@ exports.show = function (req, res) {
 // Creates a new invite in the DB.
 exports.create = function (req, res) {
   function prepareData(invite) {
-    invite.isActive = true;
     setStatus(invite);
     generateCode(invite);
   }
@@ -151,13 +151,13 @@ exports.destroy = function (req, res) {
 };
 
 function setStatus(invite) {
-  if (invite.isActive && !invite.acceptor) {
+  if (!invite.isDeleted && !invite.acceptor) {
     invite.status = 'open';
-  } else if (invite.isActive && invite.acceptor) {
+  } else if (!invite.isDeleted && invite.acceptor) {
     invite.status = 'accepted';
-  } else if (!invite.isActive && invite.acceptor) {
+  } else if (invite.isDeleted && invite.acceptor) {
     invite.status = 'disabled';
-  } else if (!invite.isActive && !invite.acceptor) {
+  } else if (invite.isDeleted && !invite.acceptor) {
     invite.status = 'deleted';
   }
 }

@@ -2,10 +2,7 @@
 
 angular.module('debtApp')
   .controller('NavbarCtrl', function ($scope, $state, $location, Auth) {
-    $scope.menu = [{
-      'title': 'Главная',
-      'link': '/'
-    }];
+    $scope.menu = [];
 
     $scope.isCollapsed = true;
     $scope.isLoggedIn = Auth.isLoggedIn;
