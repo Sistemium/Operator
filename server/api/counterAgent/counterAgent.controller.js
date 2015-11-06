@@ -14,6 +14,9 @@ exports.index = function(req, res) {
       if (!contacts) {
         return res.send(404);
       }
+      if (contacts.length === 0) {
+        return res.send([]);
+      }
       var acceptorIds = _.pluck(_.filter(contacts, function (cnt) {
         return !!cnt.acceptor;
       }), 'acceptor');
