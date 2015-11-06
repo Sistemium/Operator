@@ -1,20 +1,12 @@
 'use strict';
 
 angular.module('debtApp')
-  .factory('Invite', function ($resource) {
-    return $resource('/api/invites', {}, {
-      getInviteByCode: {
-        method: 'GET',
-        params: {code: '@code'}
-      }
-    });
-  })
   .controller('InviteCtrl', function ($stateParams, Invite) {
     var me = this;
     me.invite = null;
 
     me.inviteCode = null;
-    var owner = $stateParams.agentId;
+    var owner = $stateParams.agent;
     me.sendInvite = function () {
       var invite = {
         id: uuid.v4(),
