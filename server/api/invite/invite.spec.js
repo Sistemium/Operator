@@ -77,7 +77,7 @@ describe('GET /api/invites/ with code', function () {
 
   beforeEach(function () {
     agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);
-    inviteStub = sinon.stub(Invite, 'query');
+    inviteStub = sinon.stub(Invite, 'scan');
     requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
 
@@ -92,7 +92,7 @@ describe('GET /api/invites/ with code', function () {
       id: uuid.v4(),
       status: 'open'
     };
-    inviteStub.yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, [invite]);
     request(app)
       .get(url)
       .set(headers)
@@ -112,7 +112,7 @@ describe('GET /api/invites/ with code', function () {
       status: 'accepted',
       owner: agents[0].id
     };
-    inviteStub.yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, [invite]);
     request(app)
       .get(url)
       .set(headers)
@@ -134,7 +134,7 @@ describe('GET /api/invites/ with code', function () {
       //not the id of authorized user
       owner: uuid.v4()
     };
-    inviteStub.yieldsAsync(null, invite);
+    inviteStub.yieldsAsync(null, [invite]);
     request(app)
       .get(url)
       .set(headers)
