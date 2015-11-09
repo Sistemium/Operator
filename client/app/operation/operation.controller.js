@@ -1,14 +1,15 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'Currency',
-    function ($stateParams, CounterAgent, Account, Operation, Currency) {
+  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency',
+    function ($stateParams, CounterAgent, Account, Operation, AgentOperation, Currency) {
       var me = this;
       me.counterAgents = [];
       var agentId = $stateParams.agent;
 
       me.init = function () {
         me.operationsPromise = Operation.query();
+        me.agentOperationsPromise = AgentOperation.query({agent: agentId});
         me.counterAgentsPromise = CounterAgent.query({agent: agentId});
         me.currenciesPromise = Currency.query();
 
@@ -39,6 +40,14 @@ angular.module('debtApp')
           });
         } else {
           me.operations = me.operationsPromise;
+        }
+
+        if (me.agentOperationsPromise.hasOwnProperty('$promise')) {
+          me.agentOperationsPromise.$promise.then(function (res) {
+            me.agentOperations = res;
+          });
+        } else {
+          me.agentOperations = me.agentOperationsPromise;
         }
       };
 

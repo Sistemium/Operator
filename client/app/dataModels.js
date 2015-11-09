@@ -14,6 +14,12 @@ angular.module('debtApp')
         url: '/api/invites/:id',
         params: {id: '@id'},
         method: 'PUT'
+      },
+      agentInvites: {
+        url: '/api/invites/agentInvites/:agent',
+        params: {agent: '@agent'},
+        isArray: true,
+        method: 'GET'
       }
     });
   }])
@@ -36,4 +42,7 @@ angular.module('debtApp')
   }])
   .factory('Operation', ['$resource', function ($resource) {
     return $resource('/api/operations');
+  }])
+  .factory('AgentOperation', ['$resource', function ($resource) {
+    return $resource('/api/operations/agentOperations/:agent');
   }]);

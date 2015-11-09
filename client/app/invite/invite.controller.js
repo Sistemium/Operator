@@ -7,6 +7,19 @@ angular.module('debtApp')
 
     me.inviteCode = null;
     var agent = $stateParams.agent;
+
+    me.init = function () {
+      me.invitePromise = Invite.agentInvites({agent: agent});
+
+      if (me.invitePromise.hasOwnProperty('$promise')) {
+        me.invitePromise.$promise.then(function (res) {
+           me.invites = res;
+        });
+      } else {
+        me.invites = me.invitePromise;
+      }
+    };
+
     me.sendInvite = function () {
       var invite = {
         id: uuid.v4(),
@@ -52,4 +65,6 @@ angular.module('debtApp')
         alert('Ну, зачем же так..');
       })
     };
+
+    me.init();
   });

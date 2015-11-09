@@ -3,8 +3,16 @@
   .container
     .row
       p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
+      div(ng-if='ctrl.agentOperations && ctrl.agentOperations.length > 0')
+        h3 Произведенные операций агента
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='agentOperation in ctrl.agentOperations track by agentOperation.id')
+              td {{agentOperation}}
+
       div(ng-if='ctrl.operations && ctrl.operations.length > 0')
-        h3 Произведенные операций
+        h3 Произведенные операций пользователя
         table.table.table-responsive.table-hover
           thead
           tbody

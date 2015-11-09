@@ -53,6 +53,18 @@ exports.index = function (req, res) {
   });
 };
 
+// Get agent invites
+exports.agentInvites = function (req, res) {
+  var agent = req.params.agent;
+  Invite.scan({owner: agent}, function (err, invites) {
+    if (err) {
+      return handleError(res, err);
+    }
+
+    return res.json(200, invites);
+  });
+};
+
 // Get a single invite
 exports.show = function (req, res) {
   Invite.get(req.params.id, function (err, invite) {
