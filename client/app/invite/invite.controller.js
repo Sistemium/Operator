@@ -6,11 +6,11 @@ angular.module('debtApp')
     me.invite = null;
 
     me.inviteCode = null;
-    var owner = $stateParams.agent;
+    var agent = $stateParams.agent;
     me.sendInvite = function () {
       var invite = {
         id: uuid.v4(),
-        owner: owner
+        owner: agent
       };
       Invite.save(invite).$promise.then(function (res) {
         me.inviteCode = res.code;
@@ -31,7 +31,7 @@ angular.module('debtApp')
 
     me.manageInvite = function (invite) {
       if (invite.status === 'open') {
-        if (invite.owner === owner) {
+        if (invite.owner === agent) {
           me.showDisableInviteButton = true;
         } else {
           me.showAcceptInviteButton = true;
@@ -45,5 +45,11 @@ angular.module('debtApp')
 
     me.acceptInvite = function () {
       //accept invite
+      me.invite.acceptor = agent;
+      Invite.update({id: me.invite.id}, me.invite).$promise.then(function (res) {
+        alert('Ура');
+      }, function (res) {
+        alert('Ну, зачем же так..');
+      })
     };
   });

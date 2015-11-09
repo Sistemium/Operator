@@ -1,15 +1,18 @@
 .col-md-12
-  h1 Создать приглашение
+  .container
+    h1 Создать приглашение
 
-  button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()') Выслать приглашение
-  form.form-inline(ng-show='ctrl.inviteCode')
-    .form-group
-      label Код
-      input.form-control(type='email' ng-model='ctrl.inviteCode' ng-disabled='true')
-    button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()') Получить приглашение по коду
-  .row(ng-show='ctrl.showInvite')
-    | {{ctrl.invite}}
-  .row(ng-show='ctrl.showDisableInviteButton')
-    button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()')
-  .row(ng-show='ctrl.showAcceptInviteButton')
-    button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()')
+    .row
+      button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()') Выслать приглашение
+
+    form.form-inline()
+      .form-group
+        label Код
+        input.form-control(type='text' ng-model='ctrl.inviteCode')
+      button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()') Получить приглашение по коду
+    .row(ng-show='ctrl.showInvite')
+      | {{ctrl.invite}}
+    .row(ng-show='ctrl.showDisableInviteButton')
+      button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()') Заблокировать
+    .row(ng-show='ctrl.showAcceptInviteButton')
+      button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()') Подтвердить
