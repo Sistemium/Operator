@@ -6,17 +6,19 @@
       thead
         th Название агента
         th Счета
-        th
+        th(colspan='2')
       tbody
         tr(ng-repeat='agent in ctrl.agents track by agent.id')
           td
             | {{agent.name}}
           td
-            a(href='' ng-click='ctrl.goToAccounts(agent.id)')
+            a(href='#' ng-click='ctrl.goToAccounts(agent.id)')
               span.glyphicon.glyphicon-usd
           td
             a(href='' ng-click='ctrl.goToInvites(agent.id)')
               span Приглашения
+          td
+            a(href='#' ng-click='ctrl.goToOperations(agent.id)') Создать операцию
     form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend
