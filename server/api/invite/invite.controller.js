@@ -3,7 +3,9 @@
 var _ = require('lodash');
 var Invite = require('./invite.model');
 var Agent = require('../agent/agent.model');
+var Contact = require('../contact/contact.model');
 var crypto = require('crypto');
+var uuid = require('node-uuid');
 
 // Get list of invites
 exports.index = function (req, res) {
@@ -121,6 +123,24 @@ exports.update = function (req, res) {
           handleError(res, err);
         }
         updated.id = invite.id;
+        if (updated.status === 'accepted') {
+          console.log('Invite accepted');
+          var contacts = [{
+            id: uuid.v4(),
+            owner: invite.owner,
+            agent: invite.acceptor,
+            invite: invite.id
+          }, {
+            id: uuid.v4(),
+            owner: invite.acceptor,
+            agent: invite.owner,
+            invite: invite.id
+          }];
+          Contact.batchPut(contacts, function (err) {
+            if (err) return handleError(res, err);
+            console.log('Contacts created for agent and counter agent');
+          });
+        }
         return res.json(200, updated);
       });
     });

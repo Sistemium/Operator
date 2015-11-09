@@ -6,6 +6,7 @@ var request = require('supertest');
 var uuid = require('node-uuid');
 var Invite = require('./invite.model');
 var Agent = require('../agent/agent.model');
+var Contact = require('../contact/contact.model');
 var sinon = require('sinon');
 var _ = require('lodash');
 var req = require('request');
@@ -238,11 +239,15 @@ describe('DELETE /api/invites/:id', function () {
 
 describe('PUT /api/invites/:id', function () {
   var url = '/api/invites/';
-  var inviteGetStub, agentGetStub, inviteUpdateStub;
+  var inviteGetStub
+    , agentGetStub
+    , inviteUpdateStub
+    , contactBatchPutStub;
   beforeEach(function () {
     inviteGetStub = sinon.stub(Invite, 'get');
     agentGetStub = sinon.stub(Agent, 'get');
     inviteUpdateStub = sinon.stub(Invite, 'update');
+    contactBatchPutStub = sinon.stub(Contact, 'batchPut');
     requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
@@ -277,6 +282,7 @@ describe('PUT /api/invites/:id', function () {
     inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
     agentGetStub.withArgs(agent.id).yieldsAsync(null, agent);
     inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
+    contactBatchPutStub.yieldsAsync(null);
     request(app)
       .put(url + inviteId)
       .set(headers)
@@ -288,6 +294,8 @@ describe('PUT /api/invites/:id', function () {
         inviteGetStub.calledOnce.should.be.equal(true);
         agentGetStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.calledOnce.should.be.equal(true);
+        contactBatchPutStub.calledOnce.should.be.equal(true);
+        contactBatchPutStub.calledAfter(inviteUpdateStub).should.be.equal(true);
         inviteUpdateStub.args[0][1].code.should.be.equal('updated');
         res.body.status.should.be.equal('accepted');
         done();
