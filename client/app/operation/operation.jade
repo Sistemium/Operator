@@ -3,8 +3,34 @@
   .container
     .row
       p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
-      table.table.table-responsive.table-hover(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
-         thead
-         tbody
-           tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
-            td
+      div(ng-if='ctrl.operations && ctrl.operations.length > 0')
+        h3 Произведенные операций
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='operation in ctrl.operations track by operation.id')
+              td {{operation}}
+
+      div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
+        h3 Контакты
+        table.table.table-responsive.table-hover
+           thead
+           tbody
+             tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
+              td {{counterAgent}}
+              td
+                a(href='#' ng-click='ctrl.createOperation(counterAgent)') Создать операцию
+        form.form-horizontal(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')
+          legend Новая операция
+          .form-group
+            label Сумма
+            input.form-control(type='text' ng-model='ctrl.sumTotal')
+          .form-group
+            label Валюта
+            ui-select(ng-model='ctrl.currency')
+              ui-select-match
+                span(ng-bind='$select.selected.name')
+              ui-select-choices(repeat='item in ctrl.currencies')
+                span(ng-bind='item.name')
+          button.btn(type='submit') Сохранить
+
