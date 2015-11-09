@@ -57,8 +57,8 @@ describe('GET /api/operations', function () {
 
     agentScanStub.withArgs({authId: authId}).yieldsAsync(null, agents);
     operationScanStub.withArgs({or: [
-      {isDeleted: false, executor: {'in': _.pluck(agents, 'id')}},
-      {isDeleted: false, initiator: {'in': _.pluck(agents, 'id')}}
+      {'isDeleted': {eq: false}, 'executor': {'in': _.pluck(agents, 'id')}},
+      {'initiator': {'in': _.pluck(agents, 'id')}}
     ]}).yieldsAsync(null, operations);
 
     request(app)
