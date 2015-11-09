@@ -6,8 +6,9 @@ var Agent = require('../agent/agent.model');
 
 // Get list of counterAgents
 exports.index = function(req, res) {
-  if (req.params.agentId) {
-    Contact.scan({owner: req.params.agentId, isDeleted: false}, function (err, contacts) {
+  if (req.params.owner) {
+    Contact.scan({owner: req.params.owner, isDeleted: false}, function (err, contacts) {
+      console.log('GET counteragents ' + contacts);
       if (err) {
         handleError(res, err);
       }
@@ -22,7 +23,7 @@ exports.index = function(req, res) {
       }), 'acceptor');
       Agent.batchGet(acceptorIds, function (err, agents) {
         if (err) {
-          handleError(res, err);
+          return handleError(res, err);
         }
         if (!agents) {
           return res.send(404);
