@@ -1,2 +1,10 @@
 .col-md-12
   h1 Операций
+  .container
+    .row
+      p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
+      table.table.table-responsive.table-hover(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
+         thead
+         tbody
+           tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
+            td

@@ -1,39 +1,45 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', function ($stateParams, CounterAgent, Account) {
-    var me = this;
-    me.counterAgents = [];
-    me.agentsAccounts = [];
-    var agentId = $stateParams.agent;
-    var accountId = $stateParams.account;
+  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation',
+    function ($stateParams, CounterAgent, Account, Operation) {
+      var me = this;
+      me.counterAgents = [];
+      var agentId = $stateParams.agent;
 
-    me.init = function () {
-      me.counterAgentsPromise = CounterAgent.query({agent: agentId});
-      me.agentsAccountsPromise = Account.getAgentAccounts({agent: agentId});
+      me.init = function () {
+        me.counterAgentsPromise = CounterAgent.query({agent: agentId});
 
-      if (me.counterAgentsPromise.hasOwnProperty('$promise')) {
-        me.counterAgentsPromise.$promise.then(function (res) {
-          res = _.filter(res, function (i) {
-            return i.id !== agentId;
+        if (me.counterAgentsPromise.hasOwnProperty('$promise')) {
+          me.counterAgentsPromise.$promise.then(function (res) {
+            res = _.filter(res, function (i) {
+              return i.id !== agentId;
+            });
+            me.counterAgents = res;
           });
-          me.counterAgents = res;
-        });
-      } else {
-        me.counterAgents = counterAgentsPromise;
-      }
+        } else {
+          me.counterAgents = counterAgentsPromise;
+        }
+      };
 
-      if (me.agentsAccountsPromise.hasOwnProperty('$promise')) {
-        me.agentsAccountsPromise.$promise.then(function (res) {
-          res = _.filter(res, function (i) {
-            return i.id !== accountId;
-          })
-          me.agentsAccounts = res;
+      me.saveOperation = function () {
+        var operation = {
+          id: uuid.v4(),
+          sumTotal: me.sumTotal,
+          currency: me.chosenAccount.currency.id,
+          initiator: accountId,
+          executor: me.chosenAccount.id,
+          remindDuration: 'date until'
+        };
+
+        Operation.save(operation).$promise.then(function () {
+          alert('Операция сохранена');
+        }, function () {
+          alert('Неудача');
         })
-      } else {
-        me.agentsAccounts = me.agentsAccountsPromise;
-      }
-    };
+      };
 
-    me.init();
-  }]);
+      me.init();
+    }]
+  )
+;
