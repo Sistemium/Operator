@@ -8,15 +8,19 @@ var Agent = require('../agent/agent.model');
 // Get only operations which initiator or executor belongs to user agents
 exports.index = function (req, res) {
   getUserAgents(req, res, function (agentIds) {
-    Operation.scan({or: [
-      {isDeleted: false, executor: {'in': agentIds}},
-      {isDeleted: false, initiator: {'in': agentIds}}
-    ]}, function (err, operations) {
-      if (err) {
-        return handleError(res, err);
-      }
-      return res.json(200, operations);
-    });
+    Operation.scan(
+      {
+        or: [
+          {'isDeleted': {eq: false}, 'executor': {'in': agentIds}},
+          {'initiator': {'in': agentIds}}
+        ]
+      },
+      function (err, operations) {
+        if (err) {
+          return handleError(res, err);
+        }
+        return res.json(200, operations);
+      });
   });
 };
 

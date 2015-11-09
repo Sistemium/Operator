@@ -29,9 +29,7 @@ var OperationSchema = new Schema({
     required: true
   },
   state: {
-    type: String,
-    required: true,
-    trim: true
+    type: String
   },
   isDeleted: {
     type: Boolean,
