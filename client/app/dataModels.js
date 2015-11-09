@@ -5,10 +5,15 @@ angular.module('debtApp')
     return $resource('/api/counterAgents/:agent', {agent: '@id'});
   }])
   .factory('Invite', ['$resource', function ($resource) {
-    return $resource('/api/invites', {}, {
+    return $resource('/api/invites/', {}, {
       getInviteByCode: {
         method: 'GET',
         params: {code: '@code'}
+      },
+      update: {
+        url: '/api/invites/:id',
+        params: {id: '@id'},
+        method: 'PUT'
       }
     });
   }])
@@ -28,4 +33,7 @@ angular.module('debtApp')
   }])
   .factory('Currency', ['$resource', function ($resource) {
     return $resource('/api/currencies');
+  }])
+  .factory('Operation', ['$resource', function ($resource) {
+    return $resource('/api/operations');
   }]);
