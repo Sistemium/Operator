@@ -83,7 +83,7 @@ exports.update = function (req, res) {
     }
     var updated = _.clone(req.body);
     restoreDeleted(updated);
-
+    setStatus(updated);
     Operation.update({id: operation.id}, updated, function (err) {
       if (err) {
         return handleError(res, err);

@@ -34,6 +34,8 @@
           tbody
             tr(ng-repeat='waitingForConfirm in ctrl.agentOperations.waitingForConfirm track by waitingForConfirm.id')
               td {{waitingForConfirm}}
+              td
+                a(href='#' ng-click='ctrl.confirmOperation(waitingForConfirm)') Подтвердить
 
       div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
         h3 Контакты

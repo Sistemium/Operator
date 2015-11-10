@@ -41,7 +41,13 @@ angular.module('debtApp')
     return $resource('/api/currencies');
   }])
   .factory('Operation', ['$resource', function ($resource) {
-    return $resource('/api/operations');
+    return $resource('/api/operations', {}, {
+      update: {
+        url: '/api/operations/:id',
+        params: {id: '@id'},
+        method: 'PUT'
+      }
+    });
   }])
   .factory('AgentOperation', ['$resource', function ($resource) {
     return $resource('/api/operations/agentOperations/:agent');

@@ -72,6 +72,7 @@ angular.module('debtApp')
           id: uuid.v4(),
           sumTotal: me.sumTotal,
           currency: me.currency,
+          // TODO: take remind duration from UI or from config
           remindDuration: Date.now() + 24 * 60 * 60 * 1000
         };
         if (me.radioModel === lender) {
@@ -96,6 +97,20 @@ angular.module('debtApp')
       me.createOperation = function (counterAgent) {
         me.showOperationCreateForm = true;
         me.chosenContact = counterAgent;
+      };
+
+      me.confirmOperation = function (operation) {
+        if (!operation.lenderConfirmedAt) {
+          operation.lenderConfirmedAt = Date.now();
+        } else if (!operation.debtorConfirmedAt) {
+          operation.debtorConfirmedAt = Date.now();
+        }
+
+        Operation.update({id: operation.id}, operation).$promise.then(function () {
+          alert('Операция подтвержденна');
+        }, function () {
+          alert('Что то пошло не так');
+        });
       };
 
       me.init();
