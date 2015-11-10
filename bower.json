@@ -11,7 +11,6 @@
     "angular-resource": ">=1.2.*",
     "angular-cookies": ">=1.2.*",
     "angular-sanitize": ">=1.2.*",
-    "angular-bootstrap": "~0.11.0",
     "font-awesome": ">=4.1.0",
     "lodash": "~2.4.1",
     "angular-socket-io": "~0.6.0",
@@ -20,10 +19,18 @@
     "angular-gettext": "~2.1.0",
     "angular-material": "~0.11.4",
     "node-uuid": "~1.4.3",
-    "ui-select": "angular-ui-select#~0.13.2"
+    "ui-select": "angular-ui-select#~0.13.2",
+    "angular-ui-bootstrap": "~0.14.3"
   },
   "devDependencies": {
     "angular-mocks": ">=1.2.*",
     "angular-scenario": ">=1.2.*"
+  },
+  "overrides": {
+    "angular-ui-bootstrap": {
+      "main": [
+        "dist/ui-bootstrap-tpls-0.14.3.js"
+      ]
+    }
   }
 }
