@@ -50,8 +50,8 @@ angular.module('debtApp')
           form.$setPristine();
         },
 
-        goToOperations: function (accountId) {
-          $state.go('operation', {agent: agentId, account: accountId});
+        goToOperations: function () {
+          $state.go('operation', {agent: agentId});
         },
 
         refresh: function () {

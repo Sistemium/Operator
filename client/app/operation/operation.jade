@@ -40,5 +40,9 @@
                 span(ng-bind='$select.selected.name')
               ui-select-choices(repeat='item in ctrl.currencies')
                 span(ng-bind='item.name')
+          div.btn-group
+            label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'lender'") Одолжить
+            label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'debtor'") Взять в долг
+
           button.btn(type='submit') Сохранить
 

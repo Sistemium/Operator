@@ -4,7 +4,9 @@ angular.module('debtApp')
   .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency',
     function ($stateParams, CounterAgent, Account, Operation, AgentOperation, Currency) {
       var me = this;
+      var lender = 'lender';
       me.counterAgents = [];
+      me.radioModel = lender;
       var agentId = $stateParams.agent;
 
       me.init = function () {
@@ -56,10 +58,15 @@ angular.module('debtApp')
           id: uuid.v4(),
           sumTotal: me.sumTotal,
           currency: me.currency,
-          initiator: agentId,
-          executor: me.chosenContact.id,
           remindDuration: Date.now() + 24*60*60*1000
         };
+        if (me.radioModel === lender) {
+          operation.lender = agentId;
+          operation.debtor = me.chosenContact.id;
+        } else {
+          operation.lender = me.chosenContact.id;
+          operation.debtor = agentId;
+        }
 
         Operation.save(operation).$promise.then(function (res) {
           alert('Операция сохранена');

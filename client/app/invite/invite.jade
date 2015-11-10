@@ -19,7 +19,7 @@
           .form-group
             label Код
             input.form-control(type='text' ng-model='ctrl.inviteCode')
-          button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()') Получить приглашение по коду
+          button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()' ng-disabled='!ctrl.inviteCode') Получить приглашение по коду
         .row(ng-show='ctrl.showInvite')
           | {{ctrl.invite}}
         .row(ng-show='ctrl.showDisableInviteButton')
