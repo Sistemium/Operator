@@ -55,13 +55,15 @@ exports.show = function (req, res) {
 
 // Creates a new operation in the DB.
 exports.create = function (req, res) {
-  req.body.creator = req.authId;
-  req.body.status = 'waitingConfirmation';
+  var operation = req.body;
+  operation.creator = req.authId;
   validate(req, res, function () {
-    Operation.create(req.body, function (err, operation) {
+    setStatus(operation);
+    Operation.create(operation, function (err, operation) {
       if (err) {
         return handleError(res, err);
       }
+      console.log(operation);
       return res.json(201, operation);
     });
   });
@@ -79,10 +81,10 @@ exports.update = function (req, res) {
     if (!operation) {
       return res.send(404);
     }
-    var updated = _.merge(operation, req.body);
+    var updated = _.clone(req.body);
+    restoreDeleted(updated);
 
-    updateStatus();
-    Operation.update({id: updated.id}, updated, function (err) {
+    Operation.update({id: operation.id}, updated, function (err) {
       if (err) {
         return handleError(res, err);
       }
@@ -108,6 +110,21 @@ exports.destroy = function (req, res) {
     });
   });
 };
+
+function restoreDeleted(operation) {
+  if (operation.isDeleted) {
+    delete operation.isDeleted;
+  }
+}
+
+function setStatus(operation) {
+  if ((operation.debtorConfirmedAt && !operation.lenderConfirmedAt)
+  || (!operation.debtorConfirmedAt && operation.lenderConfirmedAt)) {
+    operation.state = 'waitingForConfirm';
+  } else if (operation.debtorConfirmedAt && operation.lenderConfirmedAt) {
+    operation.state = 'confirmed';
+  }
+}
 
 function validate(req, res, next) {
   getUserAgents(req, res, function (agentIds) {

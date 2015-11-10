@@ -4,7 +4,7 @@
     .row
       p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
       div(ng-if='ctrl.agentOperations && ctrl.agentOperations.length > 0')
-        h3 Произведенные операций агента
+        h3 Произведенные операции агента
         table.table.table-responsive.table-hover
           thead
           tbody
@@ -12,12 +12,28 @@
               td {{agentOperation}}
 
       div(ng-if='ctrl.operations && ctrl.operations.length > 0')
-        h3 Произведенные операций пользователя
+        h3 Произведенные операции пользователя
         table.table.table-responsive.table-hover
           thead
           tbody
             tr(ng-repeat='operation in ctrl.operations track by operation.id')
               td {{operation}}
+
+      div
+        h3 Операции потвержденные агентом
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='agentConfirmed in ctrl.agentOperations.agentConfirmed track by agentConfirmed.id')
+              td {{agentConfirmed}}
+
+      div
+        h3 Операции ждут потверждения
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='waitingForConfirm in ctrl.agentOperations.waitingForConfirm track by waitingForConfirm.id')
+              td {{waitingForConfirm}}
 
       div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
         h3 Контакты

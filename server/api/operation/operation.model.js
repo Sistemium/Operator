@@ -47,6 +47,12 @@ var OperationSchema = new Schema({
   isDeleted: {
     type: Boolean,
     default: false
+  },
+  lenderConfirmedAt: {
+    type: String
+  },
+  debtorConfirmedAt: {
+    type: String
   }
 });
 
