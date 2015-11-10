@@ -6,6 +6,10 @@ angular.module('debtApp')
       var me = this;
       var lender = 'lender';
       me.counterAgents = [];
+      me.operations = [];
+      me.agentOperations = [];
+      me.currencies = [];
+
       me.radioModel = lender;
       var agentId = $stateParams.agent;
 
@@ -15,42 +19,45 @@ angular.module('debtApp')
         me.counterAgentsPromise = CounterAgent.query({agent: agentId});
         me.currenciesPromise = Currency.query();
 
-        if (me.counterAgentsPromise.hasOwnProperty('$promise')) {
-          me.counterAgentsPromise.$promise.then(function (res) {
-            res = _.filter(res, function (i) {
-              return i.id !== agentId;
+        function getData(promise, promiseCb, cb) {
+          if (promise.hasOwnProperty('$promise')) {
+            promise.$promise.then(function (res) {
+              if (promiseCb) {
+                promiseCb(res);
+              }
             });
-            me.counterAgents = res;
-          });
-        } else {
-          me.counterAgents = me.counterAgentsPromise;
+          } else {
+            cb(promise);
+          }
         }
 
-        if (me.currenciesPromise.hasOwnProperty('$promise')) {
-          me.currenciesPromise.$promise.then(function (res) {
-            me.currencies = res;
-            me.currency = res[0];
+        getData(me.counterAgentsPromise, function (res) {
+          res = _.filter(res, function (i) {
+            return i.id !== agentId;
           });
-        } else {
-          me.currencies = me.currenciesPromise;
-          me.currency = me.currenciesPromise[0];
-        }
+          me.counterAgents = res;
+        }, function (res) {
+          me.counterAgents = res;
+        });
+        getData(me.currenciesPromise, function (res) {
+          me.currencies = res;
+          me.currency = res[0];
+        }, function (res) {
+          me.currencies = res;
+          me.currency = res[0];
+        });
 
-        if (me.operationsPromise.hasOwnProperty('$promise')) {
-          me.operationsPromise.$promise.then(function (res) {
-            me.operations = res;
-          });
-        } else {
-          me.operations = me.operationsPromise;
-        }
+        getData(me.operationsPromise, function (res) {
+          me.operations = res;
+        }, function (res) {
+          me.operations = res;
+        });
+        getData(me.agentOperationsPromise, function (res) {
+          me.agentOperations = res;
+        }, function (res) {
+          me.agentOperations = res;
 
-        if (me.agentOperationsPromise.hasOwnProperty('$promise')) {
-          me.agentOperationsPromise.$promise.then(function (res) {
-            me.agentOperations = res;
-          });
-        } else {
-          me.agentOperations = me.agentOperationsPromise;
-        }
+        });
       };
 
       me.saveOperation = function () {
@@ -58,7 +65,7 @@ angular.module('debtApp')
           id: uuid.v4(),
           sumTotal: me.sumTotal,
           currency: me.currency,
-          remindDuration: Date.now() + 24*60*60*1000
+          remindDuration: Date.now() + 24 * 60 * 60 * 1000
         };
         if (me.radioModel === lender) {
           operation.lender = agentId;
