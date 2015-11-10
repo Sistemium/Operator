@@ -27,13 +27,13 @@ var agents = [{
 var operations = [
   {
     id: uuid.v4(),
-    executor: agents[0].id,
-    initiator: agents[1].id
+    debtor: agents[0].id,
+    lender: agents[1].id
   },
   {
     id: uuid.v4(),
-    executor: agents[1].id,
-    initiator: agents[0].id
+    debtor: agents[1].id,
+    lender: agents[0].id
   }
 ];
 var requestStub;
@@ -57,8 +57,8 @@ describe('GET /api/operations', function () {
 
     agentScanStub.withArgs({authId: authId}).yieldsAsync(null, agents);
     operationScanStub.withArgs({or: [
-      {'isDeleted': {eq: false}, 'executor': {'in': _.pluck(agents, 'id')}},
-      {'initiator': {'in': _.pluck(agents, 'id')}}
+      {'isDeleted': {eq: false}, 'debtor': {'in': _.pluck(agents, 'id')}},
+      {'lender': {'in': _.pluck(agents, 'id')}}
     ]}).yieldsAsync(null, operations);
 
     request(app)
@@ -95,11 +95,11 @@ describe('POST /api/operations', function () {
 
     var operation = {
       id: uuid.v4(),
-      executor: agents[0].id,
-      initiator: agents[1].id
+      debtor: agents[0].id,
+      lender: agents[1].id
     };
 
-    agentGetStub.withArgs(operation.executor).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(operation.debtor).yieldsAsync(null, agents[0]);
     agentScanStub.withArgs({authId: authId}).yieldsAsync(null, agents);
     operationCreateStub.yieldsAsync(null, operation);
 

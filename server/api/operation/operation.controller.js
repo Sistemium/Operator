@@ -10,8 +10,8 @@ exports.index = function (req, res) {
   getUserAgents(req, res, function (agentIds) {
     Operation.scan({
         or: [
-          {'isDeleted': {eq: false}, 'executor': {'in': agentIds}},
-          {'initiator': {'in': agentIds}}
+          {'isDeleted': {eq: false}, 'debtor': {'in': agentIds}},
+          {'lender': {'in': agentIds}}
         ]
       },
       function (err, operations) {
@@ -28,8 +28,8 @@ exports.agentOperations = function (req, res) {
   if (agent) {
     Operation.scan({
       or: [
-        {'isDeleted': false, 'executor': agent},
-        {'initiator': agent}
+        {'debtor': agent},
+        {'lender': agent}
       ]
     }, function (err, operations) {
       if (err) {
@@ -55,6 +55,8 @@ exports.show = function (req, res) {
 
 // Creates a new operation in the DB.
 exports.create = function (req, res) {
+  req.body.creator = req.authId;
+  req.body.status = 'waitingConfirmation';
   validate(req, res, function () {
     Operation.create(req.body, function (err, operation) {
       if (err) {
@@ -78,6 +80,8 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     var updated = _.merge(operation, req.body);
+
+    updateStatus();
     Operation.update({id: updated.id}, updated, function (err) {
       if (err) {
         return handleError(res, err);
@@ -108,16 +112,17 @@ exports.destroy = function (req, res) {
 function validate(req, res, next) {
   getUserAgents(req, res, function (agentIds) {
     //check operation initiator is agent's id
-    if (!_.include(agentIds, req.body.initiator)) {
-      return res.send(401, {
-        message: 'Access denied!'
-      });
-    }
-    checkExecutorExist(req.body.executor, res, next);
+    //TODO check lender
+    //if (!_.include(agentIds, req.body.lender)) {
+    //  return res.send(401, {
+    //    message: 'Access denied!'
+    //  });
+    //}
+    checkDebtorExist(req.body.debtor, res, next);
   });
 }
 
-function checkExecutorExist(id, res, next) {
+function checkDebtorExist(id, res, next) {
   Agent.get(id, function (err, agent) {
     if (err) {
       return handleError(res, err);

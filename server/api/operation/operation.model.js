@@ -20,11 +20,24 @@ var OperationSchema = new Schema({
     type: Number,
     required: true
   },
-  initiator: {
+  /**
+   * Who creates record, authId
+   */
+  creator: {
     type: String,
     required: true
   },
-  executor: {
+  /**
+   * Agent who lends
+   */
+  lender: {
+    type: String,
+    required: true
+  },
+  /**
+   * Agent who owes
+   */
+  debtor: {
     type: String,
     required: true
   },
