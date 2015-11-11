@@ -22,4 +22,4 @@ var AgentSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Agent', AgentSchema);
+module.exports = dynamoose.model('Operator_Agent', AgentSchema);

@@ -29,4 +29,4 @@ var InviteSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Invite', InviteSchema);
+module.exports = dynamoose.model('Operator_Invite', InviteSchema);

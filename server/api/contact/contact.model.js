@@ -26,4 +26,4 @@ var ContactSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Contact', ContactSchema);
+module.exports = dynamoose.model('Operator_Contact', ContactSchema);

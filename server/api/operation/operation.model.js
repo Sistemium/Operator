@@ -56,4 +56,4 @@ var OperationSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Operation', OperationSchema);
+module.exports = dynamoose.model('Operator_Operation', OperationSchema);

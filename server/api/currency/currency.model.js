@@ -18,4 +18,4 @@ var CurrencySchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Currency', CurrencySchema);
+module.exports = dynamoose.model('Operator_Currency', CurrencySchema);

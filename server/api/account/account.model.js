@@ -26,4 +26,4 @@ var AccountSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Account', AccountSchema);
+module.exports = dynamoose.model('Operator_Account', AccountSchema);
