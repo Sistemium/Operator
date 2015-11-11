@@ -6,6 +6,7 @@ var request = require('supertest');
 var sinon = require('sinon');
 var Agent = require('../agent/agent.model');
 var Operation = require('./operation.model');
+var Account = require('../account/account.model');
 var uuid = require('node-uuid');
 var _ = require('lodash');
 var req = require('request');
@@ -113,6 +114,158 @@ describe('POST /api/operations', function () {
         if (err) return done(err);
         agentGetStub.calledTwice.should.be.equal(true);
         operationCreateStub.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});
+
+describe('PUT /api/operations/:id', function () {
+  var operationGetStub
+    , agentGetStub
+    , operationUpdateStub
+    , accountScanStub
+    , accountCreateStub
+    , accountUpdateStub;
+  beforeEach(function () {
+    operationGetStub = sinon.stub(Operation, 'get');
+    agentGetStub = sinon.stub(Agent, 'get');
+    operationUpdateStub  = sinon.stub(Operation, 'update');
+    accountScanStub = sinon.stub(Account, 'scan');
+    accountCreateStub = sinon.stub(Account, 'create');
+    accountUpdateStub = sinon.stub(Account, 'update');
+    requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
+  });
+
+  afterEach(function () {
+    operationGetStub.restore();
+    agentGetStub.restore();
+    operationUpdateStub.restore();
+    accountCreateStub.restore();
+    accountScanStub.restore();
+    accountUpdateStub.restore();
+    requestStub.restore();
+  });
+
+  it('should update operation', function (done) {
+    var operation = {
+      id: uuid.v4(),
+      total: 1,
+      debtor: agents[0].id,
+      lender: agents[1].id,
+      debtorConfirmedAt: Date.now()
+    };
+    agentGetStub.withArgs(operation.debtor).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(operation.lender).yieldsAsync(null, agents[1]);
+    operationGetStub.withArgs(operation.id).yieldsAsync(null, operation);
+    operationUpdateStub.withArgs({id: operation.id}).yieldsAsync(null);
+    request(app)
+      .put('/api/operations/' + operation.id)
+      .set(headers)
+      .send(operation)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        agentGetStub.calledTwice.should.be.equal(true);
+        operationGetStub.calledOnce.should.be.equal(true);
+        operationUpdateStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledAfter(operationGetStub);
+        operationUpdateStub.calledAfter(agentGetStub);
+        done();
+      });
+  });
+
+  it('should create accounts if not already created on confirmed operation', function (done) {
+    var operation = {
+      id: uuid.v4(),
+      debtor: agents[0].id,
+      lender: agents[1].id,
+      currency: uuid.v4(),
+      total: 1,
+      debtorConfirmedAt: Date.now(),
+      lenderConfirmedAt: Date.now()
+    };
+
+    agentGetStub.withArgs(operation.debtor).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(operation.lender).yieldsAsync(null, agents[1]);
+    operationGetStub.withArgs(operation.id).yieldsAsync(null, operation);
+    operationUpdateStub.withArgs({id: operation.id}).yieldsAsync(null);
+    accountScanStub.withArgs({
+      agent: operation.debtor,
+      currency: operation.currency,
+      isDeleted: false
+    }).yieldsAsync(null, []);
+    accountCreateStub.yieldsAsync(null);
+    accountScanStub.withArgs({
+      agent: operation.lender,
+      currency: operation.currency,
+      isDeleted: false
+    }).yieldsAsync(null, []);
+
+
+    request(app)
+      .put('/api/operations/' + operation.id)
+      .set(headers)
+      .send(operation)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        agentGetStub.calledTwice.should.be.equal(true);
+        operationGetStub.calledOnce.should.be.equal(true);
+        operationUpdateStub.calledOnce.should.be.equal(true);
+        accountScanStub.calledTwice.should.be.equal(true);
+        accountCreateStub.calledTwice.should.be.equal(true);
+        agentGetStub.calledAfter(operationGetStub);
+        operationUpdateStub.calledAfter(agentGetStub);
+        accountScanStub.calledAfter(operationUpdateStub);
+        done();
+      });
+  });
+
+  it('should update account if already created on confirmed operation', function (done) {
+    var operation = {
+      id: uuid.v4(),
+      debtor: agents[0].id,
+      lender: agents[1].id,
+      currency: uuid.v4(),
+      total: 1,
+      debtorConfirmedAt: Date.now(),
+      lenderConfirmedAt: Date.now()
+    };
+
+    agentGetStub.withArgs(operation.debtor).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(operation.lender).yieldsAsync(null, agents[1]);
+    operationGetStub.withArgs(operation.id).yieldsAsync(null, operation);
+    operationUpdateStub.withArgs({id: operation.id}).yieldsAsync(null);
+    accountScanStub.withArgs({
+      agent: operation.debtor,
+      currency: operation.currency,
+      isDeleted: false
+    }).yieldsAsync(null, [{}]);
+    accountUpdateStub.yieldsAsync(null);
+    accountScanStub.withArgs({
+      agent: operation.lender,
+      currency: operation.currency,
+      isDeleted: false
+    }).yieldsAsync(null, [{}]);
+
+    request(app)
+      .put('/api/operations/' + operation.id)
+      .set(headers)
+      .send(operation)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        agentGetStub.calledTwice.should.be.equal(true);
+        operationGetStub.calledOnce.should.be.equal(true);
+        operationUpdateStub.calledOnce.should.be.equal(true);
+        accountScanStub.calledTwice.should.be.equal(true);
+        accountUpdateStub.calledTwice.should.be.equal(true);
+        agentGetStub.calledAfter(operationGetStub);
+        operationUpdateStub.calledAfter(agentGetStub);
+        accountScanStub.calledAfter(operationUpdateStub);
         done();
       });
   });
