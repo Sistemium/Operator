@@ -111,8 +111,7 @@ describe('POST /api/operations', function () {
       .expect('Content-Type', /json/)
       .end(function (err) {
         if (err) return done(err);
-        agentGetStub.calledOnce.should.be.equal(true);
-        agentScanStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledTwice.should.be.equal(true);
         operationCreateStub.calledOnce.should.be.equal(true);
         done();
       });

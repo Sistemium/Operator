@@ -3,10 +3,15 @@
 var _ = require('lodash');
 var Operation = require('./operation.model');
 var Agent = require('../agent/agent.model');
+var Account = require('../account/account.model');
+var Q = require('q');
+var uuid = require('node-uuid');
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
-exports.index = function (req, res) {
+  exports
+.
+index = function (req, res) {
   getUserAgents(req, res, function (agentIds) {
     Operation.scan({
         or: [
@@ -82,14 +87,99 @@ exports.update = function (req, res) {
       return res.send(404);
     }
     var updated = _.clone(req.body);
-    restoreDeleted(updated);
-    setStatus(updated);
-    Operation.update({id: operation.id}, updated, function (err) {
-      if (err) {
-        return handleError(res, err);
-      }
-      return res.json(200, operation);
-    });
+
+    validate(req, res, function () {
+      restoreDeleted(updated);
+      setStatus(updated);
+      Operation.update({id: operation.id}, updated, function (err) {
+        if (err) {
+          return handleError(res, err);
+        }
+        /**
+         * TODO: find agent account with updated operation currency,
+         * if no accounts, then create account with that currency,
+         * if exists, update total balance in both accounts
+         */
+        if (updated.state === 'confirmed') {
+          Account.scan({
+            agent: updated.debtor,
+            currency: updated.currency,
+            isDeleted: false
+          }, function (err, accounts) {
+            if (err) {
+              return handleError(res, err);
+            }
+
+            var debtorAccount;
+            if (!accounts.length) {
+              /**
+               * When creating account for debtor total should be positive
+               */
+              debtorAccount = {
+                id: uuid.v4(),
+                agent: updated.debtor,
+                currency: updated.currency,
+                total: updated.total
+              };
+              Account.create(debtorAccount, function (err) {
+                if (err) {
+                  return handleError(res, err);
+                }
+              });
+            } else {
+              debtorAccount = accounts[0];
+              // reduce account total when debtor
+              debtorAccount.total = updated.total;
+              Account.update({id: debtorAccount.id}, debtorAccount, function (err) {
+                if (err) {
+                  return handleError(res, err);
+                }
+              });
+            }
+
+          });
+
+          Account.scan({
+            agent: updated.lender,
+            currency: updated.currency,
+            isDeleted: false
+          }, function (err, accounts) {
+            if (err) {
+              return handleError(res, err);
+            }
+
+            var lenderAccount;
+            if (!accounts.length) {
+              /**
+               * When creating account for lender total should be negative
+               */
+              lenderAccount = {
+                id: uuid.v4(),
+                agent: updated.lender,
+                currency: updated.currency,
+                total: -updated.total
+              };
+              Account.create(lenderAccount, function (err) {
+                if (err) {
+                  return handleError(res, err);
+                }
+              });
+            } else {
+              lenderAccount = accounts[0];
+              lenderAccount.total -= updated.total;
+              Account.update({id: lenderAccount.id}, lenderAccount, function (err) {
+                if (err) {
+                  return handleError(res, err);
+                }
+              })
+            }
+          });
+        }
+
+        return res.json(200, operation);
+      });
+    })
+
   });
 };
 
@@ -119,7 +209,7 @@ function restoreDeleted(operation) {
 
 function setStatus(operation) {
   if ((operation.debtorConfirmedAt && !operation.lenderConfirmedAt)
-  || (!operation.debtorConfirmedAt && operation.lenderConfirmedAt)) {
+    || (!operation.debtorConfirmedAt && operation.lenderConfirmedAt)) {
     operation.state = 'waitingForConfirm';
   } else if (operation.debtorConfirmedAt && operation.lenderConfirmedAt) {
     operation.state = 'confirmed';
@@ -127,28 +217,22 @@ function setStatus(operation) {
 }
 
 function validate(req, res, next) {
-  getUserAgents(req, res, function (agentIds) {
-    //check operation initiator is agent's id
-    //TODO check lender
-    //if (!_.include(agentIds, req.body.lender)) {
-    //  return res.send(401, {
-    //    message: 'Access denied!'
-    //  });
-    //}
-    checkDebtorExist(req.body.debtor, res, next);
-  });
+  Q.all([
+    checkAgentExist(req.body.lender, res),
+    checkAgentExist(req.body.debtor, res)
+  ]).then(function () {
+    next();
+  })
 }
 
-function checkDebtorExist(id, res, next) {
-  Agent.get(id, function (err, agent) {
+function checkAgentExist(id, res) {
+  return Agent.get(id, function (err, agent) {
     if (err) {
       return handleError(res, err);
     }
     if (!agent) {
       return res.send(404);
     }
-
-    next();
   });
 }
 
