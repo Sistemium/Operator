@@ -56,7 +56,7 @@ exports.index = function (req, res) {
 // Get agent invites
 exports.agentInvites = function (req, res) {
   var agent = req.params.agent;
-  Invite.scan({owner: agent}, function (err, invites) {
+  Invite.scan({owner: agent, isDeleted: false}, function (err, invites) {
     if (err) {
       return handleError(res, err);
     }
@@ -139,14 +139,14 @@ exports.update = function (req, res) {
           console.log('Invite accepted');
           var contacts = [{
             id: uuid.v4(),
-            owner: invite.owner,
-            agent: invite.acceptor,
-            invite: invite.id
+            owner: updated.owner,
+            agent: updated.acceptor,
+            invite: updated.id
           }, {
             id: uuid.v4(),
-            owner: invite.acceptor,
-            agent: invite.owner,
-            invite: invite.id
+            owner: updated.acceptor,
+            agent: updated.owner,
+            invite: updated.id
           }];
           Contact.batchPut(contacts, function (err) {
             if (err) return handleError(res, err);
