@@ -1,6 +1,6 @@
 .col-md-12
   h1 Операций
-  .container
+  .container.pre-scrollable(style='max-height: 650px;')
     .row
       p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
       div(ng-if='ctrl.agentOperations && ctrl.agentOperations.length > 0')
@@ -46,7 +46,7 @@
               td {{counterAgent}}
               td
                 a(href='#' ng-click='ctrl.createOperation(counterAgent)') Создать операцию
-        form.form-horizontal(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')
+        form(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')
           legend Новая операция
           .form-group
             label Сумма

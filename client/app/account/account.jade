@@ -10,16 +10,3 @@
         tr(ng-repeat='account in ctrl.accounts track by account.id')
           td
             a(href='#' ng-click='ctrl.goToOperations(account.id)') {{account}}
-    form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
-      fieldset
-        legend
-          | Выбрать валюту счета
-        .form-group
-          ui-select(ng-model='ctrl.currency')
-            ui-select-match
-              span(ng-bind='$select.selected.name')
-            ui-select-choices(repeat='item in ctrl.currencies')
-              span(ng-bind='item.name')
-
-        button.btn.btn-primary(type='submit' ng-disabled='!ctrl.currency' translate) Сохранить
-        button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)' translate) Отменить
