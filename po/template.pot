@@ -11,11 +11,3 @@ msgstr ""
 #: .tmp/app/account/account.html:1
 msgid "Нет счетов"
 msgstr ""
-
-#: .tmp/app/account/account.html:1
-msgid "Отменить"
-msgstr ""
-
-#: .tmp/app/account/account.html:1
-msgid "Сохранить"
-msgstr ""

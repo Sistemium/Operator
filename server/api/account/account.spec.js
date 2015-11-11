@@ -7,7 +7,6 @@ var sinon = require('sinon');
 var uuid = require('node-uuid');
 var Account = require('./account.model');
 var Agent = require('../agent/agent.model');
-var assert = require('assert');
 var _ = require('lodash');
 var req = require('request');
 var headers = {
