@@ -12,8 +12,8 @@ var AccountSchema = new Schema({
     type: String,
     required: true
   },
-  authId: {
-    type: String,
+  total: {
+    type: Number,
     required: true
   },
   currency: {

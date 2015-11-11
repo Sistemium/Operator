@@ -41,7 +41,7 @@ describe('GET /api/accounts', function () {
   });
 
   it('should respond with accounts array', function (done) {
-    accountScan.withArgs({authId: authId, agent: '1', isDeleted: false}).yieldsAsync(null, []);
+    accountScan.withArgs({agent: '1', isDeleted: false}).yieldsAsync(null, []);
     request(app)
       .get('/api/accounts?agent=1')
       .set(headers)
