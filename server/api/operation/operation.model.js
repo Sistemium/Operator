@@ -8,7 +8,7 @@ var OperationSchema = new Schema({
     type: String,
     hashKey: true
   },
-  sumTotal: {
+  total: {
     type: Number,
     required: true
   },

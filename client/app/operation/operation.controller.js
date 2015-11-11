@@ -70,7 +70,7 @@ angular.module('debtApp')
       me.saveOperation = function () {
         var operation = {
           id: uuid.v4(),
-          sumTotal: me.sumTotal,
+          total: me.total,
           currency: me.currency,
           // TODO: take remind duration from UI or from config
           remindDuration: Date.now() + 24 * 60 * 60 * 1000
