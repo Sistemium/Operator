@@ -25,8 +25,9 @@ angular.module('debtApp')
         id: uuid.v4(),
         owner: agent
       };
-      Invite.save(invite).$promise.then(function (res) {
+      Invite.save({id: null}, invite).$promise.then(function (res) {
         me.inviteCode = res.code;
+        me.init();
       }, function () {
         alert('failure');
       });
@@ -52,6 +53,15 @@ angular.module('debtApp')
       }
     };
 
+    me.deleteInvite = function (id) {
+      Invite.delete({id: id}).$promise.then(function () {
+        alert('Успех');
+        me.init();
+      }, function () {
+        alert('Неудача');
+      });
+    };
+
     me.disableInvite = function () {
       //disable invite
     };
@@ -61,6 +71,7 @@ angular.module('debtApp')
       me.invite.acceptor = agent;
       Invite.update({id: me.invite.id}, me.invite).$promise.then(function (res) {
         alert('Ура');
+        me.init();
       }, function (res) {
         alert('Ну, зачем же так..');
       })

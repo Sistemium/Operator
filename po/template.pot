@@ -5,9 +5,5 @@ msgstr ""
 "Project-Id-Version: \n"
 
 #: .tmp/app/account/account.html:1
-msgid "Назад"
-msgstr ""
-
-#: .tmp/app/account/account.html:1
 msgid "Нет счетов"
 msgstr ""

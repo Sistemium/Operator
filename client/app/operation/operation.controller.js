@@ -71,7 +71,7 @@ angular.module('debtApp')
         var operation = {
           id: uuid.v4(),
           total: me.total,
-          currency: me.currency,
+          currency: me.currency.id,
           // TODO: take remind duration from UI or from config
           remindDuration: Date.now() + 24 * 60 * 60 * 1000
         };
@@ -88,7 +88,7 @@ angular.module('debtApp')
         Operation.save(operation).$promise.then(function (res) {
           alert('Операция сохранена');
           me.showOperationCreateForm = false;
-          me.operations.push(res);
+          me.init();
         }, function () {
           alert('Неудача');
         });
@@ -108,6 +108,7 @@ angular.module('debtApp')
 
         Operation.update({id: operation.id}, operation).$promise.then(function () {
           alert('Операция подтвержденна');
+          me.init();
         }, function () {
           alert('Что то пошло не так');
         });

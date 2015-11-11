@@ -5,14 +5,12 @@ angular.module('debtApp')
     return $resource('/api/counterAgents/:agent', {agent: '@id'});
   }])
   .factory('Invite', ['$resource', function ($resource) {
-    return $resource('/api/invites/', {}, {
+    return $resource('/api/invites/:id', {id: '@id'}, {
       getInviteByCode: {
         method: 'GET',
         params: {code: '@code'}
       },
       update: {
-        url: '/api/invites/:id',
-        params: {id: '@id'},
         method: 'PUT'
       },
       agentInvites: {

@@ -5,7 +5,6 @@
     table.table.table-responsive.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')
       thead
         th Название агента
-        th Счета
         th(colspan='2')
       tbody
         tr(ng-repeat='agent in ctrl.agents track by agent.id')
@@ -13,13 +12,11 @@
             | {{agent.name}}
           td
             a(href='#' ng-click='ctrl.goToAccounts(agent.id)')
-              span.glyphicon.glyphicon-usd
-          td
+              span Счета |
             a(href='' ng-click='ctrl.goToInvites(agent.id)')
-              span Приглашения
-          td
-            a(href='#' ng-click='ctrl.goToOperations(agent.id)') Операций
-    form.form-horizontal(role='form' name='form' ng-submit='ctrl.save(form)')
+              span | Приглашения |
+            a(href='#' ng-click='ctrl.goToOperations(agent.id)') | Операции
+    form(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend
           | Добавить нового агента

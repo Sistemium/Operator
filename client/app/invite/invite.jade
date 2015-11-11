@@ -1,5 +1,6 @@
 .col-md-12
   h1 Приглашения
+  a(ui-sref='agent') Назад
   .container
     .row
       div(ng-if='ctrl.invites && ctrl.invites.length')
@@ -9,6 +10,7 @@
           tbody
             tr(ng-repeat='invite in ctrl.invites track by invite.id')
               td {{invite}}
+                a(href='#' ng-click='ctrl.deleteInvite(invite.id)') Удалить приглашение
       div
         h3 Создать приглашение
         button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()') Выслать приглашение

@@ -1,7 +1,7 @@
 .col-md-12
   h1 Счета агента
+  a(ui-sref='agent') Назад
   .container
-    button.btn.btn-primary.pull-right(type='button' ui-sref='agent' translate) Назад
     p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) Нет счетов
     table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
       thead
