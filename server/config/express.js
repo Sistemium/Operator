@@ -14,6 +14,7 @@ var cookieParser = require('cookie-parser');
 var errorHandler = require('errorhandler');
 var path = require('path');
 var config = require('./environment');
+var HttpError = require('../components/errors/httpError').HttpError;
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -39,6 +40,14 @@ module.exports = function (app) {
     app.use(express.static(path.join(config.root, 'client')));
     app.set('appPath', 'client');
     app.use(morgan('dev'));
-    app.use(errorHandler()); // Error handler - has to be last
+    app.use(function (err, req, res, next) {
+      if (typeof err === 'number') {
+        err = new HttpError(err);
+      }
+      if (err instanceof HttpError) {
+        res.sendHttpError(err);
+      }
+      app.use(errorHandler()); // Error handler - has to be last
+    });
   }
 };
