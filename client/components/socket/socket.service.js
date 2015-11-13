@@ -2,17 +2,28 @@
 'use strict';
 
 angular.module('debtApp')
-  .factory('socket', function(socketFactory) {
+  .factory('socket', function(socketFactory, Auth) {
 
     // socket.io now auto-configures its connection when we ommit a connection url
     var ioSocket = io('', {
       // Send auth token on connection, you will need to DI the Auth service above
       // 'query': 'token=' + Auth.getToken()
+      'query': Auth.getToken(),
       path: '/socket.io-client'
     });
 
     var socket = socketFactory({
       ioSocket: ioSocket
+    });
+
+    socket.emit('authorize', Auth.getToken(), function (cb) {
+      console.log('Socket authorization:', cb);
+
+      if (cb.isAuthorized) {
+        console.log('authorized');
+      } else {
+        console.log('not authorized');
+      }
     });
 
     return {
@@ -35,7 +46,7 @@ angular.module('debtApp')
          * Syncs item creation/updates on 'model:save'
          */
         socket.on(modelName + ':save', function (item) {
-          var oldItem = _.find(array, {_id: item._id});
+          var oldItem = _.find(array, {id: item.id});
           var index = array.indexOf(oldItem);
           var event = 'created';
 
@@ -52,11 +63,12 @@ angular.module('debtApp')
         });
 
         /**
-         * Syncs removed items on 'model:remove'
+         * Syncs removed items on 'model:update'
          */
-        socket.on(modelName + ':remove', function (item) {
-          var event = 'deleted';
-          _.remove(array, {_id: item._id});
+        socket.on(modelName + ':update', function (item) {
+          var event = 'updated';
+          //TODO: change this
+          _.remove(array, {id: item.id});
           cb(event, item, array);
         });
       },
@@ -68,7 +80,7 @@ angular.module('debtApp')
        */
       unsyncUpdates: function (modelName) {
         socket.removeAllListeners(modelName + ':save');
-        socket.removeAllListeners(modelName + ':remove');
+        socket.removeAllListeners(modelName + ':update');
       }
     };
   });

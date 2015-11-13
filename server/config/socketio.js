@@ -5,9 +5,11 @@
 'use strict';
 
 var config = require('./environment');
+var socketStore = require('../components/socket');
 
 // When the user disconnects.. perform this
 function onDisconnect(socket) {
+  socketStore.unregisterSocket(socket);
 }
 
 // When the user connects.. perform this
@@ -17,13 +19,31 @@ function onConnect(socket) {
     console.info('[%s] %s', socket.address, JSON.stringify(data, null, 2));
   });
 
-  // Insert sockets below
-  require('../api/agent/agent.socket').register(socket);
-  require('../api/operation/operation.socket').register(socket);
-  require('../api/currency/currency.socket').register(socket);
-  require('../api/contact/contact.socket').register(socket);
-  require('../api/account/account.socket').register(socket);
+  // When the client emits 'authorize', this listens and executes
+  socket.on('authorize', function (token, cb) {
+    //make request to auth service
+    socket.token = token;
+    socketStore.registerSocket(socket, function (res) {
+      connectSocketWhenAuthorized();
+      cb({isAuthorized: res});
+    });
+  });
+
+  function connectSocketWhenAuthorized() {
+    var socketsInStore = socketStore.sockets();
+
+    if (socketsInStore.indexOf(socket) >= 0) {
+      // Insert sockets below
+      require('../api/agent/agent.socket').register(socket);
+      require('../api/operation/operation.socket').register(socket);
+      require('../api/currency/currency.socket').register(socket);
+      require('../api/contact/contact.socket').register(socket);
+      require('../api/account/account.socket').register(socket);
+    }
   }
+
+  connectSocketWhenAuthorized();
+}
 
 module.exports = function (socketio) {
   // socket.io (v1.x.x) is powered by debug.
@@ -43,8 +63,8 @@ module.exports = function (socketio) {
 
   socketio.on('connection', function (socket) {
     socket.address = socket.handshake.address !== null ?
-            socket.handshake.address.address + ':' + socket.handshake.address.port :
-            process.env.DOMAIN;
+    socket.handshake.address.address + ':' + socket.handshake.address.port :
+      process.env.DOMAIN;
 
     socket.connectedAt = new Date();
 

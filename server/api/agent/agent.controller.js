@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Agent = require('./agent.model');
-var Contact = require('../contact/contact.model');
+var agentSocket = require('./agent.socket');
 
 // Get list of agents
 exports.index = function (req, res) {
@@ -15,17 +15,17 @@ exports.index = function (req, res) {
 };
 
 // Get a single agent
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
 
   Agent.get(req.params.id, function (err, agent) {
     if (err) {
       handleError(res, err);
     }
     if (agent && agent.authId !== req.authId) {
-      return res.send(401);
+      return next(401);
     }
     if (!agent || agent.isDeleted) {
-      return res.send(404);
+      return next(404);
     }
     return res.json(agent);
   });
@@ -54,6 +54,7 @@ exports.create = function (req, res) {
       if (err) {
         handleError(res, err);
       }
+      agentSocket.agentSave(agent);
       return res.json(201, agent);
     });
   }

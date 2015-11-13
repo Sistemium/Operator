@@ -50,6 +50,10 @@ angular.module('debtApp')
         }
       },
 
+      getToken: function () {
+        return $cookieStore.get('token');
+      },
+
       getCurrentUser: function () {
         return currentUser;
       },

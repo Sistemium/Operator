@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('AgentCtrl', ['$state', 'Agent',
-    function ($state, Agent) {
+  .controller('AgentCtrl', ['$scope', '$state', 'Agent', 'socket',
+    function ($scope, $state, Agent, socket) {
       var me = this;
       me.agents = [];
       var agentsPromise = Agent.query();
@@ -12,6 +12,7 @@ angular.module('debtApp')
           if (agentsPromise.hasOwnProperty('$promise')) {
             agentsPromise.$promise.then(function (res) {
               me.agents = res;
+              socket.syncUpdates('agent', me.agents);
             })
           } else {
             me.agents = agentsPromise;
@@ -25,8 +26,7 @@ angular.module('debtApp')
               id: uuid.v4()
             });
 
-            newAgent.$save(function (u) {
-              me.agents.push(u);
+            newAgent.$save(function () {
               me.name = '';
               form.$setPristine();
             });
@@ -56,6 +56,10 @@ angular.module('debtApp')
       });
 
       me.refresh();
+
+      $scope.$on('$destroy', function () {
+        socket.unsyncUpdates('agent');
+      })
     }]
   )
 ;
