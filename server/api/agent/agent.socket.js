@@ -8,6 +8,7 @@ var Agent = require('./agent.model');
 var events = require('events');
 var ee = new events.EventEmitter();
 
+
 exports.register = function (socket) {
   //TODO: investigate hooks, is it possible to call after models callback
   ee.on('agent:save', function (agent) {
@@ -27,6 +28,7 @@ exports.agentUpdate = function (agent) {
 };
 
 function onSave(socket, agent, cb) {
+  // TODO: check if agent belongs to authorized socket
   if (agent.authId === socket.authId) {
     socket.emit('agent:save', agent);
   }

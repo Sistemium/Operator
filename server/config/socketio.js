@@ -6,6 +6,11 @@
 
 var config = require('./environment');
 var socketStore = require('../components/socket');
+var agentSocket = require('../api/agent/agent.socket');
+var operationSocket = require('../api/operation/operation.socket');
+var currencySocket = require('../api/currency/currency.socket');
+var contactSocket = require('../api/contact/contact.socket');
+var accountSocket = require('../api/account/account.socket');
 
 // When the user disconnects.. perform this
 function onDisconnect(socket) {
@@ -34,11 +39,11 @@ function onConnect(socket) {
 
     if (socketsInStore.indexOf(socket) >= 0) {
       // Insert sockets below
-      require('../api/agent/agent.socket').register(socket);
-      require('../api/operation/operation.socket').register(socket);
-      require('../api/currency/currency.socket').register(socket);
-      require('../api/contact/contact.socket').register(socket);
-      require('../api/account/account.socket').register(socket);
+      agentSocket.register(socket);
+      operationSocket.register(socket);
+      currencySocket.register(socket);
+      contactSocket.register(socket);
+      accountSocket.register(socket);
     }
   }
 
