@@ -211,16 +211,23 @@ describe('DELETE /api/invites/:id', function () {
     var inviteId = uuid.v4();
     var invite = {
       id: inviteId,
-      owner: uuid.v4()
+      owner: uuid.v4(),
+      acceptor: uuid.v4()
     };
-    var agent = {
+    var owner = {
       id: invite.owner,
       name: 'test',
-      authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
+      authId: authId
+    };
+    var acceptor = {
+      id: invite.acceptor,
+      name: 'test',
+      authId: authId
     };
     inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
     inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
-    agentGetStub.withArgs(invite.owner).yieldsAsync(null, agent);
+    agentGetStub.withArgs(invite.owner).yieldsAsync(null, owner);
+    agentGetStub.withArgs(invite.acceptor).yieldsAsync(null, acceptor);
     request(app)
       .delete(url + inviteId)
       .set(headers)
@@ -231,7 +238,7 @@ describe('DELETE /api/invites/:id', function () {
         inviteUpdateStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.args[0][1].should.have.property('isDeleted');
         inviteUpdateStub.args[0][1].isDeleted.should.be.equal(true);
-        agentGetStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledTwice.should.be.equal(true);
         done();
       });
   });
@@ -269,6 +276,7 @@ describe('PUT /api/invites/:id', function () {
       owner: agent.id,
       code: 'old',
       status: 'open',
+      acceptor: null,
       isActive: true
     };
     var updated = {
@@ -280,7 +288,8 @@ describe('PUT /api/invites/:id', function () {
     };
 
     inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
-    agentGetStub.withArgs(agent.id).yieldsAsync(null, agent);
+    agentGetStub.withArgs(updated.owner).yieldsAsync(null, agent);
+    agentGetStub.withArgs(null).yieldsAsync(null, null);
     inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
     contactBatchPutStub.yieldsAsync(null);
     request(app)
@@ -292,7 +301,7 @@ describe('PUT /api/invites/:id', function () {
       .end(function (err, res) {
         if (err) return done(err);
         inviteGetStub.calledOnce.should.be.equal(true);
-        agentGetStub.calledOnce.should.be.equal(true);
+        agentGetStub.calledTwice.should.be.equal(true);
         inviteUpdateStub.calledOnce.should.be.equal(true);
         contactBatchPutStub.calledOnce.should.be.equal(true);
         contactBatchPutStub.calledAfter(inviteUpdateStub).should.be.equal(true);

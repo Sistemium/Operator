@@ -7,6 +7,8 @@ var Contact = require('../contact/contact.model');
 var crypto = require('crypto');
 var uuid = require('node-uuid');
 var inviteSocket = require('./invite.socket');
+var async = require('async');
+var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of invites
 exports.index = function (req, res) {
@@ -44,7 +46,12 @@ exports.index = function (req, res) {
       });
     } else {
       // on get without code get only invites where user id in owner or acceptor
-      Invite.scan({or: [{isDeleted: false, owner: {in: agentIds}}, {acceptor: {in: agentIds}}]}, function (err, invites) {
+      Invite.scan({
+        or: [{
+          isDeleted: false,
+          owner: {in: agentIds}
+        }, {acceptor: {in: agentIds}}]
+      }, function (err, invites) {
         if (err) {
           handleError(res, err);
         }
@@ -80,7 +87,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new invite in the DB.
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   function prepareData(invite) {
     setStatus(invite);
     generateCode(invite);
@@ -101,18 +108,33 @@ exports.create = function (req, res) {
       });
     })
   } else {
-    checkCanModify(res, req.authId, req.body, function (agents) {
-      prepareData(req.body);
-      Invite.create(req.body, function (err, invite) {
-        if (err) {
-          handleError(res, err);
-        }
-        inviteSocket.inviteSave(invite, function (socket) {
-          return socket.authData.id === agents[0].authId
-            || socket.authData.id === agents[1].authId;
+    async.waterfall([
+      function (cb) {
+        checkCanModify(req.authId, req.body, function (err, agents) {
+          if (err) {
+            cb(err);
+          }
+          cb(null, agents);
         });
-        return res.json(201, invite);
-      });
+      },
+      function (agents, cb) {
+        prepareData(req.body);
+        Invite.create(req.body, function (err, invite) {
+          if (err) {
+            cb(err);
+          }
+          inviteSocket.inviteSave(invite, function (socket, agents) {
+            return socket.authData.id === agents[0].authId
+              || socket.authData.id === agents[1].authId;
+          });
+          cb(null, invite);
+        });
+      }
+    ], function (err, result) {
+      if (err) {
+        return next(new HttpError(500, err));
+      }
+      return res.json(201, result);
     });
   }
 };
@@ -123,23 +145,36 @@ exports.update = function (req, res) {
   if (req.body.id) {
     delete req.body.id;
   }
-  Invite.get(req.params.id, function (err, invite) {
-    if (err) {
-      handleError(res, err);
-    }
-    if (!invite) {
-      return res.send(404);
-    }
-    checkCanModify(res, req.authId, invite, function () {
+  async.waterfall([
+    function (cb) {
+      Invite.get(req.params.id, function (err, invite) {
+        if (err) {
+          cb(err);
+        }
+        if (!invite) {
+          cb(404);
+        }
+        cb(null, invite);
+      });
+    },
+    function (invite, cb) {
+      checkCanModify(req.authId, invite, function (err, agents) {
+        if (err) {
+          cb(err);
+        }
+        cb(null, agents, invite.id);
+      });
+    },
+    function (agents, id, cb) {
       var updated = _.clone(req.body);
       setStatus(updated);
       restoreDeleted(updated);
 
-      Invite.update({id: invite.id}, updated, function (err) {
+      Invite.update({id: id}, updated, function (err) {
         if (err) {
-          handleError(res, err);
+          cb(err);
         }
-        updated.id = invite.id;
+        updated.id = id;
         if (updated.status === 'accepted') {
           console.log('Invite accepted');
           var contacts = [{
@@ -158,32 +193,59 @@ exports.update = function (req, res) {
             console.log('Contacts created for agent and counter agent');
           });
         }
-        return res.json(200, updated);
+        inviteSocket.inviteSave(updated, function (socket, agents) {
+          return socket.authData.id === agents[0].authId
+            || socket.authData.id === agents[1].authId;
+        });
+        cb(null, updated);
+
       });
-    });
-  });
+    }
+  ], function (err, updated) {
+    if (err) {
+      return next(new HttpError(err));
+    }
+    return res.json(updated);
+  })
 };
 
+
 // Deletes a invite from the DB.
-exports.destroy = function (req, res) {
-  Invite.get(req.params.id, function (err, invite) {
-    if (err) {
-      handleError(res, err);
-    }
-    if (!invite || invite.isDeleted) {
-      return res.send(404);
-    }
-    checkCanModify(res, req.authId, invite, function () {
-      invite.isDeleted = true;
-      var updated = _.clone(invite);
-      delete updated.id;
-      Invite.update({id: invite.id}, updated, function (err) {
+exports.destroy = function (req, res, next) {
+  async.waterfall([
+    function (cb) {
+      Invite.get(req.params.id, function (err, invite) {
         if (err) {
-          handleError(res, err);
+          cb(err);
         }
-        return res.send(204);
+        if (!invite || invite.isDeleted) {
+          cb(null, null);
+        }
+        cb(null, invite);
       });
-    });
+    },
+    function (invite, cb) {
+      checkCanModify(req.authId, invite, function (agents) {
+        invite.isDeleted = true;
+        var updated = _.clone(invite);
+        delete updated.id;
+        Invite.update({id: invite.id}, updated, function (err) {
+          if (err) {
+            cb(err);
+          }
+          inviteSocket.inviteRemove(invite, function (socket) {
+            return socket.authData.id === agents[0].authId
+              || socket.authData.id === agents[1].authId;
+          });
+          cb(null, null);
+        });
+      });
+    }
+  ], function (err) {
+    if (err) {
+      return next(new HttpError(500, err));
+    }
+    return res.send(204);
   });
 };
 
@@ -205,22 +267,41 @@ function restoreDeleted(invite) {
   }
 }
 
-function checkCanModify(res, authId, invite, next) {
-  var id = invite.owner;
-  //TODO: rewrite using async
-  Agent.get(id, function (err, agent) {
+function checkCanModify(authId, invite, next) {
+  var owner = invite.owner;
+  var acceptor = invite.acceptor;
+
+  function getAgent(id, callback) {
+    Agent.get(id, function (err, agent) {
+      if (err) {
+        callback(err);
+      } else if (!agent || agent.isDeleted) {
+        callback(null, null);
+      } else if (agent.authId !== authId) {
+        callback(401);
+      } else {
+        callback(null, agent);
+      }
+    });
+  }
+
+  async.parallel([
+    function (callback) {
+      getAgent(owner, callback);
+    },
+    function (callback) {
+      getAgent(acceptor, callback);
+    }
+  ], function (err, results) {
     if (err) {
-      handleError(res, err);
+      console.log(err);
+      next(err);
     }
-    if (!agent || agent.isDeleted) {
-      return res.send(404);
-    }
-    if (agent.authId !== authId) {
-      return res.status(401).send({
-        message: 'Access denied!'
-      });
-    }
-    next(agent);
+
+    var filtered = _.filter(results, function (item) {
+      return item !== null;
+    });
+    next(null, filtered);
   });
 }
 
