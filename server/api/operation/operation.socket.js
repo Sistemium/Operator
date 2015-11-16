@@ -4,21 +4,41 @@
 
 'use strict';
 
-var Operation = require('./operation.model');
+var events = require('events');
+var ee = new events.EventEmitter();
+var socketStore = require('../../components/socket');
+var _ = require('lodash');
 
-exports.register = function(socket) {
-  //Operation.schema.post('save', function (doc) {
-  //  onSave(socket, doc);
-  //});
-  //Operation.schema.post('remove', function (doc) {
-  //  onRemove(socket, doc);
-  //});
+ee.on('operation:save', function (operation) {
+  var sockets = socketStore.sockets();
+  _.each(sockets, function (socket) {
+    if(cb(socket)) {
+      onSave(socket, operation);
+    }
+  });
+});
+
+ee.on('operation:update', function (operation) {
+  var sockets = socketStore.sockets();
+  _.each(sockets, function (socket, cb) {
+    if (cb(socket)) {
+      onUpdate(socket, operation);
+    }
+  });
+});
+
+exports.operationSave = function (operation, cb) {
+  ee.emit('operation:save', operation, cb);
+};
+
+exports.operationUpdate = function (operation, cb) {
+  ee.emit('operation:update', operation);
+};
+
+function onSave(socket, operation) {
+  socket.emit('operation:save', operation);
 }
 
-function onSave(socket, doc, cb) {
-  socket.emit('operation:save', doc);
-}
-
-function onRemove(socket, doc, cb) {
-  socket.emit('operation:remove', doc);
+function onUpdate(socket, operation, cb) {
+  socket.emit('operation:update', operation);
 }

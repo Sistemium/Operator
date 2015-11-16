@@ -6,6 +6,7 @@ var Agent = require('../agent/agent.model');
 var Account = require('../account/account.model');
 var Q = require('q');
 var uuid = require('node-uuid');
+var operationSocket = require('./operation.socket');
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
@@ -62,13 +63,15 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   var operation = req.body;
   operation.creator = req.authId;
-  validate(req, res, function () {
+  validate(req, res, function (agents) {
     setStatus(operation);
     Operation.create(operation, function (err, operation) {
       if (err) {
         return handleError(res, err);
       }
-      console.log(operation);
+      operationSocket.operationSave(operation, function (socket) {
+        return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
+      });
       return res.json(201, operation);
     });
   });
@@ -219,8 +222,8 @@ function validate(req, res, next) {
   Q.all([
     checkAgentExist(req.body.lender, res),
     checkAgentExist(req.body.debtor, res)
-  ]).then(function () {
-    next();
+  ]).then(function (agents) {
+    next(agents);
   })
 }
 
@@ -231,6 +234,8 @@ function checkAgentExist(id, res) {
     }
     if (!agent) {
       return res.send(404);
+    } else {
+      return agent;
     }
   });
 }
