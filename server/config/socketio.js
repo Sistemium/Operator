@@ -6,11 +6,6 @@
 
 var config = require('./environment');
 var socketStore = require('../components/socket');
-var agentSocket = require('../api/agent/agent.socket');
-var operationSocket = require('../api/operation/operation.socket');
-var currencySocket = require('../api/currency/currency.socket');
-var contactSocket = require('../api/contact/contact.socket');
-var accountSocket = require('../api/account/account.socket');
 
 // When the user disconnects.. perform this
 function onDisconnect(socket) {
@@ -29,25 +24,9 @@ function onConnect(socket) {
     //make request to auth service
     socket.token = token;
     socketStore.registerSocket(socket, function (res) {
-      connectSocketWhenAuthorized();
       cb({isAuthorized: res});
     });
   });
-
-  function connectSocketWhenAuthorized() {
-    var socketsInStore = socketStore.sockets();
-
-    if (socketsInStore.indexOf(socket) >= 0) {
-      // Insert sockets below
-      agentSocket.register(socket);
-      operationSocket.register(socket);
-      currencySocket.register(socket);
-      contactSocket.register(socket);
-      accountSocket.register(socket);
-    }
-  }
-
-  connectSocketWhenAuthorized();
 }
 
 module.exports = function (socketio) {
@@ -67,6 +46,7 @@ module.exports = function (socketio) {
   // }));
 
   socketio.on('connection', function (socket) {
+
     socket.address = socket.handshake.address !== null ?
     socket.handshake.address.address + ':' + socket.handshake.address.port :
       process.env.DOMAIN;
@@ -78,6 +58,7 @@ module.exports = function (socketio) {
       onDisconnect(socket);
       console.info('[%s] DISCONNECTED', socket.address);
     });
+
 
     // Call onConnect.
     onConnect(socket);

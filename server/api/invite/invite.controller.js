@@ -6,6 +6,7 @@ var Agent = require('../agent/agent.model');
 var Contact = require('../contact/contact.model');
 var crypto = require('crypto');
 var uuid = require('node-uuid');
+var inviteSocket = require('./invite.socket');
 
 // Get list of invites
 exports.index = function (req, res) {
@@ -100,12 +101,16 @@ exports.create = function (req, res) {
       });
     })
   } else {
-    checkCanModify(res, req.authId, req.body, function () {
+    checkCanModify(res, req.authId, req.body, function (agents) {
       prepareData(req.body);
       Invite.create(req.body, function (err, invite) {
         if (err) {
           handleError(res, err);
         }
+        inviteSocket.inviteSave(invite, function (socket) {
+          return socket.authData.id === agents[0].authId
+            || socket.authData.id === agents[1].authId;
+        });
         return res.json(201, invite);
       });
     });
@@ -202,6 +207,7 @@ function restoreDeleted(invite) {
 
 function checkCanModify(res, authId, invite, next) {
   var id = invite.owner;
+  //TODO: rewrite using async
   Agent.get(id, function (err, agent) {
     if (err) {
       handleError(res, err);
@@ -214,7 +220,7 @@ function checkCanModify(res, authId, invite, next) {
         message: 'Access denied!'
       });
     }
-    next();
+    next(agent);
   });
 }
 

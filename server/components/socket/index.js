@@ -39,7 +39,8 @@ exports.registerSocket = function (socket, cb) {
       );
       cb(false);
     } else {
-      socket.authId = response.body.id;
+      //maybe only ad authId to the socket instead of body object
+      socket.authData = response.body;
       sockets.push(socket);
       cb(true);
     }
