@@ -65,9 +65,9 @@ angular.module('debtApp')
         });
 
         /**
-         * Syncs removed items on 'model:update'
+         * Syncs removed items on 'model:remove'
          */
-        socket.on(modelName + ':update', function (item) {
+        socket.on(modelName + ':remove', function (item) {
           var event = 'updated';
           //TODO: change this
           _.remove(array, {id: item.id});
@@ -82,7 +82,7 @@ angular.module('debtApp')
        */
       unsyncUpdates: function (modelName) {
         socket.removeAllListeners(modelName + ':save');
-        socket.removeAllListeners(modelName + ':update');
+        socket.removeAllListeners(modelName + ':remove');
       }
     };
   });

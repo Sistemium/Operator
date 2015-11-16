@@ -9,36 +9,36 @@ var ee = new events.EventEmitter();
 var socketStore = require('../../components/socket');
 var _ = require('lodash');
 
-ee.on('invite:save', function (agent) {
+ee.on('invite:save', function (invite) {
   var sockets = socketStore.sockets();
   _.each(sockets, function (socket) {
     if(cb(socket)) {
-      onSave(socket, agent);
+      onSave(socket, invite);
     }
   });
 });
 
-ee.on('invite:update', function (agent) {
+ee.on('invite:remove', function (invite) {
   var sockets = socketStore.sockets();
   _.each(sockets, function (socket, cb) {
     if (cb(socket)) {
-      onUpdate(socket, agent);
+      onRemove(socket, invite);
     }
   });
 });
 
-exports.inviteSave = function (agent, cb) {
-  ee.emit('invite:save', agent, cb);
+exports.inviteSave = function (invite, cb) {
+  ee.emit('invite:save', invite, cb);
 };
 
-exports.inviteUpdate = function (agent) {
-  ee.emit('invite:update', agent);
+exports.inviteRemove = function (invite) {
+  ee.emit('invite:remove', invite);
 };
 
-function onSave(socket, agent) {
-  socket.emit('invite:save', agent);
+function onSave(socket, invite) {
+  socket.emit('invite:save', invite);
 }
 
-function onUpdate(socket, agent, cb) {
-  socket.emit('invite:update', agent);
+function onRemove(socket, invite) {
+  socket.emit('invite:remove', invite);
 }

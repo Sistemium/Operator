@@ -44,6 +44,7 @@ exports.create = function (req, res) {
         }
         createdItems.push(agent);
         if (createdItems.length === newItemsCount) {
+          agentSocket.agentSave(agent);
           return res.json(201, createdItems);
         }
       });
@@ -81,6 +82,7 @@ exports.update = function (req, res) {
       if (err) {
         handleError(res, err);
       }
+      agentSocket.agentSave(agent);
       return res.json(200, agent);
     });
   });
@@ -105,6 +107,7 @@ exports.destroy = function (req, res) {
         handleError(res, err);
         return;
       }
+      agentSocket.agentRemove(agent);
       return res.send(204);
     });
   });

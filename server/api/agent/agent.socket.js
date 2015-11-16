@@ -16,10 +16,10 @@ ee.on('agent:save', function (agent) {
   });
 });
 
-ee.on('agent:update', function (agent) {
+ee.on('agent:remove', function (agent) {
   var sockets = socketStore.sockets();
   _.each(sockets, function (socket) {
-    onUpdate(socket, agent);
+    onRemove(socket, agent);
   })
 });
 
@@ -27,8 +27,8 @@ exports.agentSave = function (agent) {
   ee.emit('agent:save', agent);
 };
 
-exports.agentUpdate = function (agent) {
-  ee.emit('agent:update', agent);
+exports.agentRemove = function (agent) {
+  ee.emit('agent:remove', agent);
 };
 
 function onSave(socket, agent) {
@@ -38,9 +38,9 @@ function onSave(socket, agent) {
   }
 }
 
-function onUpdate(socket, agent) {
+function onRemove(socket, agent) {
   // TODO: check if agent belongs to authorized socket
   if (agent.authId === socket.authData.id) {
-    socket.emit('agent:update', agent);
+    socket.emit('agent:remove', agent);
   }
 }
