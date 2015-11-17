@@ -10,15 +10,18 @@ angular.module('debtApp')
         var agent = $stateParams.agent;
 
         me.init = function () {
-          me.invitePromise = Invite.agentInvites({agent: agent});
+          me.agentInvitesPromise = Invite.agentInvites({agent: agent});
 
-          if (me.invitePromise.hasOwnProperty('$promise')) {
-            me.invitePromise.$promise.then(function (res) {
-              me.invites = res;
-              socket.syncUpdates('invite', me.invites);
+          if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
+            me.agentInvitesPromise.$promise.then(function (res) {
+              me.agentInvites = res.agentInvites;
+              me.acceptedInvites = res.accepted;
+              socket.syncUpdates('invite', me.agentInvites, function (event, item, array) {
+                //TODO confirmed by agent
+              });
             });
           } else {
-            me.invites = me.invitePromise;
+            me.agentInvites = me.agentInvitesPromise;
             socket.syncUpdates('invite', me.invites);
           }
         };
@@ -72,6 +75,8 @@ angular.module('debtApp')
           me.invite.acceptor = agent;
           Invite.update({id: me.invite.id}, me.invite).$promise.then(function (res) {
             alert('Ура');
+            me.showInvite = false;
+            me.manageInvite(me.invite);
           }, function (res) {
             alert('Ну, зачем же так..');
           })

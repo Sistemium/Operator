@@ -68,8 +68,17 @@ exports.agentInvites = function (req, res) {
     if (err) {
       return handleError(res, err);
     }
+    Invite.scan({acceptor: agent, isDeleted: false}, function (err, acceptedInvites) {
+      if (err) {
+        return handleError(res, err);
+      }
+      var result = {
+        agentInvites: invites,
+        accepted: acceptedInvites
+      };
 
-    return res.json(200, invites);
+      return res.json(200, result);
+    });
   });
 };
 
@@ -124,6 +133,7 @@ exports.create = function (req, res, next) {
             cb(err);
           }
           inviteSocket.inviteSave(invite, function (socket, agents) {
+          inviteSocket.inviteSave(invite, function (socket) {
             return socket.authData.id === agents[0].authId
               || socket.authData.id === agents[1].authId;
           });

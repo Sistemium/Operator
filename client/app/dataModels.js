@@ -16,7 +16,7 @@ angular.module('debtApp')
       agentInvites: {
         url: '/api/invites/agentInvites/:agent',
         params: {agent: '@agent'},
-        isArray: true,
+        isArray: false,
         method: 'GET'
       }
     });

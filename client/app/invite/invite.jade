@@ -3,14 +3,22 @@
   a(ui-sref='agent') Назад
   .container
     .row
-      div(ng-if='ctrl.invites && ctrl.invites.length')
+      div(ng-if='ctrl.agentInvites && ctrl.agentInvites.length')
         h3 Приглашения агента
         table.table.table-responsive.table-hover
           thead
           tbody
-            tr(ng-repeat='invite in ctrl.invites track by invite.id')
+            tr(ng-repeat='invite in ctrl.agentInvites track by invite.id')
               td {{invite}}
                 a(href='#' ng-click='ctrl.deleteInvite(invite.id)') Удалить приглашение
+      div(ng-if='ctrl.acceptedInvites && ctrl.acceptedInvites.length')
+        h3 Подтвержденные
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='invite in ctrl.acceptedInvites track by invite.id')
+              td {{invite}}
+                a(href='#' ng-click='ctrl.deleteInvite(invite.id)') Удалить
       div
         h3 Создать приглашение
         button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()') Выслать приглашение

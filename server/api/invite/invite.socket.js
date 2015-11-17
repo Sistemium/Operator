@@ -9,7 +9,7 @@ var ee = new events.EventEmitter();
 var socketStore = require('../../components/socket');
 var _ = require('lodash');
 
-ee.on('invite:save', function (invite) {
+ee.on('invite:save', function (invite, cb) {
   var sockets = socketStore.sockets();
   _.each(sockets, function (socket) {
     if(cb(socket)) {
@@ -18,9 +18,9 @@ ee.on('invite:save', function (invite) {
   });
 });
 
-ee.on('invite:remove', function (invite) {
+ee.on('invite:remove', function (invite, cb) {
   var sockets = socketStore.sockets();
-  _.each(sockets, function (socket, cb) {
+  _.each(sockets, function (socket) {
     if (cb(socket)) {
       onRemove(socket, invite);
     }
@@ -31,14 +31,16 @@ exports.inviteSave = function (invite, cb) {
   ee.emit('invite:save', invite, cb);
 };
 
-exports.inviteRemove = function (invite) {
-  ee.emit('invite:remove', invite);
+exports.inviteRemove = function (invite, cb) {
+  ee.emit('invite:remove', invite, cb);
 };
 
 function onSave(socket, invite) {
   socket.emit('invite:save', invite);
+  console.log('invite:save emitted with ' + JSON.stringify(invite));
 }
 
 function onRemove(socket, invite) {
   socket.emit('invite:remove', invite);
+  console.log('invite:remove emitted with ' + JSON.stringify(invite));
 }
