@@ -18,11 +18,11 @@ ee.on('operation:save', function (operation) {
   });
 });
 
-ee.on('operation:update', function (operation) {
+ee.on('operation:remove', function (operation) {
   var sockets = socketStore.sockets();
   _.each(sockets, function (socket, cb) {
     if (cb(socket)) {
-      onUpdate(socket, operation);
+      onRemove(socket, operation);
     }
   });
 });
@@ -31,14 +31,14 @@ exports.operationSave = function (operation, cb) {
   ee.emit('operation:save', operation, cb);
 };
 
-exports.operationUpdate = function (operation, cb) {
-  ee.emit('operation:update', operation);
+exports.operationRemove = function (operation, cb) {
+  ee.emit('operation:remove', operation);
 };
 
 function onSave(socket, operation) {
   socket.emit('operation:save', operation);
 }
 
-function onUpdate(socket, operation, cb) {
-  socket.emit('operation:update', operation);
+function onRemove(socket, operation) {
+  socket.emit('operation:remove', operation);
 }

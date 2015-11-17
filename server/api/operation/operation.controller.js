@@ -91,7 +91,7 @@ exports.update = function (req, res) {
     }
     var updated = _.clone(req.body);
 
-    validate(req, res, function () {
+    validate(req, res, function (agents) {
       restoreDeleted(updated);
       setStatus(updated);
       Operation.update({id: operation.id}, updated, function (err) {
@@ -179,6 +179,9 @@ exports.update = function (req, res) {
           });
         }
 
+        operationSocket.operationSave(operation, function (socket) {
+          return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
+        });
         return res.json(200, operation);
       });
     });
@@ -198,6 +201,11 @@ exports.destroy = function (req, res) {
       if (err) {
         return handleError(res, err);
       }
+
+      operationSocket.operationRemove(operation, function (socket) {
+        // TODO: query operation agents
+        return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
+      });
       return res.send(204);
     });
   });

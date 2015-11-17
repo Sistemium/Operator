@@ -16,6 +16,7 @@ angular.module('debtApp')
             })
           } else {
             me.agents = agentsPromise;
+            socket.syncUpdates('agent', me.agents);
           }
         },
 

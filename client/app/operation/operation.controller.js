@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency',
-    function ($stateParams, CounterAgent, Account, Operation, AgentOperation, Currency) {
+  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency', 'socket',
+    function ($stateParams, CounterAgent, Account, Operation, AgentOperation, Currency, socket) {
       var me = this;
       var lender = 'lender';
       me.counterAgents = [];
@@ -35,6 +35,7 @@ angular.module('debtApp')
           res = _.filter(res, function (i) {
             return i.id !== agentId;
           });
+          // TODO: socket for counterAgents
           me.counterAgents = res;
         }, function (res) {
           me.counterAgents = res;
@@ -50,6 +51,9 @@ angular.module('debtApp')
         function processOperations (res) {
           me.operations = res;
           me.operations.waitingForConfirm = _.filter(me.operations, {'state': 'waitingForConfirm'});
+          socket.syncUpdates('operation', me.operations, function (event, item, array) {
+            array.waitingForConfirm = _.filter(array, {'state': 'waitingForConfirm'});
+          });
         }
 
         getData(me.operationsPromise, processOperations, processOperations);
@@ -57,11 +61,19 @@ angular.module('debtApp')
         function processAgentOperations (res) {
           me.agentOperations = res;
           me.agentOperations.agentConfirmed = _.filter(me.agentOperations, function (operation) {
-            return (operation.lenderConfirmedAt && operation.lender === agentId && operation.state === 'waitingForConfirm')
-              || (operation.debtorConfirmedAt && operation.debtor === agentId && operation.state === 'waitingForConfirm');
+            return operation.lenderConfirmedAt && operation.lender === agentId && operation.state === 'waitingForConfirm'
+              || operation.debtorConfirmedAt && operation.debtor === agentId && operation.state === 'waitingForConfirm';
           });
           var withoutAgentConfirmed = _.difference(me.agentOperations, me.agentOperations.agentConfirmed);
           me.agentOperations.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'});
+          socket.syncUpdates('agentOperation', me.agentOperations, function (event, item, array) {
+            array.agentConfirmed = _.filter(array, function (o) {
+              return o.lenderConfirmedAt && o.lender === agentId && o.state === 'waitingForConfirm'
+                || o.debtorConfirmedAt && o.debtor === agentId && o.state === 'waitingForConfirm';
+            });
+            var withoutAgentConfirmed = _.difference(array, array.agentConfirmed);
+            array.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'});
+          });
         }
 
         getData(me.agentOperationsPromise, processAgentOperations, processAgentOperations);
