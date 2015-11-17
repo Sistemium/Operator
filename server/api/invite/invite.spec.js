@@ -301,7 +301,8 @@ describe('PUT /api/invites/:id', function () {
       .end(function (err, res) {
         if (err) return done(err);
         inviteGetStub.calledOnce.should.be.equal(true);
-        agentGetStub.calledTwice.should.be.equal(true);
+        //if no acceptor passed should be called once
+        agentGetStub.calledOnce.should.be.equal(true);
         inviteUpdateStub.calledOnce.should.be.equal(true);
         contactBatchPutStub.calledOnce.should.be.equal(true);
         contactBatchPutStub.calledAfter(inviteUpdateStub).should.be.equal(true);

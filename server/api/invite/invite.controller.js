@@ -132,7 +132,6 @@ exports.create = function (req, res, next) {
           if (err) {
             cb(err);
           }
-          inviteSocket.inviteSave(invite, function (socket, agents) {
           inviteSocket.inviteSave(invite, function (socket) {
             return socket.authData.id === agents[0].authId
               || socket.authData.id === agents[1].authId;
@@ -150,7 +149,7 @@ exports.create = function (req, res, next) {
 };
 
 // Updates an existing invite in the DB.
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
   //prevent id sending in body
   if (req.body.id) {
     delete req.body.id;
@@ -172,7 +171,27 @@ exports.update = function (req, res) {
         if (err) {
           cb(err);
         }
-        cb(null, agents, invite.id);
+        cb(null, agents, invite);
+      });
+    },
+    function (agents, invite, cb) {
+      // check if acceptor have invite owner as contact
+      if (!invite.acceptor) {
+        return cb(null, agents, invite.id);
+      }
+      Invite.scan({
+        acceptor: invite.acceptor,
+        isDeleted: false
+      }, function (err, inv) {
+        if (err) {
+          return cb(err);
+        }
+
+        if (!inv) {
+          return cb(null, agents, invite.id);
+        }
+        console.log('Invite already accepted!');
+        cb({status: 403, message: 'Already accepted'});
       });
     },
     function (agents, id, cb) {
@@ -203,7 +222,7 @@ exports.update = function (req, res) {
             console.log('Contacts created for agent and counter agent');
           });
         }
-        inviteSocket.inviteSave(updated, function (socket, agents) {
+        inviteSocket.inviteSave(updated, function (socket) {
           return socket.authData.id === agents[0].authId
             || socket.authData.id === agents[1].authId;
         });
@@ -213,7 +232,7 @@ exports.update = function (req, res) {
     }
   ], function (err, updated) {
     if (err) {
-      return next(new HttpError(err));
+      return next(new HttpError(err.status, err.message));
     }
     return res.json(updated);
   })
@@ -282,6 +301,9 @@ function checkCanModify(authId, invite, next) {
   var acceptor = invite.acceptor;
 
   function getAgent(id, callback) {
+    if (!id) {
+      return callback(null, null);
+    }
     Agent.get(id, function (err, agent) {
       if (err) {
         callback(err);

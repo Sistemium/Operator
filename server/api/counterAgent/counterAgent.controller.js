@@ -23,6 +23,7 @@ exports.index = function(req, res) {
       }), 'agent');
       if (acceptorIds.length > 0) {
         Agent.batchGet(acceptorIds, function (err, agents) {
+          // TODO: let confirm invite only once, do not create duplicate contacts
           if (err) {
             return handleError(res, err);
           }
