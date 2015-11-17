@@ -105,7 +105,7 @@ exports.create = function (req, res, next) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
-      checkCanModify(res, req.authId, item, function () {
+      checkCanModify(item, function () {
         prepareData(item);
         Invite.create(item, function (err, invite) {
           if (err) {
@@ -119,7 +119,7 @@ exports.create = function (req, res, next) {
   } else {
     async.waterfall([
       function (cb) {
-        checkCanModify(req.authId, req.body, function (err, agents) {
+        checkCanModify(req.body, function (err, agents) {
           if (err) {
             cb(err);
           }
@@ -133,8 +133,9 @@ exports.create = function (req, res, next) {
             cb(err);
           }
           inviteSocket.inviteSave(invite, function (socket) {
-            return socket.authData.id === agents[0].authId
-              || socket.authData.id === agents[1].authId;
+            return agents.reduce(function (curr, next) {
+              return socket.authData.id === next || curr;
+            }, false);
           });
           cb(null, invite);
         });
@@ -167,28 +168,29 @@ exports.update = function (req, res, next) {
       });
     },
     function (invite, cb) {
-      checkCanModify(req.authId, invite, function (err, agents) {
+      checkCanModify(invite, function (err, agents) {
         if (err) {
           cb(err);
         }
-        cb(null, agents, invite);
+        cb(null, agents, invite.id);
       });
     },
-    function (agents, invite, cb) {
+    function (agents, inviteId, cb) {
       // check if acceptor have invite owner as contact
-      if (!invite.acceptor) {
-        return cb(null, agents, invite.id);
+      if (!req.body.acceptor) {
+        return cb(null, agents, inviteId);
       }
       Invite.scan({
-        acceptor: invite.acceptor,
+        owner: req.body.owner,
+        acceptor: req.body.acceptor,
         isDeleted: false
       }, function (err, inv) {
         if (err) {
           return cb(err);
         }
 
-        if (!inv) {
-          return cb(null, agents, invite.id);
+        if (!inv || !inv.length) {
+          return cb(null, agents, inviteId);
         }
         console.log('Invite already accepted!');
         cb({status: 403, message: 'Already accepted'});
@@ -222,9 +224,12 @@ exports.update = function (req, res, next) {
             console.log('Contacts created for agent and counter agent');
           });
         }
+        //return socket only where socket authId equal invite owner or acceptor authId
         inviteSocket.inviteSave(updated, function (socket) {
-          return socket.authData.id === agents[0].authId
-            || socket.authData.id === agents[1].authId;
+          var bool = agents.reduce(function (curr, next) {
+            return socket.authData.id === next || curr;
+          }, false);
+          return bool;
         });
         cb(null, updated);
 
@@ -254,7 +259,7 @@ exports.destroy = function (req, res, next) {
       });
     },
     function (invite, cb) {
-      checkCanModify(req.authId, invite, function (agents) {
+      checkCanModify(invite, function (agents) {
         invite.isDeleted = true;
         var updated = _.clone(invite);
         delete updated.id;
@@ -263,8 +268,9 @@ exports.destroy = function (req, res, next) {
             cb(err);
           }
           inviteSocket.inviteRemove(invite, function (socket) {
-            return socket.authData.id === agents[0].authId
-              || socket.authData.id === agents[1].authId;
+            return agents.reduce(function (curr, next) {
+              return socket.authData.id === next || curr;
+            }, false);
           });
           cb(null, null);
         });
@@ -296,7 +302,7 @@ function restoreDeleted(invite) {
   }
 }
 
-function checkCanModify(authId, invite, next) {
+function checkCanModify(invite, next) {
   var owner = invite.owner;
   var acceptor = invite.acceptor;
 
@@ -309,8 +315,6 @@ function checkCanModify(authId, invite, next) {
         callback(err);
       } else if (!agent || agent.isDeleted) {
         callback(null, null);
-      } else if (agent.authId !== authId) {
-        callback(401);
       } else {
         callback(null, agent);
       }
@@ -330,9 +334,9 @@ function checkCanModify(authId, invite, next) {
       next(err);
     }
 
-    var filtered = _.filter(results, function (item) {
+    var filtered = _.pluck(_.filter(results, function (item) {
       return item !== null;
-    });
+    }), 'authId');
     next(null, filtered);
   });
 }

@@ -249,18 +249,21 @@ describe('PUT /api/invites/:id', function () {
   var inviteGetStub
     , agentGetStub
     , inviteUpdateStub
-    , contactBatchPutStub;
+    , contactBatchPutStub
+    , inviteScanStub;
   beforeEach(function () {
     inviteGetStub = sinon.stub(Invite, 'get');
     agentGetStub = sinon.stub(Agent, 'get');
     inviteUpdateStub = sinon.stub(Invite, 'update');
     contactBatchPutStub = sinon.stub(Contact, 'batchPut');
+    inviteScanStub = sinon.stub(Invite, 'scan');
     requestStub = sinon.stub(req, 'get').yieldsAsync(null, {statusCode: 200}, {id: authId});
   });
   afterEach(function () {
     inviteGetStub.restore();
     agentGetStub.restore();
     inviteUpdateStub.restore();
+    inviteScanStub.restore();
     requestStub.restore();
   });
 
@@ -289,7 +292,12 @@ describe('PUT /api/invites/:id', function () {
 
     inviteGetStub.withArgs(inviteId).yieldsAsync(null, invite);
     agentGetStub.withArgs(updated.owner).yieldsAsync(null, agent);
-    agentGetStub.withArgs(null).yieldsAsync(null, null);
+    agentGetStub.withArgs(updated.acceptor).yieldsAsync(null, agents[0]);
+    inviteScanStub.withArgs({
+      owner: updated.owner,
+      acceptor: updated.acceptor,
+      isDeleted: false
+    }).yieldsAsync(null, []);
     inviteUpdateStub.withArgs({id: inviteId}).yieldsAsync(null);
     contactBatchPutStub.yieldsAsync(null);
     request(app)
