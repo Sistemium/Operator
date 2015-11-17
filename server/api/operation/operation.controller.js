@@ -4,9 +4,10 @@ var _ = require('lodash');
 var Operation = require('./operation.model');
 var Agent = require('../agent/agent.model');
 var Account = require('../account/account.model');
-var Q = require('q');
+var async = require('async');
 var uuid = require('node-uuid');
 var operationSocket = require('./operation.socket');
+var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
@@ -60,10 +61,13 @@ exports.show = function (req, res) {
 };
 
 // Creates a new operation in the DB.
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   var operation = req.body;
   operation.creator = req.authId;
-  validate(req, res, function (agents) {
+  validate(req, function (err, agents) {
+    if (err) {
+      next(new HttpError(500, err));
+    }
     setStatus(operation);
     Operation.create(operation, function (err, operation) {
       if (err) {
@@ -78,7 +82,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing operation in the DB.
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
   if (req.body.id) {
     delete req.body.id;
   }
@@ -91,7 +95,10 @@ exports.update = function (req, res) {
     }
     var updated = _.clone(req.body);
 
-    validate(req, res, function (agents) {
+    validate(req, function (err, agents) {
+      if (err) {
+        return next(new HttpError(500, err));
+      }
       restoreDeleted(updated);
       setStatus(updated);
       Operation.update({id: operation.id}, updated, function (err) {
@@ -226,24 +233,34 @@ function setStatus(operation) {
   }
 }
 
-function validate(req, res, next) {
-  Q.all([
-    checkAgentExist(req.body.lender, res),
-    checkAgentExist(req.body.debtor, res)
-  ]).then(function (agents) {
-    next(agents);
-  })
+function validate(req, next) {
+  async.parallel([
+    function (cb) {
+      checkAgentExist(req.body.lender, cb);
+    },
+    function (cb) {
+      checkAgentExist(req.body.debtor, cb);
+    }
+  ], function (err, results) {
+    if (err) {
+      return next(err);
+    }
+    results = _.filter(results, function (i) {
+      return !!i;
+    });
+    next(null, results);
+  });
 }
 
-function checkAgentExist(id, res) {
-  return Agent.get(id, function (err, agent) {
+function checkAgentExist(id, cb) {
+  Agent.get(id, function (err, agent) {
     if (err) {
-      return handleError(res, err);
+      return cb(err);
     }
-    if (!agent) {
-      return res.send(404);
+    if (!agent || agent.isDeleted) {
+      return cb(null, null);
     } else {
-      return agent;
+      return cb(null, agent);
     }
   });
 }

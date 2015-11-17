@@ -101,6 +101,7 @@ describe('POST /api/operations', function () {
     };
 
     agentGetStub.withArgs(operation.debtor).yieldsAsync(null, agents[0]);
+    agentGetStub.withArgs(operation.lender).yieldsAsync(null, agents[1]);
     agentScanStub.withArgs({authId: authId}).yieldsAsync(null, agents);
     operationCreateStub.yieldsAsync(null, operation);
 
