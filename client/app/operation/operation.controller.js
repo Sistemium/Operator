@@ -100,7 +100,6 @@ angular.module('debtApp')
         Operation.save(operation).$promise.then(function (res) {
           alert('Операция сохранена');
           me.showOperationCreateForm = false;
-          me.init();
         }, function () {
           alert('Неудача');
         });
@@ -120,7 +119,6 @@ angular.module('debtApp')
 
         Operation.update({id: operation.id}, operation).$promise.then(function () {
           alert('Операция подтвержденна');
-          me.init();
         }, function () {
           alert('Что то пошло не так');
         });
