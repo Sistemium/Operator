@@ -15,14 +15,14 @@ angular.module('debtApp')
           if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
             me.agentInvitesPromise.$promise.then(function (res) {
               me.agentInvites = res.agentInvites;
-              me.acceptedInvites = res.accepted;
+              me.agentInvites.acceptedInvites = res.accepted;
               socket.syncUpdates('invite', me.agentInvites, function (event, item, array) {
                 //TODO confirmed by agent
               });
             });
           } else {
             me.agentInvites = me.agentInvitesPromise;
-            socket.syncUpdates('invite', me.invites);
+            socket.syncUpdates('invite', me.agentInvites);
           }
         };
 
@@ -55,6 +55,9 @@ angular.module('debtApp')
             } else {
               me.showAcceptInviteButton = true;
             }
+          } else {
+            me.showDisableInviteButton = false;
+            me.showAcceptInviteButton = false;
           }
         };
 
