@@ -7,7 +7,6 @@ angular.module('debtApp', [
   'btford.socket-io',
   'ui.router',
   'ui.bootstrap',
-  'restangular',
   'gettext',
   'ngMaterial',
   'ui.select',

@@ -1,15 +1,15 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('InviteCtrl', ['$stateParams', 'Invite', 'socket',
-      function ($stateParams, Invite, socket) {
+  .controller('InviteCtrl', ['$scope', '$stateParams', 'Invite', 'socket',
+      function ($scope, $stateParams, Invite, socket) {
         var me = this;
         me.invite = null;
 
         me.inviteCode = null;
         var agent = $stateParams.agent;
 
-        me.init = function () {
+        me.refresh = function () {
           me.agentInvitesPromise = Invite.agentInvites({agent: agent});
 
           if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
@@ -85,7 +85,11 @@ angular.module('debtApp')
           })
         };
 
-        me.init();
+        me.refresh();
+
+        $scope.$on('$destroy', function () {
+          socket.unsyncUpdates('invite');
+        })
       }
     ]
   )

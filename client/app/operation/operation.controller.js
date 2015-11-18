@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('OperationCtrl', ['$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency', 'socket',
-    function ($stateParams, CounterAgent, Account, Operation, AgentOperation, Currency, socket) {
+  .controller('OperationCtrl', ['$scope', '$stateParams', 'CounterAgent', 'Account', 'Operation', 'AgentOperation', 'Currency', 'socket',
+    function ($scope, $stateParams, CounterAgent, Account, Operation, AgentOperation, Currency, socket) {
       var me = this;
       var lender = 'lender';
       me.counterAgents = [];
@@ -13,7 +13,7 @@ angular.module('debtApp')
       me.radioModel = lender;
       var agentId = $stateParams.agent;
 
-      me.init = function () {
+      me.refresh = function () {
         me.operationsPromise = Operation.query();
         me.agentOperationsPromise = AgentOperation.query({agent: agentId});
         me.counterAgentsPromise = CounterAgent.query({agent: agentId});
@@ -124,7 +124,12 @@ angular.module('debtApp')
         });
       };
 
-      me.init();
+      me.refresh();
+
+      $scope.$on('$destroy', function () {
+        socket.unsyncUpdates('operation');
+        socket.unsyncUpdates('agentOperation');
+      });
     }]
   )
 ;
