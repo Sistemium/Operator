@@ -14,10 +14,11 @@ angular.module('debtApp')
 
           if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
             me.agentInvitesPromise.$promise.then(function (res) {
-              me.agentInvites = res.agentInvites;
-              me.agentInvites.acceptedInvites = res.accepted;
+              me.agentInvites = res;
+              me.acceptedInvites = _.filter(res, {'acceptor': agent});
               socket.syncUpdates('invite', me.agentInvites, function (event, item, array) {
                 //TODO confirmed by agent
+                me.acceptedInvites = _.filter(array, {'acceptor': agent});
               });
             });
           } else {
@@ -79,7 +80,6 @@ angular.module('debtApp')
           Invite.update({id: me.invite.id}, me.invite).$promise.then(function (res) {
             alert('Ура');
             me.showInvite = false;
-            me.manageInvite(me.invite);
           }, function (res) {
             alert('Ну, зачем же так..');
           })

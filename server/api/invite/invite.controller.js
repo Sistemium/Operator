@@ -11,23 +11,23 @@ var async = require('async');
 var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of invites
-exports.index = function (req, res) {
+exports.index = function (req, res, next) {
   // get agents that belongs to user
   Agent.scan({authId: req.authId, isDeleted: false}, function (err, agents) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!agents) {
-      return res.status(404);
+      return next(new HttpError(404, 'agents not found'));
     }
     var agentIds = _.pluck(agents, 'id');
     if (req.query.code) {
-      Invite.scan({code: req.query.code, isDeleted: false}, function (err, invites) {
+      Invite.scan({'code': req.query.code, 'isDeleted': false}, function (err, invites) {
         if (err) {
-          handleError(res, err);
+          return next(new HttpError(500, err));
         }
         if (!invites || invites.length === 0) {
-          return res.send(404);
+          return next(new HttpError(404, 'invites not found'));
         }
         var invite = invites[0];
         if (invite.status === 'open') {
@@ -36,9 +36,7 @@ exports.index = function (req, res) {
           if (_.include(agentIds, invite.acceptor) || _.include(agentIds, invite.owner)) {
             return res.json(200, invite);
           } else {
-            return res.status(401).send({
-              message: 'Access denied!'
-            });
+            return next(new HttpError(401, 'Access denied!'));
           }
         } else {
           return res.json(404);
@@ -53,7 +51,7 @@ exports.index = function (req, res) {
         }, {acceptor: {in: agentIds}}]
       }, function (err, invites) {
         if (err) {
-          handleError(res, err);
+          return next(new HttpError(500, err));
         }
         return res.json(200, invites);
       });
@@ -62,34 +60,31 @@ exports.index = function (req, res) {
 };
 
 // Get agent invites
-exports.agentInvites = function (req, res) {
+exports.agentInvites = function (req, res, next) {
   var agent = req.params.agent;
-  Invite.scan({owner: agent, isDeleted: false}, function (err, invites) {
-    if (err) {
-      return handleError(res, err);
-    }
-    Invite.scan({acceptor: agent, isDeleted: false}, function (err, acceptedInvites) {
-      if (err) {
-        return handleError(res, err);
-      }
-      var result = {
-        agentInvites: invites,
-        accepted: acceptedInvites
-      };
 
-      return res.json(200, result);
-    });
+  Invite.scan({
+    // TODO: this not works
+    and: [
+      //{'isDeleted': false}, returns all records that have false
+      {'or': [{'owner': agent, 'acceptor': agent}]}
+    ]
+  }, function (err, invites) {
+    if (err) {
+      return next(new HttpError(500, err));
+    }
+    return res.json(200, invites);
   });
 };
 
 // Get a single invite
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
   Invite.get(req.params.id, function (err, invite) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!invite || invite.isDeleted) {
-      return res.send(404);
+      return next(new HttpError(404, 'invite not found'));
     }
     return res.json(invite);
   });
@@ -109,7 +104,7 @@ exports.create = function (req, res, next) {
         prepareData(item);
         Invite.create(item, function (err, invite) {
           if (err) {
-            handleError(res, err);
+            return next(new HttpError(500, err))
           }
           createdItems.push(invite);
         });
@@ -220,7 +215,7 @@ exports.update = function (req, res, next) {
             invite: updated.id
           }];
           Contact.batchPut(contacts, function (err) {
-            if (err) return handleError(res, err);
+            if (err) return next(new HttpError(500, err));
             console.log('Contacts created for agent and counter agent');
           });
         }
@@ -349,8 +344,4 @@ function generateCode(invite) {
   }
 
   invite.code = randomValueHex(10);
-}
-
-function handleError(res, err) {
-  return res.send(500, err);
 }

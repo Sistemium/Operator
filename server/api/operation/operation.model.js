@@ -12,6 +12,9 @@ var OperationSchema = new Schema({
     type: Number,
     required: true
   },
+  comment: {
+    type: String
+  },
   currency: {
     type: String,
     required: true

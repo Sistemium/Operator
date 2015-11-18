@@ -271,3 +271,40 @@ describe('PUT /api/operations/:id', function () {
       });
   });
 });
+
+var agent = uuid.v4();
+var agentOperationsUrl = '/api/operations/agentOperations/' + agent;
+describe('GET ' + agentOperationsUrl, function () {
+  var operationScanStub;
+  beforeEach(function () {
+    operationScanStub = sinon.stub(Operation, 'scan');
+  });
+  afterEach(function () {
+    operationScanStub.restore();
+  });
+
+  it('should get agent operations', function (done) {
+    operationScanStub.withArgs({
+      and: [
+        {or: [
+          {'debtor': agent},
+          {'lender': agent}
+        ]},
+        {
+          'isDeleted': false
+        }
+      ]
+    }).yieldsAsync(null, []);
+
+    request(app)
+      .get(agentOperationsUrl)
+      .set(headers)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err) {
+        if (err) return done(err);
+        operationScanStub.calledOnce.should.be.equal(true);
+        done();
+      });
+  });
+});

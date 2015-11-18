@@ -43,7 +43,7 @@ function onSave(socket, operation) {
 }
 
 function onRemove(socket, operation) {
-  socket.emit('operation:remove', operation);
+  socket.emit('agentOperation:remove', operation);
   socket.emit('operation:remove', operation);
   console.info('operation:remove emitted with ' + JSON.stringify(operation));
 }

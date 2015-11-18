@@ -11,9 +11,7 @@ var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
-  exports
-.
-index = function (req, res) {
+exports.index = function (req, res, next) {
   getUserAgents(req, res, function (agentIds) {
     Operation.scan({
         or: [
@@ -23,24 +21,31 @@ index = function (req, res) {
       },
       function (err, operations) {
         if (err) {
-          return handleError(res, err);
+          return next(new HttpError(500, err));
         }
         return res.json(200, operations);
       });
   });
 };
 
-exports.agentOperations = function (req, res) {
+exports.agentOperations = function (req, res, next) {
   var agent = req.params.agent;
   if (agent) {
     Operation.scan({
-      or: [
-        {'debtor': agent},
-        {'lender': agent}
+      and: [
+        {
+          or: [
+            {'debtor': agent},
+            {'lender': agent}
+          ]
+        },
+        {
+          'isDeleted': false
+        }
       ]
     }, function (err, operations) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err))(res, err);
       }
       return res.json(200, operations);
     });
@@ -48,10 +53,10 @@ exports.agentOperations = function (req, res) {
 };
 
 // Get a single operation
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
   Operation.get(req.params.id, function (err, operation) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!operation || operation.isDeleted) {
       return res.send(404);
@@ -71,13 +76,16 @@ exports.create = function (req, res, next) {
     setStatus(operation);
     Operation.create(operation, function (err, operation) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err));
       }
+      // check if operation belongs to socket
       operationSocket.operationSave(operation, function (socket) {
-        return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
+        return agents.reduce(function (curr, next) {
+          return socket.authData.id === next || curr;
+        }, false);
       });
-      return res.json(201, operation);
     });
+    return res.json(201, operation);
   });
 };
 
@@ -88,7 +96,7 @@ exports.update = function (req, res, next) {
   }
   Operation.get(req.params.id, function (err, operation) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!operation) {
       return res.send(404);
@@ -103,7 +111,7 @@ exports.update = function (req, res, next) {
       setStatus(updated);
       Operation.update({id: operation.id}, updated, function (err) {
         if (err) {
-          return handleError(res, err);
+          return next(new HttpError(500, err));
         }
         /**
          * TODO: find agent account with updated operation currency,
@@ -117,7 +125,7 @@ exports.update = function (req, res, next) {
             isDeleted: false
           }, function (err, accounts) {
             if (err) {
-              return handleError(res, err);
+              return next(new HttpError(500, err));
             }
 
             var debtorAccount;
@@ -133,7 +141,7 @@ exports.update = function (req, res, next) {
               };
               Account.create(debtorAccount, function (err) {
                 if (err) {
-                  return handleError(res, err);
+                  return next(new HttpError(500, err));
                 }
               });
             } else {
@@ -142,7 +150,7 @@ exports.update = function (req, res, next) {
               debtorAccount.total = updated.total;
               Account.update({id: debtorAccount.id}, debtorAccount, function (err) {
                 if (err) {
-                  return handleError(res, err);
+                  return next(new HttpError(500, err));
                 }
               });
             }
@@ -155,7 +163,7 @@ exports.update = function (req, res, next) {
             isDeleted: false
           }, function (err, accounts) {
             if (err) {
-              return handleError(res, err);
+              return next(new HttpError(500, err));
             }
 
             var lenderAccount;
@@ -171,7 +179,7 @@ exports.update = function (req, res, next) {
               };
               Account.create(lenderAccount, function (err) {
                 if (err) {
-                  return handleError(res, err);
+                  return next(new HttpError(500, err));
                 }
               });
             } else {
@@ -179,7 +187,7 @@ exports.update = function (req, res, next) {
               lenderAccount.total -= updated.total;
               Account.update({id: lenderAccount.id}, lenderAccount, function (err) {
                 if (err) {
-                  return handleError(res, err);
+                  return next(new HttpError(500, err));
                 }
               });
             }
@@ -196,17 +204,17 @@ exports.update = function (req, res, next) {
 };
 
 // Deletes a operation from the DB.
-exports.destroy = function (req, res) {
+exports.destroy = function (req, res, next) {
   Operation.get(req.params.id, function (err, operation) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!operation) {
       return res.send(404);
     }
     operation.delete(function (err) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err));
       }
 
       operationSocket.operationRemove(operation, function (socket) {
@@ -245,9 +253,9 @@ function validate(req, next) {
     if (err) {
       return next(err);
     }
-    results = _.filter(results, function (i) {
+    results = _.pluck(_.filter(results, function (i) {
       return !!i;
-    });
+    }), 'authId');
     next(null, results);
   });
 }
@@ -268,7 +276,7 @@ function checkAgentExist(id, cb) {
 function getUserAgents(req, res, next) {
   Agent.scan({authId: req.authId}, function (err, agents) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!agents) {
       return res.status(404);
@@ -277,8 +285,4 @@ function getUserAgents(req, res, next) {
     var agentIds = _.pluck(agents, 'id');
     next(agentIds);
   });
-}
-
-function handleError(res, err) {
-  return res.send(500, err);
 }

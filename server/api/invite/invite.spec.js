@@ -140,11 +140,9 @@ describe('GET /api/invites/ with code', function () {
       .get(url)
       .set(headers)
       .expect(401)
-      .expect('Content-Type', /json/)
-      .end(function (err, res) {
+      .expect('Content-Type', /html/)
+      .end(function (err) {
         if (err) return done(err);
-        res.body.should.have.property('message');
-        res.body.message.should.be.equal('Access denied!');
         inviteStub.restore();
         done();
       });
