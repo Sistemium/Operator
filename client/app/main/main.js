@@ -5,8 +5,6 @@ angular.module('debtApp')
     $stateProvider
       .state('main', {
         url: '/',
-        templateUrl: 'app/main/main.html',
-        controller: 'MainCtrl',
-        controllerAs: 'ctrl'
+        templateUrl: 'app/main/main.html'
       });
   });

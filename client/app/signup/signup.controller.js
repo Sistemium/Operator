@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('SignupCtrl', ['$http', '$state', '$scope', '$mdToast', 'authDomain', 'Auth',
-    function ($http, $state, $scope, $mdToast, authDomain, Auth) {
+  .controller('SignupCtrl', ['$http', '$location', '$scope', '$mdToast', 'authDomain', 'Auth',
+    function ($http, $location, $scope, $mdToast, authDomain, Auth) {
       var me = this;
       me.code = false;
 
       //TODO: add toasts on page
       function redirectToMain() {
-        $state.go('main');
+        $location.path('/');
         $mdToast.show(createToast('Удачно подключились'));
       }
 

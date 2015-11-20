@@ -1,17 +1,17 @@
 'use strict';
 
 angular.module('debtApp', [
-  'ngCookies',
-  'ngResource',
-  'ngSanitize',
-  'btford.socket-io',
-  'ui.router',
-  'ui.bootstrap',
-  'gettext',
-  'ngMaterial',
-  'ui.select',
-  'ngSanitize'
-])
+    'ngCookies',
+    'ngResource',
+    'ngSanitize',
+    'btford.socket-io',
+    'ui.router',
+    'ui.bootstrap',
+    'gettext',
+    'ngMaterial',
+    'ui.select',
+    'ngSanitize'
+  ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
       $urlRouterProvider
@@ -58,7 +58,14 @@ angular.module('debtApp', [
         }
       });
     });
-
+    $rootScope.$on('$locationChangeStart', function (event, next) {
+      Auth.isLoggedInAsync(function (loggedIn) {
+        if (next.authenticate && !loggedIn) {
+          event.preventDefault();
+          $state.go('signup');
+        }
+      });
+    });
   }])
   .run(['gettextCatalog', function (gettextCatalog) {
     // enable debugging mode to show untranslated strings

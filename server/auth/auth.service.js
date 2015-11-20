@@ -2,6 +2,7 @@
 var request = require('request');
 var config = require('../config/environment');
 var _ = require('lodash');
+var HttpError = require('../components/errors/httpError').HttpError;
 
 //in memory accounts
 var inMemoryAccounts = [];
@@ -12,7 +13,7 @@ function isAuthenticated(req, res, next) {
   function requestAuthService(options) {
     request.get(options, function (err, response, body) {
       if (err) {
-        return res.json({success: false, message: 'Failed to authenticate'});
+        return next(new HttpError(500, err));
       }
       if (!err && response.statusCode === 200) {
         console.log('Successful authorization');

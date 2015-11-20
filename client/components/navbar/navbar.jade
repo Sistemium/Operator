@@ -8,13 +8,13 @@ div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarCtrl')
         span.icon-bar
       a.navbar-brand(ui-sref='main') Долги
 
-    div#navbar-main.navbar-collapse.collapse(collapse='isCollapsed')
+    div#navbar-main.navbar-collapse.collapse(uib-collapse='isCollapsed')
       ul.nav.navbar-nav
         li(ng-repeat='item in menu', ng-class='{active: isActive(item.link)}')
           a(ng-href='{{item.link}}') {{item.title}}
 
       ul.nav.navbar-nav.navbar-right
         li(ng-show='isLoggedIn()')
-          p.navbar-text Привет, {{getCurrentUser().body.phoneNumber || getCurrentUser()}}
+          p.navbar-text Привет, {{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
         li(ng-show='isLoggedIn()' ng-class="{active: isActive('/logout')}")
           a(href='' ng-click='logout()') Выйти

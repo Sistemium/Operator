@@ -43,7 +43,8 @@ angular.module('debtApp')
           }).catch(function () {
             cb(false);
           });
-        } else if (currentUser.hasOwnProperty('roles')) {
+          // property of current user
+        } else if (currentUser.hasOwnProperty('phoneNumber')) {
           cb(true);
         } else {
           cb(false);
@@ -59,7 +60,7 @@ angular.module('debtApp')
       },
 
       isLoggedIn: function () {
-        return currentUser.hasOwnProperty('body') || currentUser.hasOwnProperty('roles');
+        return currentUser.hasOwnProperty('body') || currentUser.hasOwnProperty('phoneNumber');
       }
     };
   }]);
