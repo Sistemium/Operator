@@ -5,7 +5,7 @@
     p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) Нет счетов
     table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
       thead
-        th Валюты
+        th Счета разных валют
       tbody
         tr(ng-repeat='account in ctrl.accounts track by account.id')
           td

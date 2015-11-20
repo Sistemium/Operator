@@ -213,6 +213,7 @@ exports.update = function (req, res, next) {
         }
 
         operationSocket.operationSave(updated, (socket) => {
+          console.info('Check socket have access to emit event...');
           console.info(JSON.stringify(agents));
           console.info('###################');
           console.info(socket.authData.id);

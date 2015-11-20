@@ -11,9 +11,9 @@ var async = require('async');
 var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of invites
-exports.index = function (req, res, next) {
+exports.index = (req, res, next) => {
   // get agents that belongs to user
-  Agent.scan({authId: req.authId, isDeleted: false}, function (err, agents) {
+  Agent.scan({authId: req.authId, isDeleted: false}, (err, agents) => {
     if (err) {
       return next(new HttpError(500, err));
     }
@@ -60,7 +60,7 @@ exports.index = function (req, res, next) {
 };
 
 // Get agent invites
-exports.agentInvites = function (req, res, next) {
+exports.agentInvites = (req, res, next) => {
   var agent = req.params.agent;
 
   Invite.scan({
@@ -69,7 +69,7 @@ exports.agentInvites = function (req, res, next) {
       //{'isDeleted': false}, returns all records that have false
       {'or': [{'owner': agent, 'acceptor': agent}]}
     ]
-  }, function (err, invites) {
+  }, (err, invites) => {
     if (err) {
       return next(new HttpError(500, err));
     }
@@ -78,8 +78,8 @@ exports.agentInvites = function (req, res, next) {
 };
 
 // Get a single invite
-exports.show = function (req, res, next) {
-  Invite.get(req.params.id, function (err, invite) {
+exports.show = (req, res, next) => {
+  Invite.get(req.params.id, (err, invite) => {
     if (err) {
       return next(new HttpError(500, err));
     }
@@ -91,7 +91,7 @@ exports.show = function (req, res, next) {
 };
 
 // Creates a new invite in the DB.
-exports.create = function (req, res, next) {
+exports.create = (req, res, next) => {
   function prepareData(invite) {
     setStatus(invite);
     generateCode(invite);
@@ -99,7 +99,7 @@ exports.create = function (req, res, next) {
 
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
-    _.each(req.body, function (item) {
+    _.each(req.body, (item) => {
       checkCanModify(item, function () {
         prepareData(item);
         Invite.create(item, function (err, invite) {
@@ -113,29 +113,29 @@ exports.create = function (req, res, next) {
     })
   } else {
     async.waterfall([
-      function (cb) {
-        checkCanModify(req.body, function (err, agents) {
+      (cb) => {
+        checkCanModify(req.body, (err, agents) => {
           if (err) {
             cb(err);
           }
           cb(null, agents);
         });
       },
-      function (agents, cb) {
+      (agents, cb) => {
         prepareData(req.body);
-        Invite.create(req.body, function (err, invite) {
+        Invite.create(req.body, (err, invite) => {
           if (err) {
             cb(err);
           }
-          inviteSocket.inviteSave(invite, function (socket) {
-            return agents.reduce(function (curr, next) {
+          inviteSocket.inviteSave(invite, (socket) => {
+            return agents.reduce((curr, next) => {
               return socket.authData.id === next || curr;
             }, false);
           });
           cb(null, invite);
         });
       }
-    ], function (err, result) {
+    ], (err, result) => {
       if (err) {
         return next(new HttpError(500, err));
       }
@@ -145,33 +145,35 @@ exports.create = function (req, res, next) {
 };
 
 // Updates an existing invite in the DB.
-exports.update = function (req, res, next) {
+exports.update = (req, res, next) => {
   //prevent id sending in body
   if (req.body.id) {
     delete req.body.id;
   }
   async.waterfall([
-    function (cb) {
-      Invite.get(req.params.id, function (err, invite) {
+    //get invite by id
+    (cb) => {
+      Invite.get(req.params.id, (err, invite) => {
         if (err) {
           cb(err);
         }
         if (!invite) {
           cb(404);
         }
-        cb(null, invite);
+        cb(null, invite.id);
       });
     },
-    function (invite, cb) {
-      checkCanModify(invite, function (err, agents) {
+    // check invite agents, acceptor and owner
+    (id, cb) => {
+      checkCanModify(req.body, (err, agents) => {
         if (err) {
           cb(err);
         }
-        cb(null, agents, invite.id);
+        cb(null, agents, id);
       });
     },
-    function (agents, inviteId, cb) {
-      // check if acceptor have invite owner as contact
+    // check if acceptor have invite owner as contact
+    (agents, inviteId, cb) => {
       if (!req.body.acceptor) {
         return cb(null, agents, inviteId);
       }
@@ -179,7 +181,7 @@ exports.update = function (req, res, next) {
         owner: req.body.owner,
         acceptor: req.body.acceptor,
         isDeleted: false
-      }, function (err, inv) {
+      }, (err, inv) => {
         if (err) {
           return cb(err);
         }
@@ -191,12 +193,13 @@ exports.update = function (req, res, next) {
         cb({status: 403, message: 'Already accepted'});
       });
     },
-    function (agents, id, cb) {
+    // update and invite and send message to socket
+    (agents, id, cb) => {
       var updated = _.clone(req.body);
       setStatus(updated);
       restoreDeleted(updated);
 
-      Invite.update({id: id}, updated, function (err) {
+      Invite.update({id: id}, updated, (err) => {
         if (err) {
           cb(err);
         }
@@ -220,17 +223,23 @@ exports.update = function (req, res, next) {
           });
         }
         //return socket only where socket authId equal invite owner or acceptor authId
-        inviteSocket.inviteSave(updated, function (socket) {
-          var bool = agents.reduce(function (curr, next) {
+        inviteSocket.inviteSave(updated, (socket) => {
+          console.info('Check socket have access to emit event...');
+          console.info(JSON.stringify(agents));
+          console.info('###################');
+          console.info(socket.authData.id);
+          console.info('###################');
+          let sendMessage = agents.reduce((curr, next) => {
             return socket.authData.id === next || curr;
           }, false);
-          return bool;
+          console.info(sendMessage);
+          return sendMessage;
         });
         cb(null, updated);
 
       });
     }
-  ], function (err, updated) {
+  ], (err, updated) => {
     if (err) {
       return next(new HttpError(err.status, err.message));
     }
@@ -238,9 +247,8 @@ exports.update = function (req, res, next) {
   })
 };
 
-
 // Deletes a invite from the DB.
-exports.destroy = function (req, res, next) {
+exports.destroy = (req, res, next) => {
   async.waterfall([
     function (cb) {
       Invite.get(req.params.id, function (err, invite) {
@@ -271,7 +279,7 @@ exports.destroy = function (req, res, next) {
         });
       });
     }
-  ], function (err) {
+  ], (err) => {
     if (err) {
       return next(new HttpError(500, err));
     }
@@ -305,7 +313,7 @@ function checkCanModify(invite, next) {
     if (!id) {
       return callback(null, null);
     }
-    Agent.get(id, function (err, agent) {
+    Agent.get(id, (err, agent) => {
       if (err) {
         callback(err);
       } else if (!agent || agent.isDeleted) {
@@ -317,19 +325,19 @@ function checkCanModify(invite, next) {
   }
 
   async.parallel([
-    function (callback) {
+    (callback) => {
       getAgent(owner, callback);
     },
-    function (callback) {
+    (callback) => {
       getAgent(acceptor, callback);
     }
-  ], function (err, results) {
+  ], (err, results) => {
     if (err) {
       console.log(err);
       next(err);
     }
 
-    var filtered = _.pluck(_.filter(results, function (item) {
+    var filtered = _.pluck(_.filter(results, (item) => {
       return item !== null;
     }), 'authId');
     next(null, filtered);
