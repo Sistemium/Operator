@@ -7,6 +7,7 @@ angular.module('debtApp')
       var lender = 'lender';
       me.counterAgents = [];
       me.operations = [];
+      me.showSpinner = false;
       me.agentOperations = [];
       me.currencies = [];
 
@@ -18,7 +19,7 @@ angular.module('debtApp')
         me.agentOperationsPromise = AgentOperation.query({agent: agentId});
         me.counterAgentsPromise = CounterAgent.query({agent: agentId});
         me.currenciesPromise = Currency.query();
-
+        me.showSpinner = true;
         function getData(promise, promiseCb, cb) {
           if (promise.hasOwnProperty('$promise')) {
             promise.$promise.then(function (res) {
@@ -68,6 +69,7 @@ angular.module('debtApp')
           });
           var withoutAgentConfirmed = _.difference(me.agentOperations, me.agentOperations.agentConfirmed);
           me.agentOperations.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'});
+          me.showSpinner = false;
           socket.syncUpdates('agentOperation', me.agentOperations, function (event, item, array) {
             array.agentConfirmed = _.filter(array, function (o) {
               return o.lenderConfirmedAt && o.lender === agentId && o.state === 'waitingForConfirm'

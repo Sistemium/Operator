@@ -1,20 +1,21 @@
-div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarCtrl')
+div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarCtrl as ctrl')
   div.container
     div.navbar-header
-      button.navbar-toggle(type='button', ng-click='isCollapsed = !isCollapsed')
+      button.navbar-toggle(type='button', ng-click='ctrl.isCollapsed = !ctrl.isCollapsed')
         span.sr-only Toggle navigation
         span.icon-bar
         span.icon-bar
         span.icon-bar
       a.navbar-brand(ui-sref='main') Долги
 
-    div#navbar-main.navbar-collapse.collapse(uib-collapse='isCollapsed')
+    div#navbar-main.navbar-collapse.collapse(uib-collapse='ctrl.isCollapsed')
       ul.nav.navbar-nav
-        li(ng-repeat='item in menu', ng-class='{active: isActive(item.link)}')
+        li(ng-repeat='item in ctrl.menu', ng-class='{active: ctrl.isActive(item.link)}')
           a(ng-href='{{item.link}}') {{item.title}}
 
-      ul.nav.navbar-nav.navbar-right
-        li(ng-show='isLoggedIn()')
-          p.navbar-text Привет, {{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
-        li(ng-show='isLoggedIn()' ng-class="{active: isActive('/logout')}")
-          a(href='' ng-click='logout()') Выйти
+      ul.nav.navbar-nav.navbar-right(ng-show='ctrl.isLoggedIn()')
+        li
+          p.navbar-text Привет,
+          //{{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
+        li(ng-class="{active: ctrl.isActive('/logout')}")
+          a(href='' ng-click='ctrl.logout()') Выйти

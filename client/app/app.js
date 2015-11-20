@@ -10,7 +10,8 @@ angular.module('debtApp', [
     'gettext',
     'ngMaterial',
     'ui.select',
-    'ngSanitize'
+    'ngSanitize',
+    'angularSpinner'
   ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {

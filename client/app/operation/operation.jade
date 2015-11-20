@@ -3,7 +3,8 @@
   a(ui-sref='agent') Назад
   .container.pre-scrollable(style='max-height: 650px;')
     .row
-      p(ng-if='ctrl.counterAgents.length === 0') У вас нет контактов
+      span(us-spinner ng-show='ctrl.showSpinner')
+      p(ng-if='ctrl.counterAgents.length === 0 && !ctrl.showSpinner') У вас нет контактов
       div(ng-if='ctrl.agentOperations && ctrl.agentOperations.length > 0')
         h3 Произведенные операции агента
         table.table.table-responsive.table-hover

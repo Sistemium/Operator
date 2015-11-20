@@ -5,15 +5,16 @@ angular.module('debtApp')
       function ($scope, $stateParams, Invite, socket) {
         var me = this;
         me.invite = null;
-
+        me.showSpinner = false;
         me.inviteCode = null;
         var agent = $stateParams.agent;
 
         me.refresh = function () {
           me.agentInvitesPromise = Invite.agentInvites({agent: agent});
-
+          me.showSpinner = true;
           if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
             me.agentInvitesPromise.$promise.then(function (res) {
+              me.showSpinner = false;
               me.agentInvites = res;
               me.agentInvites.acceptedInvites = _.filter(res, {'acceptor': agent});
               socket.syncUpdates('invite', me.agentInvites, function (event, item, array) {
@@ -22,6 +23,7 @@ angular.module('debtApp')
               });
             });
           } else {
+            me.showSpinner = false;
             me.agentInvites = me.agentInvitesPromise;
             socket.syncUpdates('invite', me.agentInvites);
           }

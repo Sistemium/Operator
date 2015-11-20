@@ -1,19 +1,20 @@
 'use strict';
 
 angular.module('debtApp')
-  .controller('NavbarCtrl', function ($scope, $state, $location, Auth) {
-    $scope.menu = [];
+  .controller('NavbarCtrl', function ($state, $location, Auth) {
+    var me = this;
+    me.menu = [];
 
-    $scope.isCollapsed = true;
-    $scope.isLoggedIn = Auth.isLoggedIn;
-    $scope.getCurrentUser = Auth.getCurrentUser;
+    me.isCollapsed = true;
+    me.isLoggedIn = Auth.isLoggedIn;
+    me.getCurrentUser = Auth.getCurrentUser;
 
-    $scope.logout = function() {
+    me.logout = function() {
       Auth.logout();
       $state.go('signup');
     };
 
-    $scope.isActive = function(route) {
+    me.isActive = function(route) {
       return route === $location.path();
     };
   });

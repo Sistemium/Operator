@@ -11,11 +11,11 @@
           td
             | {{agent.name}}
           td
-            a(href='#' ng-click='ctrl.goToAccounts(agent.id)')
+            a(href='' ng-click='ctrl.goToAccounts(agent.id)')
               span Счета |
             a(href='' ng-click='ctrl.goToInvites(agent.id)')
               span | Приглашения |
-            a(href='#' ng-click='ctrl.goToOperations(agent.id)') | Операции
+            a(href='' ng-click='ctrl.goToOperations(agent.id)') | Операции
     form(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend

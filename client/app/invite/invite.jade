@@ -3,6 +3,7 @@
   a(ui-sref='agent') Назад
   .container
     .row
+      span(us-spinner ng-show='ctrl.showSpinner')
       div(ng-if='ctrl.agentInvites && ctrl.agentInvites.length')
         h3 Приглашения агента
         table.table.table-responsive.table-hover
