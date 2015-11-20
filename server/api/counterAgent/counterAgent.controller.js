@@ -3,20 +3,21 @@
 var _ = require('lodash');
 var Contact = require('../contact/contact.model');
 var Agent = require('../agent/agent.model');
+var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of counterAgents
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
   if (req.params.owner) {
     Contact.scan({owner: req.params.owner, isDeleted: false}, function (err, contacts) {
       console.log('GET counter agents ' + JSON.stringify(contacts));
       if (err) {
-        handleError(res, err);
+        return next(new HttpError(500, err));
       }
       if (!contacts) {
-        return res.send(404);
+        return next(new HttpError(404, 'not found'));
       }
       if (contacts.length === 0) {
-        return res.send([]);
+        return res.send(200, []);
       }
       var acceptorIds = _.pluck(_.filter(contacts, function (cnt) {
         return !!cnt.agent;
@@ -25,10 +26,10 @@ exports.index = function(req, res) {
         Agent.batchGet(acceptorIds, function (err, agents) {
           // TODO: let confirm invite only once, do not create duplicate contacts
           if (err) {
-            return handleError(res, err);
+            return next(new HttpError(500, err));
           }
           if (!agents) {
-            return res.send(404);
+            return next(new HttpError(404, 'not found'));
           }
 
           return res.send(200, agents);
@@ -37,7 +38,3 @@ exports.index = function(req, res) {
     });
   }
 };
-
-function handleError(res, err) {
-  return res.send(500, err);
-}

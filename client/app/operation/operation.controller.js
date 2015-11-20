@@ -50,9 +50,11 @@ angular.module('debtApp')
 
         function processOperations (res) {
           me.operations = res;
+          me.operations.confirmed = _.filter(me.operations, {'state': 'confirmed'});
           me.operations.waitingForConfirm = _.filter(me.operations, {'state': 'waitingForConfirm'});
           socket.syncUpdates('operation', me.operations, function (event, item, array) {
             array.waitingForConfirm = _.filter(array, {'state': 'waitingForConfirm'});
+            array.confirmed = _.filter(array, {'state': 'confirmed'});
           });
         }
 

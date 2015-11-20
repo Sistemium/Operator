@@ -14,24 +14,32 @@ div(ng-include='"../../components/navbar/navbar.html"')
             tr(ng-repeat='agentOperation in ctrl.agentOperations track by agentOperation.id')
               td {{agentOperation}}
 
-      div(ng-if='ctrl.operations && ctrl.operations.length > 0')
-        h3 Произведенные операции пользователя
+      //div(ng-if='ctrl.operations && ctrl.operations.length > 0')
+      //  h3 Произведенные операции пользователя
+      //  table.table.table-responsive.table-hover
+      //    thead
+      //    tbody
+      //      tr(ng-repeat='operation in ctrl.operations track by operation.id')
+      //        td {{operation}}
+
+      div(ng-if='ctrl.operations && ctrl.operations.confirmed.length > 0')
+        h3 Подтвержденные
         table.table.table-responsive.table-hover
           thead
           tbody
-            tr(ng-repeat='operation in ctrl.operations track by operation.id')
-              td {{operation}}
+            tr(ng-repeat='confirmed in ctrl.operations.confirmed track by confirmed.id')
+              td {{confirmed}}
 
-      div
-        h3 Операции потвержденные агентом
-        table.table.table-responsive.table-hover
-          thead
-          tbody
-            tr(ng-repeat='agentConfirmed in ctrl.agentOperations.agentConfirmed track by agentConfirmed.id')
-              td {{agentConfirmed}}
+      //div
+      //  h3 Операции подтвержденные агентом
+      //  table.table.table-responsive.table-hover
+      //    thead
+      //    tbody
+      //      tr(ng-repeat='agentConfirmed in ctrl.agentOperations.agentConfirmed track by agentConfirmed.id')
+      //        td {{agentConfirmed}}
 
-      div
-        h3 Операции ждут потверждения
+      div(ng-if='ctrl.agentOperations && ctrl.agentOperations.waitingForConfirm.length > 0')
+        h3 Операции ждут подтверждения
         table.table.table-responsive.table-hover
           thead
           tbody

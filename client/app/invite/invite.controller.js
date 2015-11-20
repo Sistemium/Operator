@@ -51,6 +51,12 @@ angular.module('debtApp')
 
         me.manageInvite = function (invite) {
           if (invite.status === 'open') {
+            //check if already have invite from that agent
+            var alreadyAccepted = _.findWhere(me.acceptedInvites, {owner: invite.owner});
+            if (alreadyAccepted) {
+              me.showMessageThatAlreadyAccepted = true;
+              return;
+            }
             if (invite.owner === agent) {
               me.showDisableInviteButton = true;
             } else {

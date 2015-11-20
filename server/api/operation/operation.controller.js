@@ -80,9 +80,15 @@ exports.create = function (req, res, next) {
       }
       // check if operation belongs to socket
       operationSocket.operationSave(operation, function (socket) {
-        return agents.reduce(function (curr, next) {
+        console.info(JSON.stringify(agents));
+        console.info('###################');
+        console.info(socket.authData.id);
+        console.info('###################');
+        let sendMessage = agents.reduce(function (curr, next) {
           return socket.authData.id === next || curr;
         }, false);
+        console.info(sendMessage);
+        return sendMessage;
       });
     });
     return res.json(201, operation);
@@ -99,7 +105,12 @@ exports.update = function (req, res, next) {
       return next(new HttpError(500, err));
     }
     if (!operation) {
-      return res.send(404);
+      return next(new HttpError(404, 'not found'));
+    }
+    if (operation) {
+      if (operation.state === 'confirmed') {
+        return next(new HttpError(400, 'operation already confirmed'));
+      }
     }
     var updated = _.clone(req.body);
 
@@ -113,6 +124,7 @@ exports.update = function (req, res, next) {
         if (err) {
           return next(new HttpError(500, err));
         }
+        updated.id = operation.id;
         /**
          * TODO: find agent account with updated operation currency,
          * if no accounts, then create account with that currency,
@@ -128,7 +140,7 @@ exports.update = function (req, res, next) {
               return next(new HttpError(500, err));
             }
 
-            var debtorAccount;
+            let debtorAccount;
             if (!accounts.length) {
               /**
                * When creating account for debtor total should be positive
@@ -146,15 +158,17 @@ exports.update = function (req, res, next) {
               });
             } else {
               debtorAccount = accounts[0];
+              let id = debtorAccount.id;
               // reduce account total when debtor
-              debtorAccount.total = updated.total;
-              Account.update({id: debtorAccount.id}, debtorAccount, function (err) {
+              debtorAccount.total += Number(updated.total);
+              delete debtorAccount.id;
+              Account.update({id: id}, debtorAccount, function (err) {
                 if (err) {
                   return next(new HttpError(500, err));
                 }
+                console.info('Account was updated ' + JSON.stringify(debtorAccount));
               });
             }
-
           });
 
           Account.scan({
@@ -181,21 +195,33 @@ exports.update = function (req, res, next) {
                 if (err) {
                   return next(new HttpError(500, err));
                 }
+                console.info('Account was created ' + JSON.stringify(lenderAccount));
               });
             } else {
               lenderAccount = accounts[0];
-              lenderAccount.total -= updated.total;
-              Account.update({id: lenderAccount.id}, lenderAccount, function (err) {
+              let id = lenderAccount.id;
+              lenderAccount.total -= Number(updated.total);
+              delete lenderAccount.id;
+              Account.update({id: id}, lenderAccount, function (err) {
                 if (err) {
                   return next(new HttpError(500, err));
                 }
+                console.info('Account was updated ' + JSON.stringify(lenderAccount));
               });
             }
           });
         }
 
-        operationSocket.operationSave(operation, function (socket) {
-          return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
+        operationSocket.operationSave(updated, (socket) => {
+          console.info(JSON.stringify(agents));
+          console.info('###################');
+          console.info(socket.authData.id);
+          console.info('###################');
+          let sendMessage = agents.reduce((curr, next) => {
+            return socket.authData.id === next || curr;
+          }, false);
+          console.info(sendMessage);
+          return sendMessage;
         });
         return res.json(200, operation);
       });
