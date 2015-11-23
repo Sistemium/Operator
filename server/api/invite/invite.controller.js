@@ -220,6 +220,7 @@ exports.update = (req, res, next) => {
           Contact.batchPut(contacts, function (err) {
             if (err) return next(new HttpError(500, err));
             console.log('Contacts created for agent and counter agent');
+
           });
         }
         //return socket only where socket authId equal invite owner or acceptor authId
