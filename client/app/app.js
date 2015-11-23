@@ -11,7 +11,8 @@ angular.module('debtApp', [
     'ngMaterial',
     'ui.select',
     'ngSanitize',
-    'angularSpinner'
+    'angularSpinner',
+    'LocalStorageModule'
   ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
@@ -21,6 +22,10 @@ angular.module('debtApp', [
       //$locationProvider.html5Mode(true);
       $httpProvider.interceptors.push('authInterceptor');
     }])
+  .config(['localStorageServiceProvider', function (localStorageServiceProvider) {
+    localStorageServiceProvider.setPrefix('ls');
+  }])
+
 
   .factory('authInterceptor', function ($rootScope, $q, $cookieStore, $location) {
     return {
@@ -68,8 +73,14 @@ angular.module('debtApp', [
       });
     });
   }])
-  .run(['gettextCatalog', function (gettextCatalog) {
+  .run(['gettextCatalog', 'localStorageService', function (gettextCatalog, localStorageService) {
     // enable debugging mode to show untranslated strings
     gettextCatalog.debug = true;
+    var lang = localStorageService.get('chosen_language');
+    if (lang) {
+      gettextCatalog.setCurrentLanguage(lang);
+    } else {
+      gettextCatalog.setCurrentLanguage('en');
+    }
   }]);
 ;

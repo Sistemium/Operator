@@ -5,6 +5,7 @@ angular.module('debtApp')
     function ($scope, $state, Agent, socket) {
       var me = this;
       me.agents = [];
+      me.showSpinner = false;
       var agentsPromise = Agent.query();
 
       angular.extend(me, {
@@ -13,10 +14,12 @@ angular.module('debtApp')
             agentsPromise.$promise.then(function (res) {
               me.agents = res;
               socket.syncUpdates('agent', me.agents);
+              me.showSpinner = false;
             })
           } else {
             me.agents = agentsPromise;
             socket.syncUpdates('agent', me.agents);
+            me.showSpinner = false;
           }
         },
 
@@ -52,6 +55,7 @@ angular.module('debtApp')
         },
 
         refresh: function () {
+          me.showSpinner = true;
           me.getData();
         }
       });

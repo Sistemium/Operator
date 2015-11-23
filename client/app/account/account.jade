@@ -2,7 +2,7 @@
   h1 Счета агента
   a(ui-sref='agent') Назад
   .container
-    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) Нет счетов
+    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0') Нет счетов
     table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
       thead
         th Счета разных валют

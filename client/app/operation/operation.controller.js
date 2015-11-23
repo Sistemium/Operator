@@ -38,6 +38,7 @@ angular.module('debtApp')
           });
           // TODO: socket for counterAgents
           me.counterAgents = res;
+          socket.syncUpdates('counterAgent', me.counterAgents);
         }, function (res) {
           me.counterAgents = res;
         });

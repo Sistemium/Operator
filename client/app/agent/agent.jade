@@ -1,10 +1,11 @@
 .col-md-12
-  h1 Агенты пользователя
+  h1(translate) User's agents
   .container
-    p(ng-if='ctrl.agents && ctrl.agents.length === 0') Нету агентов
+    span(us-spinner ng-show='ctrl.showSpinner')
+    p(ng-if='ctrl.agents && ctrl.agents.length === 0' translate) No agents
     table.table.table-responsive.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')
       thead
-        th Название агента
+        th(translate) Agent name
         th(colspan='2')
       tbody
         tr(ng-repeat='agent in ctrl.agents track by agent.id')
@@ -12,16 +13,16 @@
             | {{agent.name}}
           td
             a(href='' ng-click='ctrl.goToAccounts(agent.id)')
-              span Счета |
+              span(translate) Accounts |
             a(href='' ng-click='ctrl.goToInvites(agent.id)')
-              span | Приглашения |
-            a(href='' ng-click='ctrl.goToOperations(agent.id)') | Операции
+              span(translate) | Invites |
+            a(href='' ng-click='ctrl.goToOperations(agent.id)' translate) | Operations
     form(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
-        legend
-          | Добавить нового агента
+        legend(translate)
+          | Add new agent
         .form-group
-          label.control-label(for='name') Название
-          input.form-control(id='name' placeholder='Название' ng-required='true' ng-model='ctrl.name')
-        button.btn.btn-primary(type='submit' ng-disabled='!form.$valid') Сохранить
-        button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)') Отменить
+          label.control-label(for='name' translate) Name
+          input.form-control(id='name' placeholder="{{'Name'|translate}}" ng-required='true' ng-model='ctrl.name')
+        button.btn.btn-primary(type='submit' ng-disabled='!form.$valid' translate) Save
+        button.btn.btn-default(type='button' ng-click='ctrl.cancel(form)' translate) Cancel

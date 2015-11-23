@@ -1,12 +1,12 @@
-div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarCtrl as ctrl')
-  div.container
+div.navbar.navbar-default(ng-controller='NavbarCtrl as ctrl')
+  div.container-fluid
     div.navbar-header
       button.navbar-toggle(type='button', ng-click='ctrl.isCollapsed = !ctrl.isCollapsed')
         span.sr-only Toggle navigation
         span.icon-bar
         span.icon-bar
         span.icon-bar
-      a.navbar-brand(ui-sref='main') Долги
+      a.navbar-brand(ui-sref='main') Debtzzz
 
     div#navbar-main.navbar-collapse.collapse(uib-collapse='ctrl.isCollapsed')
       ul.nav.navbar-nav
@@ -14,8 +14,12 @@ div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarCtrl as ctrl')
           a(ng-href='{{item.link}}') {{item.title}}
 
       ul.nav.navbar-nav.navbar-right(ng-show='ctrl.isLoggedIn()')
-        li
-          p.navbar-text Привет,
-          //{{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
+        li {{getCurrentUser()}}
+          p.navbar-text(translate) Hi,
+            span {{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
         li(ng-class="{active: ctrl.isActive('/logout')}")
-          a(href='' ng-click='ctrl.logout()') Выйти
+          a(href='' ng-click='ctrl.logout()' translate) Logout
+        li
+          a(href='' ng-click="ctrl.changeLanguage('ru')" translate) Russian
+        li
+          a(href='' ng-click="ctrl.changeLanguage('en')" translate) English
