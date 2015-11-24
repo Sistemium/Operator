@@ -12,6 +12,10 @@ msgstr ""
 msgid "| Operations"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Accept"
+msgstr ""
+
 #: .tmp/app/agent/agent.html:1
 msgid "Accounts |"
 msgstr ""
@@ -24,14 +28,24 @@ msgstr ""
 msgid "Agent name"
 msgstr ""
 
+#: .tmp/app/account/account.html:1
+msgid "Agent's accounts"
+msgstr ""
+
 #: .tmp/app/operation/operation.html:1
 msgid "Agent's completed operations"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Agent's invites"
 msgstr ""
 
 #: .tmp/app/main/main.html:1
 msgid "Agents"
 msgstr ""
 
+#: .tmp/app/account/account.html:1
+#: .tmp/app/invite/invite.html:1
 #: .tmp/app/operation/operation.html:1
 msgid "Back"
 msgstr ""
@@ -44,10 +58,15 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Code"
+msgstr ""
+
 #: .tmp/app/operation/operation.html:1
 msgid "Confirm"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
 #: .tmp/app/operation/operation.html:1
 msgid "Confirmed"
 msgstr ""
@@ -56,20 +75,52 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Create invite"
+msgstr ""
+
 #: .tmp/app/operation/operation.html:1
 msgid "Create operation"
+msgstr ""
+
+#: .tmp/app/account/account.html:1
+msgid "Currencies accounts"
 msgstr ""
 
 #: .tmp/app/operation/operation.html:1
 msgid "Currency"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Delete"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Delete invite"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Disable"
+msgstr ""
+
 #: .tmp/components/navbar/navbar.html:1
 msgid "English"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Get invite"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Get invite by code"
+msgstr ""
+
 #: .tmp/components/navbar/navbar.html:1
 msgid "Hi,<span>{{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}</span>"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Invites"
 msgstr ""
 
 #: .tmp/app/operation/operation.html:1
@@ -88,6 +139,10 @@ msgstr ""
 msgid "New operation"
 msgstr ""
 
+#: .tmp/app/account/account.html:1
+msgid "No accounts"
+msgstr ""
+
 #: .tmp/app/agent/agent.html:1
 msgid "No agents"
 msgstr ""
@@ -103,6 +158,14 @@ msgstr ""
 #: .tmp/app/agent/agent.html:1
 #: .tmp/app/operation/operation.html:1
 msgid "Save"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Send invite"
+msgstr ""
+
+#: .tmp/app/operation/operation.html:1
+msgid "Sum"
 msgstr ""
 
 #: .tmp/app/agent/agent.html:1

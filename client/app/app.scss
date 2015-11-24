@@ -18,8 +18,15 @@ $fa-font-path: "/bower_components/font-awesome/fonts";
 .fixed-bottom {
   position: fixed;
   bottom: 0px;
-  right: 0px;
+  left: 0px;
   z-index: 1000;
+  height: 60px;
+  width: 100%;
+  background-color: #f5f5f5;
+}
+
+.viewport-root {
+  padding-bottom: 60px;
 }
 
 // Component styles are injected through grunt

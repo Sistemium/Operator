@@ -37,7 +37,7 @@
             tr(ng-repeat='waitingForConfirm in ctrl.agentOperations.waitingForConfirm track by waitingForConfirm.id')
               td {{waitingForConfirm}}
               td
-                a(href='#' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
+                a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
 
       div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
         h3(translate) Contacts
@@ -65,4 +65,3 @@
             label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'debtor'" translate) Borrow
 
           button.btn(type='submit' translate) Save
-
