@@ -1,7 +1,7 @@
 .col-md-12
   h1(translate) Operations
   a(ui-sref='agent' translate) Back
-  .container.pre-scrollable(style='max-height: 650px;')
+  .container
     .row
       span(us-spinner ng-show='ctrl.showSpinner')
       p(ng-if='ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
@@ -47,11 +47,11 @@
              tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
               td {{counterAgent}}
               td
-                a(href='#' ng-click='ctrl.createOperation(counterAgent)' translate) Create operation
+                a(href='' ng-click='ctrl.createOperation(counterAgent)' translate) Create operation
         form(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')
           legend(translate) New operation
           .form-group
-            label(tranlate) Sum
+            label(translate) Sum
             input.form-control(type='text' ng-model='ctrl.total')
           .form-group
             label(translate) Currency

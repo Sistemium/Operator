@@ -1,12 +1,12 @@
 .col-md-12
-  h1 Счета агента
-  a(ui-sref='agent') Назад
+  h1(translate) Agent's accounts
+  a(ui-sref='agent' translate) Back
   .container
-    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0') Нет счетов
+    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) No accounts
     table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
       thead
-        th Счета разных валют
+        th(translate) Currencies accounts
       tbody
         tr(ng-repeat='account in ctrl.accounts track by account.id')
           td
-            a(href='#' ng-click='ctrl.goToOperations(account.id)') {{account}}
+            a(href='' ng-click='ctrl.goToOperations(account.id)') {{account}}

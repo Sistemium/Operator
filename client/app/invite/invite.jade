@@ -1,39 +1,39 @@
 .col-md-12
-  h1 Приглашения
-  a(ui-sref='agent') Назад
+  h1(translate) Invites
+  a(ui-sref='agent' translate) Back
   .container
     .row
       span(us-spinner ng-show='ctrl.showSpinner')
       div(ng-if='ctrl.agentInvites && ctrl.agentInvites.length')
-        h3 Приглашения агента
+        h3(translate) Agent's invites
         table.table.table-responsive.table-hover
           thead
           tbody
             tr(ng-repeat='invite in ctrl.agentInvites track by invite.id')
               td {{invite}}
-                a(href='#' ng-click='ctrl.deleteInvite(invite.id)') Удалить приглашение
+                a(href='#' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete invite
       div(ng-if='ctrl.agentInvites.acceptedInvites && ctrl.agentInvites.acceptedInvites.length > 0')
-        h3 Подтвержденные
+        h3(translate) Confirmed
         table.table.table-responsive.table-hover
           thead
           tbody
             tr(ng-repeat='invite in ctrl.agentInvites.acceptedInvites track by invite.id')
               td {{invite}}
-                a(href='#' ng-click='ctrl.deleteInvite(invite.id)') Удалить
+                a(href='#' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete
       div
-        h3 Создать приглашение
-        button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()') Выслать приглашение
+        h3(translate) Create invite
+        button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()' translate) Send invite
 
       div
-        h3 Получить приглашение по коду
+        h3(translate) Get invite by code
         form.form-inline
           .form-group
-            label Код
+            label(translate) Code
             input.form-control(type='text' ng-model='ctrl.inviteCode')
-          button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()' ng-disabled='!ctrl.inviteCode') Получить приглашение по коду
+          button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()' ng-disabled='!ctrl.inviteCode' translate) Get invite
         .row(ng-show='ctrl.showInvite')
           | {{ctrl.invite}}
         .row(ng-show='ctrl.showDisableInviteButton')
-          button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()') Заблокировать
+          button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()' translate) Disable
         .row(ng-show='ctrl.showAcceptInviteButton')
-          button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()') Подтвердить
+          button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()' translate) Accept
