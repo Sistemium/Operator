@@ -35,9 +35,6 @@ angular.module('debtApp')
       }
     });
   }])
-  .factory('Currency', ['$resource', function ($resource) {
-    return $resource('/api/currencies');
-  }])
   .factory('Operation', ['$resource', function ($resource) {
     return $resource('/api/operations', {}, {
       update: {

@@ -12,7 +12,8 @@ angular.module('debtApp', [
     'ui.select',
     'ngSanitize',
     'angularSpinner',
-    'LocalStorageModule'
+    'LocalStorageModule',
+    'js-data'
   ])
   .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
@@ -26,6 +27,15 @@ angular.module('debtApp', [
     localStorageServiceProvider.setPrefix('ls');
   }])
 
+  .config(['DSProvider', 'DSHttpAdapterProvider',
+    function (DSProvider, DSHttpAdapterProvider) {
+      angular.extend(DSProvider.defaults, {
+
+      });
+      angular.extend(DSHttpAdapterProvider.defaults, {
+        basePath: '/api'
+      })
+    }])
 
   .factory('authInterceptor', function ($rootScope, $q, $cookieStore, $location) {
     return {

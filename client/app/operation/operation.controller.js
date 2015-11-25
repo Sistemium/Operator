@@ -18,7 +18,7 @@ angular.module('debtApp')
         me.operationsPromise = Operation.query();
         me.agentOperationsPromise = AgentOperation.query({agent: agentId});
         me.counterAgentsPromise = CounterAgent.query({agent: agentId});
-        me.currenciesPromise = Currency.query();
+        me.currenciesPromise = Currency.findAll();
         me.showSpinner = true;
         function getData(promise, promiseCb, cb) {
           if (promise.hasOwnProperty('$promise')) {
@@ -42,10 +42,8 @@ angular.module('debtApp')
         }, function (res) {
           me.counterAgents = res;
         });
-        getData(me.currenciesPromise, function (res) {
-          me.currencies = res;
-          me.currency = res[0];
-        }, function (res) {
+
+        me.currenciesPromise.then(function (res) {
           me.currencies = res;
           me.currency = res[0];
         });
