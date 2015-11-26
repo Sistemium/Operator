@@ -16,7 +16,8 @@ div.navbar.navbar-default(ng-controller='NavbarCtrl as ctrl')
       ul.nav.navbar-nav.navbar-right(ng-show='ctrl.isLoggedIn()')
         li {{getCurrentUser()}}
           p.navbar-text(translate) Hi,
-            span {{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}
+            span
+            | {{ctrl.getCurrentUser().body.phoneNumber || ctrl.getCurrentUser().phoneNumber}}
         li(ng-class="{active: ctrl.isActive('/logout')}")
           a(href='' ng-click='ctrl.logout()' translate) Logout
         li
