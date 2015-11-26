@@ -8,6 +8,7 @@ var async = require('async');
 var uuid = require('node-uuid');
 var operationSocket = require('./operation.socket');
 var HttpError = require('../../components/errors/httpError').HttpError;
+var changelog = require('../../components/changelogs/changelog').createOperationChangelog();
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
@@ -78,8 +79,17 @@ exports.create = function (req, res, next) {
       if (err) {
         return next(new HttpError(500, err));
       }
+
+      var changeRecord = {
+        'id' : operation.id,
+        'guid' : uuid.v4()
+      };
+
+      changelog.push(`${changeRecord.guid}:${changeRecord.id}`);
       // check if operation belongs to socket
-      operationSocket.operationSave(operation, function (socket) {
+      operationSocket.operationSave(_.extend(operation, {
+        changelogGuid: changeRecord.guid
+      }), function (socket) {
         console.info(JSON.stringify(agents));
         console.info('###################');
         console.info(socket.authData.id);
@@ -124,6 +134,13 @@ exports.update = function (req, res, next) {
         if (err) {
           return next(new HttpError(500, err));
         }
+
+        var changeRecord = {
+          'id' : operation.id,
+          'guid' : uuid.v4()
+        };
+
+        changelog.push(`${changeRecord.guid}:${changeRecord.id}`);
         updated.id = operation.id;
         /**
          * TODO: find agent account with updated operation currency,
@@ -244,12 +261,43 @@ exports.destroy = function (req, res, next) {
         return next(new HttpError(500, err));
       }
 
+      var changeRecord = {
+        'id' : operation.id,
+        'guid' : uuid.v4()
+      };
+
+      changelog.push(`${changeRecord.guid}:${changeRecord.id}`);
       operationSocket.operationRemove(operation, function (socket) {
         // TODO: query operation agents
         return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
       });
       return res.send(204);
     });
+  });
+};
+
+exports.changelog = function (req, res) {
+
+  var arr, guid, json;
+  var ret = [];
+  var found = false;
+
+  changelog.values(function (err, values) {
+    values.forEach(function(value) {
+      arr = value.split(':');
+      guid = arr.shift();
+      if (!found) {
+        if ( guid === req.params.guid ) {
+          found = true;
+          return;
+        } else {
+          return;
+        }
+      }
+      json = arr.join(':');
+      ret.push(JSON.parse(json));
+    });
+    res.jsonp(ret);
   });
 };
 
