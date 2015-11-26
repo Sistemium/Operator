@@ -28,8 +28,11 @@ var all = {
     session: 'operation-secret'
   },
 
-  // List of user roles
-  userRoles: ['guest', 'user', 'admin'],
+  redis: {
+    production: process.env.REDIS_DATABASE || 0,
+    development: process.env.REDIS_DATABASE || 1,
+    test: process.env.REDIS_DATABASE || 2
+  },
 
   facebook: {
     clientID:     process.env.FACEBOOK_ID || 'id',

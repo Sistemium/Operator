@@ -20,6 +20,7 @@ var socketio = require('socket.io')(server, {
 });
 require('./config/socketio')(socketio);
 require('./config/express')(app);
+require('./config/redis').config(app);
 require('./routes')(app);
 
 // Start server
