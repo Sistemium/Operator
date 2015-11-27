@@ -4,6 +4,8 @@ angular.module('debtApp')
 
   .factory('Auth', ['$cookieStore', '$http', '$q', '$resource', function ($cookieStore, $http, $q, $resource) {
     var currentUser = {};
+    //TODO remove this hack when authorization will work properly
+    $cookieStore.put('token', 'bb9a72e07b7ea5850278ef4782cc8312658aa1b2');
     if ($cookieStore.get('token')) {
       currentUser = $resource('/api/auth?token=' + $cookieStore.get('token')).get();
     }

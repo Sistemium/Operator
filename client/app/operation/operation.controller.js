@@ -19,7 +19,7 @@
           me.operationsPromise = Operation.query();
           me.agentOperationsPromise = AgentOperation.query({agent: agentId});
           me.counterAgentsPromise = CounterAgent.query({agent: agentId});
-          //me.currenciesPromise = Currency.findAll();
+          me.currenciesPromise = Currency.findAll();
           me.showSpinner = true;
           function getData(promise, promiseCb, cb) {
             if (promise.hasOwnProperty('$promise')) {
