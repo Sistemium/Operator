@@ -22,11 +22,6 @@
         }
       });
     }])
-    .factory('Agent', ['$resource', function ($resource) {
-      return $resource('/api/agents', {}, {
-        query: {method: 'GET', isArray: true}
-      });
-    }])
     .factory('Account', ['$resource', function ($resource) {
       return $resource('/api/accounts/', {}, {
         getAgentAccounts: {

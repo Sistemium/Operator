@@ -7,21 +7,16 @@
         var me = this;
         me.agents = [];
         me.showSpinner = false;
-        var agentsPromise = Agent.query();
+        me.agentsPromise = Agent.findAll();
 
         angular.extend(me, {
           getData: function () {
-            if (agentsPromise.hasOwnProperty('$promise')) {
-              agentsPromise.$promise.then(function (res) {
-                me.agents = res;
-                socket.syncUpdates('agent', me.agents);
-                me.showSpinner = false;
-              })
-            } else {
-              me.agents = agentsPromise;
-              socket.syncUpdates('agent', me.agents);
+            me.agentsPromise.then(function (res) {
+              me.agents = res;
               me.showSpinner = false;
-            }
+            }, function (err) {
+              console.log(err);
+            });
           },
 
           save: function (form) {
@@ -62,10 +57,6 @@
         });
 
         me.refresh();
-
-        $scope.$on('$destroy', function () {
-          socket.unsyncUpdates('agent');
-        })
       }]
     )
   ;

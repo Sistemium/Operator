@@ -28,14 +28,6 @@
       localStorageServiceProvider.setPrefix('ls');
     }])
 
-    .config(['DSProvider', 'DSHttpAdapterProvider',
-      function (DSProvider, DSHttpAdapterProvider) {
-        angular.extend(DSProvider.defaults, {});
-        angular.extend(DSHttpAdapterProvider.defaults, {
-          basePath: '/api'
-        });
-      }])
-
     .factory('authInterceptor', ['$rootScope', '$q', '$cookieStore', '$location', function ($rootScope, $q, $cookieStore, $location) {
       return {
         // Add authorization token to headers

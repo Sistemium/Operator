@@ -1,6 +1,6 @@
 'use strict';
 
-;(function () {
+(function () {
   angular.module('debtApp')
     .controller('NavbarCtrl', ['$state', '$location', 'gettextCatalog', 'Auth', 'localStorageService',
       function ($state, $location, gettextCatalog, Auth, localStorageService) {
