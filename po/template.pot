@@ -116,7 +116,7 @@ msgid "Get invite by code"
 msgstr ""
 
 #: .tmp/components/navbar/navbar.html:1
-msgid "Hi,<span>{{getCurrentUser().body.phoneNumber || getCurrentUser().phoneNumber}}</span>"
+msgid "Hi,<span></span>{{ctrl.getCurrentUser().body.phoneNumber || ctrl.getCurrentUser().phoneNumber}}"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1

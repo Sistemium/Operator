@@ -55,6 +55,8 @@ exports.create = function (req, res, next) {
     });
   } else {
     checkCanModify(res, req.body, req.authId);
+    //create id for agent
+    req.body.id = uuid.v4();
     Agent.create(req.body, function (err, agent) {
       if (err) {
         return next(new HttpError(500, err));

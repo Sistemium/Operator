@@ -3,59 +3,9 @@
 
 (function () {
   angular.module('debtApp')
-    .run(['Auth', 'socketFactory', function (Auth, socketFactory) {
-      var operationLastItemGuid = undefined;
-
-      function subscribeSocket(socketFactory, Auth) {
-        var ioSocket = io('', {
-          'query': {
-            token: Auth.getToken()
-          },
-          path: '/socket.io-client'
-        });
-
-        var socket = socketFactory({
-          ioSocket: ioSocket
-        });
-
-        socket.on('connect', function () {
-          socket.emit('authorize', Auth.getToken(), function (cb) {
-            console.log('Socket authorization:', cb);
-
-            if (cb.isAuthorized) {
-              console.log('authorized');
-            } else {
-              console.log('not authorized');
-            }
-          });
-
-          socket.on('operation:save', function (item) {
-            // TODO write guid to service
-            operationLastItemGuid = item.changelogGuid;
-          });
-
-          socket.on('agent:save', function (item) {
-            console.log('agent:save');
-            console.log(item);
-          });
-
-          socket.on('reconnect', function () {
-            console.log('reconnecting');
-            subscribeSocket(socketFactory, Auth);
-          });
-        });
-      }
-
-      Auth.isLoggedInAsync(function (loggedIn) {
-        if (loggedIn) {
-          subscribeSocket(socketFactory, Auth);
-        }
-      })
-    }])
     .factory('socket', ['socketFactory', 'Auth', function (socketFactory, Auth) {
         var me = this;
 
-        var guids = [];
         // socket.io now auto-configures its connection when we ommit a connection url
         var ioSocket = io('', {
           // Send auth token on connection, you will need to DI the Auth service above
@@ -83,7 +33,6 @@
         angular.extend(me, {
           socket: socket,
 
-
           /**
            * Register listeners to sync an array with updates on a model
            *
@@ -97,10 +46,13 @@
           syncUpdates: function (modelName, array, cb) {
             cb = cb || angular.noop;
 
+            socket.on('reconnect', function () {
+              me.unsyncUpdates(modelName);
+              me.syncUpdates(modelName, array, cb);
+            });
             /**
              * Syncs item creation/updates on 'model:save'
              */
-
 
             socket.on(modelName + ':save', function (item) {
               var oldItem = _.find(array, {id: item.id});

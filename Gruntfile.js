@@ -524,7 +524,7 @@
       nggettext_compile: {
         all: {
           files: {
-            'client/app/translations.js': ['po/*.po']
+            'client/components/translations.js': ['po/*.po']
           }
         }
       },

@@ -2,8 +2,8 @@
 
 (function () {
   angular.module('debtApp')
-    .controller('AgentCtrl', ['$scope', '$state', 'Agent', 'socket',
-      function ($scope, $state, Agent, socket) {
+    .controller('AgentCtrl', ['$scope', '$state', 'Agent',
+      function ($scope, $state, Agent) {
         var me = this;
         me.agents = [];
         me.showSpinner = false;
@@ -21,12 +21,9 @@
 
           save: function (form) {
             if (me.name) {
-              var newAgent = new Agent({
-                name: me.name,
-                id: uuid.v4()
-              });
-
-              newAgent.$save(function () {
+              Agent.create({
+                name: me.name
+              }).then(function () {
                 me.name = '';
                 form.$setPristine();
               });

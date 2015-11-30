@@ -61,7 +61,7 @@ describe('POST /api/agents', function () {
       name: 'test',
       authId: 'cbd77f5e-2644-11e5-8000-ffc34d526b60'
     };
-    agentCreate.withArgs(agent).yieldsAsync(null, agent);
+    agentCreate.yieldsAsync(null, agent);
     request(app)
       .post(url)
       .set(headers)

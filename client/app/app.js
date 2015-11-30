@@ -14,7 +14,9 @@
       'ngSanitize',
       'angularSpinner',
       'LocalStorageModule',
-      'js-data'
+      'js-data',
+      'ngAnimate',
+      'toastr'
     ])
     .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
       function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
