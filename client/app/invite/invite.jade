@@ -12,12 +12,12 @@
             tr(ng-repeat='invite in ctrl.agentInvites track by invite.id')
               td {{invite}}
                 a(href='#' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete invite
-      div(ng-if='ctrl.agentInvites.acceptedInvites && ctrl.agentInvites.acceptedInvites.length > 0')
+      div(ng-if='ctrl.acceptedInvites && ctrl.acceptedInvites.length > 0')
         h3(translate) Confirmed
         table.table.table-responsive.table-hover
           thead
           tbody
-            tr(ng-repeat='invite in ctrl.agentInvites.acceptedInvites track by invite.id')
+            tr(ng-repeat='invite in ctrl.acceptedInvites track by invite.id')
               td {{invite}}
                 a(href='#' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete
       div

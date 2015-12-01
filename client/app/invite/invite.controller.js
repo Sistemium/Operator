@@ -2,8 +2,8 @@
 
 (function () {
   angular.module('debtApp')
-    .controller('InviteCtrl', ['$scope', '$stateParams', 'Invite', 'socket',
-        function ($scope, $stateParams, Invite, socket) {
+    .controller('InviteCtrl', ['$rootScope', '$scope', '$stateParams', 'AgentInvite', 'Invite', 'toastr',
+        function ($rootScope, $scope, $stateParams, AgentInvite, Invite, toastr) {
           var me = this;
           me.invite = null;
           me.showSpinner = false;
@@ -11,44 +11,33 @@
           var agent = $stateParams.agent;
 
           me.refresh = function () {
-            me.agentInvitesPromise = Invite.agentInvites({agent: agent});
             me.showSpinner = true;
-            if (me.agentInvitesPromise.hasOwnProperty('$promise')) {
-              me.agentInvitesPromise.$promise.then(function (res) {
-                me.showSpinner = false;
-                me.agentInvites = res;
-                me.agentInvites.acceptedInvites = _.filter(res, {'acceptor': agent});
-                socket.syncUpdates('invite', me.agentInvites, function (event, item, array) {
-                  //TODO confirmed by agent
-                  array.acceptedInvites = _.filter(array, {'acceptor': agent});
-                });
-              });
-            } else {
+            AgentInvite.find(agent).then(function (res) {
               me.showSpinner = false;
-              me.agentInvites = me.agentInvitesPromise;
-              socket.syncUpdates('invite', me.agentInvites);
-            }
+              me.agentInvites = res;
+              me.acceptedInvites = _.filter(res, {'acceptor': agent});
+              me.confirmedInvites = _.filter(res, {'owner': agent, acceptor: !null});
+            });
           };
 
           me.sendInvite = function () {
             var invite = {
-              id: uuid.v4(),
               owner: agent
             };
-            Invite.save({id: null}, invite).$promise.then(function (res) {
+            Invite.create(invite).then(function (res) {
               me.inviteCode = res.code;
             }, function () {
-              alert('failure');
+              toastr.error('failure');
             });
           };
 
           me.getInviteByCode = function () {
-            Invite.getInviteByCode({code: me.inviteCode}).$promise.then(function (res) {
+            Invite.findAll({code: me.inviteCode}).then(function (res) {
               me.invite = res;
               me.showInvite = true;
               me.manageInvite(me.invite);
             }, function () {
-              alert('неудача');
+              toastr.error('неудача');
             })
           };
 
@@ -72,10 +61,10 @@
           };
 
           me.deleteInvite = function (id) {
-            Invite.delete({id: id}).$promise.then(function () {
-              alert('Успех');
+            Invite.destroy(id).then(function () {
+              toastr.success('Успех');
             }, function () {
-              alert('Неудача');
+              toastr.error('Неудача');
             });
           };
 
@@ -86,11 +75,11 @@
           me.acceptInvite = function () {
             //accept invite
             me.invite.acceptor = agent;
-            Invite.update({id: me.invite.id}, me.invite).$promise.then(function (res) {
-              alert('Ура');
+            Invite.update(me.invite.id, me.invite).then(function () {
+              toastr.success('Ура');
               me.reset();
-            }, function (res) {
-              alert('Ну, зачем же так..');
+            }, function () {
+              toastr.error('Ну, зачем же так..');
             })
           };
           me.reset = function () {
@@ -102,9 +91,21 @@
 
           me.refresh();
 
-          $scope.$on('$destroy', function () {
-            socket.unsyncUpdates('invite');
-          })
+          $rootScope.$on('agentInvite', function (event, invite) {
+            event.preventDefault();
+            if (invite.owner === agent  && invite.acceptor) {
+              me.confirmedInvites.push(invite);
+              toastr.success('Your created invite was accepted');
+            }
+            else if (invite.acceptor == agent) {
+              me.acceptedInvites.push(invite);
+              toastr.success('You accepted the invite');
+            }
+            else if (invite.owner === agent) {
+              me.agentInvites.push(invite);
+              toastr.success('You created the invite');
+            }
+          });
         }
       ]
     )

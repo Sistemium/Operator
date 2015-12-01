@@ -13,28 +13,20 @@
             tr(ng-repeat='agentOperation in ctrl.agentOperations track by agentOperation.id')
               td {{agentOperation}}
 
-      div(ng-if='ctrl.operations && ctrl.operations.confirmed.length > 0')
-        h3(translate) Confirmed
-        table.table.table-responsive.table-hover
-          thead
-          tbody
-            tr(ng-repeat='confirmed in ctrl.operations.confirmed track by confirmed.id')
-              td {{confirmed}}
-
-      //div
+      //div(ng-show
       //  h3 Операции подтвержденные агентом
       //  table.table.table-responsive.table-hover
       //    thead
       //    tbody
-      //      tr(ng-repeat='agentConfirmed in ctrl.agentOperations.agentConfirmed track by agentConfirmed.id')
+      //      tr(ng-repeat='agentConfirmed in ctrl.agentConfirmedOperations track by agentConfirmed.id')
       //        td {{agentConfirmed}}
 
-      div(ng-if='ctrl.agentOperations && ctrl.agentOperations.waitingForConfirm.length > 0')
+      div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
         h3(translate) Waiting for confirmation
         table.table.table-responsive.table-hover
           thead
           tbody
-            tr(ng-repeat='waitingForConfirm in ctrl.agentOperations.waitingForConfirm track by waitingForConfirm.id')
+            tr(ng-repeat='waitingForConfirm in ctrl.waitingForConfirm track by waitingForConfirm.id')
               td {{waitingForConfirm}}
               td
                 a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
