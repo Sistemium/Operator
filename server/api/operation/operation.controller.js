@@ -6,7 +6,7 @@ var Agent = require('../agent/agent.model');
 var Account = require('../account/account.model');
 var async = require('async');
 var uuid = require('node-uuid');
-var operationSocket = require('./operation.socket');
+var operationSocket = require('../../socket/socket');
 var HttpError = require('../../components/errors/httpError').HttpError;
 var changelog = require('../../components/changelogs/changelog');
 var operationChangelog = changelog.operationChangelog();
@@ -71,6 +71,7 @@ exports.show = function (req, res, next) {
 exports.create = function (req, res, next) {
   var operation = req.body;
   operation.creator = req.authId;
+  req.body.id = uuid.v4();
   validate(req, function (err, agents) {
     if (err) {
       next(new HttpError(500, err));
@@ -88,8 +89,9 @@ exports.create = function (req, res, next) {
 
       operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
       // check if operation belongs to socket
-      operationSocket.operationSave(_.extend(operation, {
-        changelogGuid: changeRecord.guid
+      operationSocket.save(_.extend(operation, {
+        changelogGuid: changeRecord.guid,
+        resource: 'operations'
       }), function (socket) {
         console.info(JSON.stringify(agents));
         console.info('###################');
@@ -231,7 +233,10 @@ exports.update = function (req, res, next) {
 
         operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
 
-        operationSocket.operationSave(updated, (socket) => {
+        let socketData = _.extend(updated, {
+          resource: 'invites'
+        });
+        operationSocket.save(socketData, (socket) => {
           console.info('Check socket have access to emit event...');
           console.info(JSON.stringify(agents));
           console.info('###################');
@@ -269,7 +274,10 @@ exports.destroy = function (req, res, next) {
       };
 
       operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
-      operationSocket.operationRemove(operation, function (socket) {
+      let socketData = _.extend(operation, {
+        resource: 'operations'
+      });
+      operationSocket.remove(socketData, function (socket) {
         // TODO: query operation agents
         return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
       });

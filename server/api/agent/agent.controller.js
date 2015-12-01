@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Agent = require('./agent.model');
-var agentSocket = require('./agent.socket');
+var agentSocket = require('../../socket/socket');
 var HttpError = require('../../components/errors/httpError').HttpError;
 var changelog = require('../../components/changelogs/changelog');
 var agentChangelog = changelog.agentChangelog();
@@ -69,7 +69,12 @@ exports.create = function (req, res, next) {
       _.extend(agent, {
         changelogGuid: changedRecord.guid
       });
-      agentSocket.agentSave(agent);
+      var socketAgent = _.extend(agent, {
+        resource: 'agents'
+      });
+      agentSocket.save(socketAgent, function (socket) {
+        return socket.authData.id === socketAgent.authId;
+      });
       return res.json(201, agent);
     });
   }
@@ -96,7 +101,7 @@ exports.update = function (req, res, next) {
       if (err) {
         return next(new HttpError(500, err));
       }
-      agentSocket.agentSave(agent);
+      agentSocket.save(agent);
       return res.json(200, agent);
     });
   });
@@ -119,7 +124,7 @@ exports.destroy = function (req, res, next) {
       if (err) {
         return next(new HttpError(500, err));
       }
-      agentSocket.agentRemove(agent);
+      agentSocket.remove(agent);
       return res.send(204);
     });
   });

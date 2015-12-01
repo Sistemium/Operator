@@ -3,24 +3,40 @@
 
 (function () {
   angular.module('debtApp')
-    .factory('socket', ['socketFactory', 'Auth', function (socketFactory, Auth) {
-        var me = this;
+    .run(['$rootScope', function ($rootScope) {
+      $rootScope.$on('save', function (event, data) {
+        event.preventDefault();
+        switch (data.resource) {
+          case 'invites':
+          {
+            $rootScope.$emit('agentInvite', data);
+            break;
+          }
+          case 'agents':
+          {
+            $rootScope.$emit('agent', data);
+            break;
+          }
+          case 'operations':
+          {
+            $rootScope.$emit('operation', data);
+            break;
+          }
+        }
+      })
+    }])
+    .service('messageBus', ['$rootScope', 'DS', 'Auth', function ($rootScope, DS, Auth) {
+      var ioSocket = io('', {
+        // Send auth token on connection, you will need to DI the Auth service above
+        // 'query': 'token=' + Auth.getToken()
+        'query': {
+          token: Auth.getToken()
+        },
+        path: '/socket.io-client'
+      });
 
-        // socket.io now auto-configures its connection when we ommit a connection url
-        var ioSocket = io('', {
-          // Send auth token on connection, you will need to DI the Auth service above
-          // 'query': 'token=' + Auth.getToken()
-          'query': {
-            token: Auth.getToken()
-          },
-          path: '/socket.io-client'
-        });
-
-        var socket = socketFactory({
-          ioSocket: ioSocket
-        });
-
-        socket.emit('authorize', Auth.getToken(), function (cb) {
+      function initSocket() {
+        ioSocket.emit('authorize', Auth.getToken(), function (cb) {
           console.log('Socket authorization:', cb);
 
           if (cb.isAuthorized) {
@@ -30,71 +46,28 @@
           }
         });
 
-        angular.extend(me, {
-          socket: socket,
-
-          /**
-           * Register listeners to sync an array with updates on a model
-           *
-           * Takes the array we want to sync, the model name that socket updates are sent from,
-           * and an optional callback function after new items are updated.
-           *
-           * @param {String} modelName
-           * @param {Array} array
-           * @param {Function} cb
-           */
-          syncUpdates: function (modelName, array, cb) {
-            cb = cb || angular.noop;
-
-            socket.on('reconnect', function () {
-              me.unsyncUpdates(modelName);
-              me.syncUpdates(modelName, array, cb);
-            });
-            /**
-             * Syncs item creation/updates on 'model:save'
-             */
-
-            socket.on(modelName + ':save', function (item) {
-              var oldItem = _.find(array, {id: item.id});
-              var index = array.indexOf(oldItem);
-              var event = 'created';
-
-              // replace oldItem if it exists
-              // otherwise just add item to the collection
-              if (oldItem) {
-                array.splice(index, 1, item);
-                event = 'updated';
-              } else {
-                array.push(item);
-              }
-
-              cb(event, item, array);
-            });
-
-            /**
-             * Syncs removed items on 'model:remove'
-             */
-            socket.on(modelName + ':remove', function (item) {
-              var event = 'updated';
-              //TODO: change this
-              _.remove(array, {id: item.id});
-              cb(event, item, array);
-            });
-          },
-
-          /**
-           * Removes listeners for a models updates on the socket
-           *
-           * @param modelName
-           */
-          unsyncUpdates: function (modelName) {
-            socket.removeAllListeners(modelName + ':save');
-            socket.removeAllListeners(modelName + ':remove');
-          }
+        ioSocket.on('save', function (data) {
+          DS.find(data.resource, data.id);
+          $rootScope.$broadcast('save', data);
         });
 
-        return me;
-      }]
-    )
+        ioSocket.on('remove', function (data) {
+          DS.eject(data.resource, data.id);
+        });
+
+        ioSocket.on('disconnect', function () {
+          ioSocket.removeAllListeners();
+        });
+
+        ioSocket.on('reconnect', function () {
+          ioSocket.removeAllListeners();
+          initSocket();
+        })
+      }
+
+      return {
+        initSocket: initSocket
+      };
+    }])
   ;
 })();
