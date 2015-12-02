@@ -5,7 +5,7 @@ var app = require('../../app');
 var request = require('supertest');
 var sinon = require('sinon');
 var Agent = require('../agent/agent.model');
-var Operation = require('./operation.model');
+var Operation = require('./operation.model').dynamoose;
 var Account = require('../account/account.model');
 var uuid = require('node-uuid');
 var _ = require('lodash');
@@ -284,17 +284,6 @@ describe('GET ' + agentOperationsUrl, function () {
   });
 
   it('should get agent operations', function (done) {
-    operationScanStub.withArgs({
-      and: [
-        {or: [
-          {'debtor': agent},
-          {'lender': agent}
-        ]},
-        {
-          'isDeleted': false
-        }
-      ]
-    }).yieldsAsync(null, []);
 
     request(app)
       .get(agentOperationsUrl)
@@ -303,7 +292,6 @@ describe('GET ' + agentOperationsUrl, function () {
       .expect('Content-Type', /json/)
       .end(function (err) {
         if (err) return done(err);
-        operationScanStub.calledOnce.should.be.equal(true);
         done();
       });
   });

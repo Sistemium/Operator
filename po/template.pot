@@ -67,7 +67,6 @@ msgid "Confirm"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
-#: .tmp/app/operation/operation.html:1
 msgid "Confirmed"
 msgstr ""
 

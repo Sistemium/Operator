@@ -1,7 +1,8 @@
 'use strict';
 
 var _ = require('lodash');
-var Operation = require('./operation.model');
+var Operation = require('./operation.model').dynamoose;
+var OperationVogels = require('./operation.model').vogels;
 var Agent = require('../agent/agent.model');
 var Account = require('../account/account.model');
 var async = require('async');
@@ -33,24 +34,16 @@ exports.index = function (req, res, next) {
 exports.agentOperations = function (req, res, next) {
   var agent = req.params.agent;
   if (agent) {
-    Operation.scan({
-      and: [
-        {
-          or: [
-            {'debtor': agent},
-            {'lender': agent}
-          ]
-        },
-        {
-          'isDeleted': false
+    OperationVogels.scan()
+      .filterExpression('#debtor = :agent AND #isDeleted = :false OR #lender = :agent AND #isDeleted = :false')
+      .expressionAttributeValues({':agent' : agent, ':false': 'false'})
+      .expressionAttributeNames({'#debtor': 'debtor', '#lender': 'lender', '#isDeleted': 'isDeleted'})
+      .exec(function (err, operations) {
+        if (err) {
+          return next(new HttpError(500, err));
         }
-      ]
-    }, function (err, operations) {
-      if (err) {
-        return next(new HttpError(500, err))(res, err);
-      }
-      return res.json(200, operations);
-    });
+        return res.json(200, operations.Items);
+      });
   }
 };
 
@@ -83,8 +76,8 @@ exports.create = function (req, res, next) {
       }
 
       var changeRecord = {
-        'id' : operation.id,
-        'guid' : uuid.v4()
+        'id': operation.id,
+        'guid': uuid.v4()
       };
 
       operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
@@ -227,8 +220,8 @@ exports.update = function (req, res, next) {
         }
 
         var changeRecord = {
-          'id' : operation.id,
-          'guid' : uuid.v4()
+          'id': operation.id,
+          'guid': uuid.v4()
         };
 
         operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
@@ -269,8 +262,8 @@ exports.destroy = function (req, res, next) {
       }
 
       var changeRecord = {
-        'id' : operation.id,
-        'guid' : uuid.v4()
+        'id': operation.id,
+        'guid': uuid.v4()
       };
 
       operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);

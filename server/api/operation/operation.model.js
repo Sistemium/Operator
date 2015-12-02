@@ -1,5 +1,26 @@
 'use strict';
 
+var vogels = require('vogels');
+var Joi = require('Joi');
+var Operation = vogels.define('Operator_Operation', {
+  hashKey: 'id',
+  tableName: 'Operator_Operation',
+  schema: {
+    id: Joi.string(),
+    total: Joi.number().required(),
+    comment: Joi.string(),
+    currency: Joi.string().required(),
+    remindDuration: Joi.number().required(),
+    creator: Joi.string().required(),
+    lender: Joi.string().required(),
+    debtor: Joi.string().required(),
+    state: Joi.string(),
+    isDeleted: Joi.boolean().default(false),
+    lenderConfirmedAt: Joi.string(),
+    debtorConfirmedAt: Joi.string()
+  }
+});
+
 var dynamoose = require('dynamoose'),
     Schema = dynamoose.Schema;
 
@@ -59,4 +80,5 @@ var OperationSchema = new Schema({
   }
 });
 
-module.exports = dynamoose.model('Operator_Operation', OperationSchema);
+exports.dynamoose = dynamoose.model('Operator_Operation', OperationSchema);
+exports.vogels = Operation;

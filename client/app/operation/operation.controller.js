@@ -64,7 +64,7 @@
               me.showSpinner = false;
             }
 
-            getData(me.agentOperationsPromise, processAgentOperations, processAgentOperations);
+            getData(me.agentOperationsPromise, processAgentOperations);
           };
 
           me.saveOperation = function () {
