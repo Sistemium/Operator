@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var Contact = require('./contact.model');
 var Agent = require('../agent/agent.model');
-var Invite = require('../invite/invite.model');
+var Invite = require('../invite/invite.model').dynamoose;
 var q = require('q');
 var uuid = require('node-uuid');
 

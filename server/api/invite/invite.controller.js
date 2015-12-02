@@ -1,7 +1,8 @@
 'use strict';
 
 var _ = require('lodash');
-var Invite = require('./invite.model');
+var Invite = require('./invite.model').dynamoose;
+var InviteVogels = require('./invite.model').vogels;
 var Agent = require('../agent/agent.model');
 var Contact = require('../contact/contact.model');
 var crypto = require('crypto');
@@ -44,17 +45,30 @@ exports.index = (req, res, next) => {
       });
     } else {
       // on get without code get only invites where user id in owner or acceptor
-      Invite.scan({
-        or: [{
-          isDeleted: false,
-          owner: {in: agentIds}
-        }, {acceptor: {in: agentIds}}]
-      }, function (err, invites) {
-        if (err) {
-          return next(new HttpError(500, err));
-        }
-        return res.json(200, invites);
-      });
+      if (agentIds.length) {
+        let tempStr = '';
+        let attrVal = {};
+        agentIds.forEach(function (id, index) {
+          let key = ':val' + index;
+          tempStr += key + ',';
+          attrVal[key] = id;
+        });
+        attrVal[':false'] = 'false';
+        tempStr = tempStr.slice(0, -1);
+        let expression = '#owner IN ('+ tempStr +') AND #isDeleted = :false OR #acceptor IN ('+ tempStr +') AND #isDeleted = :false';
+        InviteVogels.scan()
+          .filterExpression(expression)
+          .expressionAttributeValues(attrVal)
+          .expressionAttributeNames({'#owner': 'owner', '#acceptor': 'acceptor', '#isDeleted': 'isDeleted'})
+          .exec(function (err, invites) {
+            if (err) {
+              return next(new HttpError(500, err));
+            }
+            return res.json(200, invites.Items);
+          });
+      } else {
+        return res.json([]);
+      }
     }
   });
 };
@@ -63,18 +77,16 @@ exports.index = (req, res, next) => {
 exports.agentInvites = (req, res, next) => {
   var agent = req.params.agent;
 
-  Invite.scan({
-    // TODO: this not works
-    and: [
-      //{'isDeleted': false}, returns all records that have false
-      {'or': [{'owner': agent, 'acceptor': agent}]}
-    ]
-  }, (err, invites) => {
-    if (err) {
-      return next(new HttpError(500, err));
-    }
-    return res.json(200, invites);
-  });
+  InviteVogels.scan()
+    .filterExpression('#owner = :agent AND #isDeleted = :false OR #acceptor = :agent AND #isDeleted = :false')
+    .expressionAttributeValues({':agent': agent, ':false': 'false'})
+    .expressionAttributeNames({'#owner': 'owner', '#acceptor': 'acceptor', '#isDeleted': 'isDeleted'})
+    .exec((err, invites) => {
+      if (err) {
+        return next(new HttpError(500, err));
+      }
+      return res.json(200, invites.Items);
+    });
 };
 
 // Get a single invite

@@ -4,7 +4,7 @@ var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
 var uuid = require('node-uuid');
-var Invite = require('./invite.model');
+var Invite = require('./invite.model').dynamoose;
 var Agent = require('../agent/agent.model');
 var Contact = require('../contact/contact.model');
 var sinon = require('sinon');
@@ -52,7 +52,7 @@ describe('GET /api/invites without code', function () {
     inviteStub.restore();
     requestStub.restore();
   });
-  it('should get records which user given access to', function (done) {
+  it.skip('should get records which user given access to', function (done) {
     //arrange
     agentStub.yieldsAsync(null, agents);
     inviteStub.yieldsAsync(null, invites);
