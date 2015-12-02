@@ -34,7 +34,7 @@
 
           me.refresh = function () {
             me.agentOperationsPromise = AgentOperation.find(agentId);
-            me.counterAgentsPromise = CounterAgent.find(agentId);
+            me.counterAgentsPromise = CounterAgent.find(agentId, {bypassCache: true});
             me.showSpinner = true;
             function getData(promise, promiseCb) {
               promise.then(function (res) {
