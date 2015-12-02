@@ -45,16 +45,21 @@
       return DS.defineResource({
         name: 'agentOperations',
         endpoint: '/operations/agentOperations'
-      })
+      });
     }])
     .service('Operation', ['DS', function (DS) {
       return DS.defineResource({
         name: 'operations'
-      })
+      });
     }])
     .service('CounterAgent', ['DS', function (DS) {
       return DS.defineResource({
         name: 'counterAgents'
+      });
+    }])
+    .service('Account', ['DS', function (DS) {
+      return DS.defineResource({
+        name: 'accounts'
       })
     }]);
 })();

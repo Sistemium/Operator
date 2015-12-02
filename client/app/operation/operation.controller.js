@@ -49,8 +49,6 @@
                 return i.id !== agentId;
               });
               me.counterAgents = res;
-            }, function (res) {
-              me.counterAgents = res;
             });
 
             Currency.findAll().then(function (res) {

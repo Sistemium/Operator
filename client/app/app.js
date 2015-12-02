@@ -3,7 +3,6 @@
 (function () {
   angular.module('debtApp', [
       'ngCookies',
-      'ngResource',
       'ngSanitize',
       'btford.socket-io',
       'ui.router',
