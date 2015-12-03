@@ -4,39 +4,51 @@ var _ = require('lodash');
 var Account = require('./account.model');
 var Agent = require('../agent/agent.model');
 var uuid = require('node-uuid');
+var HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of accounts
-exports.index = function (req, res) {
-  Account.scan({agent: req.query.agent, isDeleted: false}, function (err, accounts) {
-    if (err) {
-      return handleError(res, err);
-    }
-    return res.json(200, accounts);
-  });
+exports.index = function (req, res, next) {
+  if (req.query.agent) {
+    Account.scan({agent: req.query.agent, isDeleted: false}, function (err, accounts) {
+      if (err) {
+        return next(new HttpError(500, err));
+      }
+      return res.json(200, accounts);
+    });
+  } else {
+    //TODO: fetch all user accounts
+    Account.scan({isDeleted: false}, function (err, accounts) {
+      if (err) {
+        return next(new HttpError(500, err));
+      }
+      return res.json(200, accounts);
+    })
+  }
+
 };
 
 // Get a single account
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
   Account.get(req.params.id, function (err, account) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!account || account.isDeleted) {
-      return res.send(404);
+      return next(new HttpError(404, 'Not Found :('));
     }
     return res.json(account);
   });
 };
 
 // Creates a new account in the DB.
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
       checkCanModify(res, item, req.authId);
       Account.create(item, function (err, account) {
         if (err) {
-          return handleError(res, err);
+          return next(new HttpError(500, err));
         }
         createdItems.push(account);
       });
@@ -47,7 +59,7 @@ exports.create = function (req, res) {
     checkCanModify(res, req.body, req.authId);
     Account.create(req.body, function (err, account) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err));
       }
       return res.json(201, account);
     });
@@ -55,17 +67,17 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing account in the DB.
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
   //prevent id sending in body
   if (req.body.id) {
     delete req.body.id;
   }
   Account.get(req.params.id, function (err, account) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!account) {
-      return res.send(404);
+      return next(new HttpError(404, 'Not Found :('));
     }
     //check if user can update entity
     checkCanModify(res, account, req.authId);
@@ -74,7 +86,7 @@ exports.update = function (req, res) {
     var updated = _.merge(account, req.body);
     Account.update({id: account.id}, req.body, function (err) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err));
       }
       return res.json(200, updated);
     });
@@ -82,13 +94,13 @@ exports.update = function (req, res) {
 };
 
 // Deletes a account from the DB.
-exports.destroy = function (req, res) {
+exports.destroy = function (req, res, next) {
   Account.get(req.params.id, function (err, account) {
     if (err) {
-      return handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!account || account.isDeleted) {
-      return res.send(404);
+      return next(new HttpError(404, 'Not Found :('));
     }
     //check if user can delete entity
     checkCanModify(res, account, req.authId);
@@ -97,7 +109,7 @@ exports.destroy = function (req, res) {
     delete updated.id;
     Account.update({id: account.id}, updated, function (err) {
       if (err) {
-        return handleError(res, err);
+        return next(new HttpError(500, err));
       }
       return res.send(204);
     });

@@ -40,6 +40,10 @@ msgstr ""
 msgid "Agent's invites"
 msgstr ""
 
+#: .tmp/app/operation/operation.html:1
+msgid "Agent's operation waiting for confirm"
+msgstr ""
+
 #: .tmp/app/main/main.html:1
 msgid "Agents"
 msgstr ""

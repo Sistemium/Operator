@@ -5,21 +5,21 @@
     .row
       span(us-spinner ng-show='ctrl.showSpinner')
       p(ng-if='ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
-      div(ng-if='ctrl.agentOperations && ctrl.agentOperations.length > 0')
+      div(ng-if='ctrl.completedOperations && ctrl.completedOperations.length > 0')
         h3(translate) Agent's completed operations
         table.table.table-responsive.table-hover
           thead
           tbody
-            tr(ng-repeat='agentOperation in ctrl.agentOperations track by agentOperation.id')
-              td {{agentOperation}}
+            tr(ng-repeat='completedOperation in ctrl.completedOperations track by completedOperation.id')
+              td {{completedOperation}}
 
-      //div(ng-show
-      //  h3 Операции подтвержденные агентом
-      //  table.table.table-responsive.table-hover
-      //    thead
-      //    tbody
-      //      tr(ng-repeat='agentConfirmed in ctrl.agentConfirmedOperations track by agentConfirmed.id')
-      //        td {{agentConfirmed}}
+      div(ng-if='ctrl.agentOperations && ctrl.agentConfirmedOperations.length > 0')
+        h3(translate) Agent's operation waiting for confirm
+        table.table.table-responsive.table-hover
+          thead
+          tbody
+            tr(ng-repeat='agentConfirmed in ctrl.agentConfirmedOperations track by agentConfirmed.id')
+              td {{agentConfirmed}}
 
       div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
         h3(translate) Waiting for confirmation

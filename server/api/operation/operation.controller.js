@@ -11,6 +11,7 @@ var operationSocket = require('../../socket/socket');
 var HttpError = require('../../components/errors/httpError').HttpError;
 var changelog = require('../../components/changelogs/changelog');
 var operationChangelog = changelog.operationChangelog();
+var co = require('co');
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents
@@ -36,7 +37,7 @@ exports.agentOperations = function (req, res, next) {
   if (agent) {
     OperationVogels.scan()
       .filterExpression('#debtor = :agent AND #isDeleted = :false OR #lender = :agent AND #isDeleted = :false')
-      .expressionAttributeValues({':agent' : agent, ':false': 'false'})
+      .expressionAttributeValues({':agent': agent, ':false': 'false'})
       .expressionAttributeNames({'#debtor': 'debtor', '#lender': 'lender', '#isDeleted': 'isDeleted'})
       .exec(function (err, operations) {
         if (err) {
@@ -67,7 +68,7 @@ exports.create = function (req, res, next) {
   req.body.id = uuid.v4();
   validate(req, function (err, agents) {
     if (err) {
-      next(new HttpError(500, err));
+      return next(new HttpError(500, err));
     }
     setStatus(operation);
     Operation.create(operation, function (err, operation) {
@@ -107,37 +108,21 @@ exports.update = function (req, res, next) {
     delete req.body.id;
   }
   Operation.get(req.params.id, function (err, operation) {
-    if (err) {
-      return next(new HttpError(500, err));
-    }
-    if (!operation) {
-      return next(new HttpError(404, 'not found'));
-    }
-    if (operation) {
-      if (operation.state === 'confirmed') {
-        return next(new HttpError(400, 'operation already confirmed'));
-      }
-    }
-    var updated = _.clone(req.body);
-
-    validate(req, function (err, agents) {
       if (err) {
         return next(new HttpError(500, err));
       }
-      restoreDeleted(updated);
-      setStatus(updated);
-      Operation.update({id: operation.id}, updated, function (err) {
-        if (err) {
-          return next(new HttpError(500, err));
+      if (!operation) {
+        return next(new HttpError(404, 'not found'));
+      }
+      if (operation) {
+        if (operation.state === 'confirmed') {
+          return next(new HttpError(400, 'operation already confirmed'));
         }
+      }
+      var updated = _.clone(req.body);
 
-        updated.id = operation.id;
-        /**
-         * TODO: find agent account with updated operation currency,
-         * if no accounts, then create account with that currency,
-         * if exists, update total balance in both accounts
-         */
-        if (updated.state === 'confirmed') {
+      function checkDebtorAccount() {
+        return new Promise(function (resolve) {
           Account.scan({
             agent: updated.debtor,
             currency: updated.currency,
@@ -162,6 +147,8 @@ exports.update = function (req, res, next) {
                 if (err) {
                   return next(new HttpError(500, err));
                 }
+                console.log('Account was created: ' + JSON.stringify(debtorAccount));
+                resolve(debtorAccount.id);
               });
             } else {
               debtorAccount = accounts[0];
@@ -174,10 +161,15 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was updated ' + JSON.stringify(debtorAccount));
+                resolve(id);
               });
             }
           });
+        });
+      }
 
+      function checkLenderAccount() {
+        return new Promise(function (resolve) {
           Account.scan({
             agent: updated.lender,
             currency: updated.currency,
@@ -203,6 +195,7 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was created ' + JSON.stringify(lenderAccount));
+                resolve(lenderAccount.id);
               });
             } else {
               lenderAccount = accounts[0];
@@ -214,38 +207,83 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was updated ' + JSON.stringify(lenderAccount));
+                resolve(id);
               });
             }
           });
+        });
+      }
+
+      function updateOperation(agents) {
+        return new Promise(function (resolve) {
+          Operation.update({id: operation.id}, updated, function (err) {
+            if (err) {
+              return next(new HttpError(500, err));
+            }
+
+            updated.id = operation.id;
+            /**
+             * TODO: find agent account with updated operation currency,
+             * if no accounts, then create account with that currency,
+             * if exists, update total balance in both accounts
+             */
+
+            var changeRecord = {
+              'id': operation.id,
+              'guid': uuid.v4()
+            };
+
+            operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
+
+            let socketData = _.extend(updated, {
+              resource: 'operations'
+            });
+            operationSocket.save(socketData, (socket) => {
+              console.info('Check socket have access to emit event...');
+              console.info(JSON.stringify(agents));
+              console.info('###################');
+              console.info(socket.authData.id);
+              console.info('###################');
+              let sendMessage = agents.reduce((curr, next) => {
+                return socket.authData.id === next || curr;
+              }, false);
+              console.info(sendMessage);
+              return sendMessage;
+            });
+            resolve(updated);
+          });
+        });
+      }
+
+      validate(req, function (err, agents) {
+        if (err) {
+          return next(new HttpError(500, err));
         }
-
-        var changeRecord = {
-          'id': operation.id,
-          'guid': uuid.v4()
-        };
-
-        operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
-
-        let socketData = _.extend(updated, {
-          resource: 'invites'
+        restoreDeleted(updated);
+        setStatus(updated);
+        co(function *() {
+          try {
+            let lenderAccountId, debtorAccountId;
+            if (updated.state === 'confirmed') {
+              debtorAccountId = yield checkDebtorAccount();
+              lenderAccountId = yield checkLenderAccount();
+            }
+            updated.debtorAccount = debtorAccountId;
+            updated.lenderAccountId = lenderAccountId;
+            let result = yield updateOperation(agents);
+            return res.json(200, result);
+          } catch (error) {
+            console.error(error.message);
+          }
+        }).catch(function (err) {
+          console.error(err.stack);
         });
-        operationSocket.save(socketData, (socket) => {
-          console.info('Check socket have access to emit event...');
-          console.info(JSON.stringify(agents));
-          console.info('###################');
-          console.info(socket.authData.id);
-          console.info('###################');
-          let sendMessage = agents.reduce((curr, next) => {
-            return socket.authData.id === next || curr;
-          }, false);
-          console.info(sendMessage);
-          return sendMessage;
-        });
-        return res.json(200, operation);
       });
-    });
-  });
-};
+    }
+  )
+  ;
+}
+;
 
 // Deletes a operation from the DB.
 exports.destroy = function (req, res, next) {

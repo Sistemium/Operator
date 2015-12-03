@@ -91,7 +91,7 @@
 
           me.refresh();
 
-          $rootScope.$on('agentInvite', function (event, invite) {
+          $rootScope.$on('invite', function (event, invite) {
             event.preventDefault();
             if (invite.owner === agent  && invite.acceptor) {
               me.confirmedInvites.push(invite);

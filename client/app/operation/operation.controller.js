@@ -30,6 +30,7 @@
             });
             var withoutAgentConfirmed = _.difference(o, me.agentConfirmedOperations);
             me.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'})
+            me.completedOperations = _.filter(o, {state: 'confirmed'});
           }
 
           me.refresh = function () {
@@ -102,7 +103,7 @@
               operation.debtorConfirmedAt = Date.now();
             }
 
-            Operation.update({id: operation.id}, operation).then(function () {
+            Operation.update(operation.id, operation).then(function (res) {
               toastr.success('Операция подтвержденна');
             }, function () {
               toastr.error('Что то пошло не так');
@@ -115,7 +116,8 @@
             event.preventDefault();
 
             if (data.lender === agentId || data.debtor === agentId) {
-              me.agentOperations.push(data);
+              var isForUpdate = _.find(me.agentOperations, {id: data.id});
+              !isForUpdate ? me.agentOperations.push(data) : _.merge(isForUpdate, data);
               filterAgentOperations(me.agentOperations);
               toastr.success('Operation successful');
             }

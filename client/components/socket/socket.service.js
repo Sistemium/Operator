@@ -9,7 +9,7 @@
         switch (data.resource) {
           case 'invites':
           {
-            $rootScope.$emit('agentInvite', data);
+            $rootScope.$emit('invite', data);
             break;
           }
           case 'agents':
