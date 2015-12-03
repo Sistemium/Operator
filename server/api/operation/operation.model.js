@@ -10,6 +10,7 @@ var Operation = vogels.define('Operator_Operation', {
     total: Joi.number().required(),
     comment: Joi.string(),
     currency: Joi.string().required(),
+    account: Joi.string().required(),
     remindDuration: Joi.number().required(),
     creator: Joi.string().required(),
     lender: Joi.string().required(),
@@ -39,6 +40,12 @@ var OperationSchema = new Schema({
   currency: {
     type: String,
     required: true
+  },
+  lenderAccount: {
+    type: String
+  },
+  debtorAccount: {
+    type: String
   },
   remindDuration: {
     type: Number,
