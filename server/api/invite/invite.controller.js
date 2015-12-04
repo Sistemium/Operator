@@ -55,7 +55,7 @@ exports.index = (req, res, next) => {
         });
         attrVal[':false'] = 'false';
         tempStr = tempStr.slice(0, -1);
-        let expression = '#owner IN ('+ tempStr +') AND #isDeleted = :false OR #acceptor IN ('+ tempStr +') AND #isDeleted = :false';
+        let expression = '#owner IN (' + tempStr + ') AND #isDeleted = :false OR #acceptor IN (' + tempStr + ') AND #isDeleted = :false';
         InviteVogels.scan()
           .filterExpression(expression)
           .expressionAttributeValues(attrVal)
@@ -162,104 +162,111 @@ exports.create = (req, res, next) => {
 
 // Updates an existing invite in the DB.
 exports.update = (req, res, next) => {
+  var getInviteById = (cb) => {
+    Invite.get(req.params.id, (err, invite) => {
+      if (err) {
+        cb(err);
+      }
+      if (!invite) {
+        cb(404);
+      }
+      cb(null, invite.id);
+    });
+  };
+
+  var checkInviteAgents = (id, cb) => {
+    checkCanModify(req.body, (err, agents) => {
+      if (err) {
+        cb(err);
+      }
+      cb(null, agents, id);
+    });
+  };
+
+  var checkIfHaveContact = (agents, inviteId, cb) => {
+    if (!req.body.acceptor) {
+      return cb(null, agents, inviteId);
+    }
+    Invite.scan({
+      owner: req.body.owner,
+      acceptor: req.body.acceptor,
+      isDeleted: false
+    }, (err, inv) => {
+      if (err) {
+        return cb(err);
+      }
+
+      if (!inv || !inv.length) {
+        return cb(null, agents, inviteId);
+      }
+      console.log('Invite already accepted!');
+      cb({status: 403, message: 'Already accepted'});
+    });
+  };
+
+  var updateInvite = (agents, id, cb) => {
+    var updated = _.clone(req.body);
+    setStatus(updated);
+    restoreDeleted(updated);
+
+    Invite.update({id: id}, updated, (err) => {
+      if (err) {
+        cb(err);
+      }
+      updated.id = id;
+      if (updated.status === 'accepted') {
+        console.log('Invite accepted');
+        var contacts = [{
+          id: uuid.v4(),
+          owner: updated.owner,
+          agent: updated.acceptor,
+          invite: updated.id
+        }, {
+          id: uuid.v4(),
+          owner: updated.acceptor,
+          agent: updated.owner,
+          invite: updated.id
+        }];
+        Contact.batchPut(contacts, function (err) {
+          if (err) return next(new HttpError(500, err));
+          console.log('Contacts created for agent and counter agent');
+          //TODO sync counterAgents
+          // send counterAgents to created contacts
+        });
+      }
+      //return socket only where socket authId equal invite owner or acceptor authId
+      let socketData = _.extend(updated, {
+        resource: 'invites'
+      });
+      inviteSocket.save(socketData, (socket) => {
+        console.info('Check socket have access to emit event...');
+        console.info(JSON.stringify(agents));
+        console.info('###################');
+        console.info(socket.authData.id);
+        console.info('###################');
+        let sendMessage = agents.reduce((curr, next) => {
+          return socket.authData.id === next || curr;
+        }, false);
+        console.info(sendMessage);
+        return sendMessage;
+      });
+      cb(null, updated);
+    });
+  };
+
   //prevent id sending in body
   if (req.body.id) {
     delete req.body.id;
   }
   async.waterfall([
     //get invite by id
-    (cb) => {
-      Invite.get(req.params.id, (err, invite) => {
-        if (err) {
-          cb(err);
-        }
-        if (!invite) {
-          cb(404);
-        }
-        cb(null, invite.id);
-      });
-    },
+    getInviteById,
     // check invite agents, acceptor and owner
-    (id, cb) => {
-      checkCanModify(req.body, (err, agents) => {
-        if (err) {
-          cb(err);
-        }
-        cb(null, agents, id);
-      });
-    },
+    checkInviteAgents,
     // check if acceptor have invite owner as contact
-    (agents, inviteId, cb) => {
-      if (!req.body.acceptor) {
-        return cb(null, agents, inviteId);
-      }
-      Invite.scan({
-        owner: req.body.owner,
-        acceptor: req.body.acceptor,
-        isDeleted: false
-      }, (err, inv) => {
-        if (err) {
-          return cb(err);
-        }
-
-        if (!inv || !inv.length) {
-          return cb(null, agents, inviteId);
-        }
-        console.log('Invite already accepted!');
-        cb({status: 403, message: 'Already accepted'});
-      });
-    },
-    // update and invite and send message to socket
-    (agents, id, cb) => {
-      var updated = _.clone(req.body);
-      setStatus(updated);
-      restoreDeleted(updated);
-
-      Invite.update({id: id}, updated, (err) => {
-        if (err) {
-          cb(err);
-        }
-        updated.id = id;
-        if (updated.status === 'accepted') {
-          console.log('Invite accepted');
-          var contacts = [{
-            id: uuid.v4(),
-            owner: updated.owner,
-            agent: updated.acceptor,
-            invite: updated.id
-          }, {
-            id: uuid.v4(),
-            owner: updated.acceptor,
-            agent: updated.owner,
-            invite: updated.id
-          }];
-          Contact.batchPut(contacts, function (err) {
-            if (err) return next(new HttpError(500, err));
-            console.log('Contacts created for agent and counter agent');
-            //TODO sync counterAgents
-            // send counterAgents to created contacts
-          });
-        }
-        //return socket only where socket authId equal invite owner or acceptor authId
-        let socketData = _.extend(updated, {
-          resource: 'invites'
-        });
-        inviteSocket.save(socketData, (socket) => {
-          console.info('Check socket have access to emit event...');
-          console.info(JSON.stringify(agents));
-          console.info('###################');
-          console.info(socket.authData.id);
-          console.info('###################');
-          let sendMessage = agents.reduce((curr, next) => {
-            return socket.authData.id === next || curr;
-          }, false);
-          console.info(sendMessage);
-          return sendMessage;
-        });
-        cb(null, updated);
-
-      });
-    }
+    checkIfHaveContact,
+    // update invite and send message to socket
+    updateInvite
   ], (err, updated) => {
     if (err) {
       return next(new HttpError(err.status, err.message));
@@ -283,8 +290,12 @@ exports.destroy = (req, res, next) => {
       });
     },
     function (invite, cb) {
-      checkCanModify(invite, function (agents) {
+      checkCanModify(invite, function (err, agents) {
+        if (err) {
+          return next(new HttpError(500, err));
+        }
         invite.isDeleted = true;
+        setStatus(invite);
         var updated = _.clone(invite);
         delete updated.id;
         Invite.update({id: invite.id}, updated, function (err) {
@@ -292,7 +303,8 @@ exports.destroy = (req, res, next) => {
             cb(err);
           }
           let socketData = _.extend(updated, {
-            resource: 'invites'
+            resource: 'invites',
+            id: invite.id
           });
           inviteSocket.remove(socketData, function (socket) {
             return agents.reduce(function (curr, next) {
@@ -357,7 +369,6 @@ function checkCanModify(invite, next) {
     }
   ], (err, results) => {
     if (err) {
-      console.log(err);
       next(err);
     }
 
