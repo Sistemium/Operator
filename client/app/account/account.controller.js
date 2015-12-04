@@ -14,6 +14,12 @@
           getData: function () {
             accountsPromise.then(function (res) {
               me.accounts = res;
+              me.debtorOperations = _.map(me.accounts, function (a) {
+                return a.debtorAccountOperations;
+              });
+              me.lenderOperations = _.map(me.accounts, function (a) {
+                return a.lenderAccountOperations;
+              });
             });
           },
 

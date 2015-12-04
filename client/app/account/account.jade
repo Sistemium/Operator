@@ -3,6 +3,8 @@
   a(ui-sref='agent' translate) Back
   .container
     p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) No accounts
+    p {{ctrl.debtorOperations}}
+    p {{ctrl.lenderOperations}}
     table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
       thead
         th(translate) Currencies accounts
