@@ -44,7 +44,7 @@
           legend(translate) New operation
           .form-group
             label(translate) Sum
-            input.form-control(type='text' ng-model='ctrl.total')
+            input.form-control(type='text' placeholder="{{'Sum'|translate}}" ng-model='ctrl.total')
           .form-group
             label(translate) Currency
             ui-select(ng-model='ctrl.currency')
@@ -52,6 +52,9 @@
                 span(ng-bind='$select.selected.name')
               ui-select-choices(repeat='item in ctrl.currencies')
                 span(ng-bind='item.name')
+          .form-group
+            label(translate) Description
+            input.form-control(type='text' placeholder="{{'Description'|translate}}" ng-model='ctrl.comment')
           div.btn-group
             label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'lender'" translate) Lend
             label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'debtor'" translate) Borrow

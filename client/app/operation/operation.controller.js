@@ -11,7 +11,8 @@
         'AgentOperation',
         'Currency',
         'toastr',
-        function ($rootScope, $scope, $stateParams, CounterAgent, Operation, AgentOperation, Currency, toastr) {
+        'gettextCatalog',
+        function ($rootScope, $scope, $stateParams, CounterAgent, Operation, AgentOperation, Currency, toastr, gettextCatalog) {
           var me = this;
           var lender = 'lender';
           me.counterAgents = [];
@@ -70,6 +71,7 @@
             var operation = {
               total: me.total,
               currency: me.currency.id,
+              comment: me.comment,
               // TODO: take remind duration from UI or from config
               remindDuration: Date.now() + 24 * 60 * 60 * 1000
             };
@@ -84,10 +86,9 @@
             }
 
             Operation.create(operation).then(function () {
-              toastr.success('Операция сохранена');
               me.showOperationCreateForm = false;
             }, function () {
-              toastr.error('Неудача');
+              toastr.error(gettextCatalog.getString("Failed on saving operation"));
             });
           };
 
@@ -103,23 +104,21 @@
               operation.debtorConfirmedAt = Date.now();
             }
 
-            Operation.update(operation.id, operation).then(function (res) {
-              toastr.success('Операция подтвержденна');
-            }, function () {
-              toastr.error('Что то пошло не так');
+            Operation.update(operation.id, operation).then(function () {}, function () {
+              toastr.error(gettextCatalog.getString("Operation confirmation failed"));
             });
           };
 
           me.refresh();
 
-          $rootScope.$on('operation', function (event, data) {
+          $rootScope.$on('operation:save', function (event, data) {
             event.preventDefault();
 
             if (data.lender === agentId || data.debtor === agentId) {
               var isForUpdate = _.find(me.agentOperations, {id: data.id});
               !isForUpdate ? me.agentOperations.push(data) : _.merge(isForUpdate, data);
               filterAgentOperations(me.agentOperations);
-              toastr.success('Operation successful');
+              toastr.success(gettextCatalog.getString("Operation saved"));
             }
           });
         }]

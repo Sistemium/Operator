@@ -95,15 +95,19 @@ msgid "Currency"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
-msgid "Delete"
+msgid "Delete invite"
 msgstr ""
 
-#: .tmp/app/invite/invite.html:1
-msgid "Delete invite"
+#: .tmp/app/operation/operation.html:1
+msgid "Description"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
 msgid "Disable"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Disable invite"
 msgstr ""
 
 #: .tmp/components/navbar/navbar.html:1

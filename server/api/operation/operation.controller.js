@@ -269,7 +269,7 @@ exports.update = function (req, res, next) {
               lenderAccountId = yield checkLenderAccount();
             }
             updated.debtorAccount = debtorAccountId;
-            updated.lenderAccountId = lenderAccountId;
+            updated.lenderAccount = lenderAccountId;
             let result = yield updateOperation(agents);
             return res.json(200, result);
           } catch (error) {

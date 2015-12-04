@@ -9,21 +9,32 @@
         switch (data.resource) {
           case 'invites':
           {
-            $rootScope.$emit('invite', data);
+            $rootScope.$emit('invite:save', data);
             break;
           }
           case 'agents':
           {
-            $rootScope.$emit('agent', data);
+            $rootScope.$emit('agent:save', data);
             break;
           }
           case 'operations':
           {
-            $rootScope.$emit('operation', data);
+            $rootScope.$emit('operation:save', data);
             break;
           }
         }
-      })
+      });
+
+      $rootScope.$on('remove', function (event, data) {
+        event.preventDefault();
+        switch (data.resource) {
+          case 'invites':
+          {
+            $rootScope.$emit('invite:remove', data);
+            break;
+          }
+        }
+      });
     }])
     .service('messageBus', ['$rootScope', 'DS', 'Auth', function ($rootScope, DS, Auth) {
       var ioSocket = io('', {
@@ -47,12 +58,12 @@
         });
 
         ioSocket.on('save', function (data) {
-          DS.find(data.resource, data.id);
           $rootScope.$broadcast('save', data);
         });
 
         ioSocket.on('remove', function (data) {
           DS.eject(data.resource, data.id);
+          $rootScope.$broadcast('remove', data);
         });
 
         ioSocket.on('disconnect', function () {

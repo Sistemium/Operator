@@ -2,8 +2,8 @@
 
 (function () {
   angular.module('debtApp')
-    .controller('AgentCtrl', ['$rootScope', '$scope', '$state', 'Agent', 'toastr',
-      function ($rootScope, $scope, $state, Agent, toastr) {
+    .controller('AgentCtrl', ['$rootScope', '$scope', '$state', 'Agent', 'toastr', 'gettextCatalog',
+      function ($rootScope, $scope, $state, Agent, toastr, gettextCatalog) {
         var me = this;
         me.agents = [];
         me.showSpinner = false;
@@ -55,10 +55,10 @@
 
         me.refresh();
 
-        $rootScope.$on('agent', function (event, data) {
+        $rootScope.$on('agent:save', function (event, data) {
           event.preventDefault();
           me.agents.push(data);
-            toastr.success('Agent was created');
+            toastr.success(gettextCatalog.getString("Agent was created"));
         });
       }]
     )
