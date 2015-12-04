@@ -17,17 +17,27 @@ var co = require('co');
 // Get only operations which initiator or executor belongs to user agents
 exports.index = function (req, res, next) {
   getUserAgents(req, res, function (agentIds) {
-    Operation.scan({
-        or: [
-          {'isDeleted': {eq: false}, 'debtor': {'in': agentIds}},
-          {'lender': {'in': agentIds}}
-        ]
-      },
-      function (err, operations) {
+    if (agentIds.length === 0) {
+      return res.json(200, []);
+    }
+    let tempStr = '', attrVal = {};
+    agentIds.forEach(function (id, index) {
+      let key = ':val' + index;
+      tempStr += key + ',';
+      attrVal[key] = id;
+    });
+    attrVal[':false'] = 'false';
+    tempStr = tempStr.slice(0, -1);
+    let expression = '#isDeleted = :false AND #debtor IN (' + tempStr + ') OR #isDeleted = :false AND #lender IN (' + tempStr + ')';
+    OperationVogels.scan()
+      .filterExpression(expression)
+      .expressionAttributeValues(attrVal)
+      .expressionAttributeNames({'#debtor': 'debtor', '#lender': 'lender', '#isDeleted': 'isDeleted'})
+      .exec(function (err, operations) {
         if (err) {
           return next(new HttpError(500, err));
         }
-        return res.json(200, operations);
+        return res.json(200, operations.Items);
       });
   });
 };

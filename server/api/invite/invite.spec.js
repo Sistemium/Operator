@@ -72,9 +72,9 @@ describe('GET /api/invites without code', function () {
   });
 });
 
-describe('GET /api/invites/ with code', function () {
+describe('GET /api/invites/:code/findByCode', function () {
   var agentStub, inviteStub;
-  var url = '/api/invites?code=123';
+  var url = '/api/invites/123/findByCode';
 
   beforeEach(function () {
     agentStub = sinon.stub(Agent, 'scan').yieldsAsync(null, agents);

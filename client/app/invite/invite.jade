@@ -41,5 +41,7 @@
           | {{ctrl.invite}}
         .row(ng-show='ctrl.showDisableInviteButton')
           button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()' translate) Disable
+        .row(ng-show='ctrl.showDeleteInviteButton')
+          button.btn.btn-primary(type='button' ng-click='ctrl.deleteInvite()' translate) Delete
         .row(ng-show='ctrl.showAcceptInviteButton')
           button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()' translate) Accept

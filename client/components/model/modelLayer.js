@@ -8,7 +8,15 @@
           basePath: '/api'
         });
       }])
-    .run(['$rootScope', 'Agent', 'Currency', 'Invite', 'Operation', 'Account', 'Auth', 'messageBus',
+    .run([
+      '$rootScope',
+      'Agent',
+      'Currency',
+      'Invite',
+      'Operation',
+      'Account',
+      'Auth',
+      'messageBus',
       function ($rootScope, Agent, Currency, Invite, Operation, Account, Auth, messageBus) {
         Auth.isLoggedInAsync(function (isLoggedIn) {
           if (isLoggedIn) {
@@ -67,7 +75,7 @@
         }
       });
     }])
-    .service('Invite', ['DS', function (DS) {
+    .service('Invite', ['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
       return DS.defineResource({
         name: 'invites',
         relations: {
@@ -83,6 +91,9 @@
               }
             ]
           }
+        },
+        actions: {
+          findByCode: {}
         }
       });
     }])

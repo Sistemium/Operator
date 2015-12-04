@@ -36,8 +36,8 @@
           };
 
           me.getInviteByCode = function () {
-            Invite.findAll({code: me.inviteCode}).then(function (res) {
-              me.invite = res;
+            Invite.findByCode(me.inviteCode).then(function (res) {
+              me.invite = res.data;
               me.showInvite = true;
               me.manageInvite(me.invite);
             }, function () {
@@ -46,18 +46,20 @@
           };
 
           me.manageInvite = function (invite) {
-            if (invite.status === 'open') {
-              //check if already have invite from that agent
-              var alreadyAccepted = _.findWhere(me.acceptedInvites, {owner: invite.owner});
-              if (alreadyAccepted) {
-                me.showMessageThatAlreadyAccepted = true;
-                return;
-              }
-              if (invite.owner === agent) {
-                me.showDisableInviteButton = true;
-              } else {
-                me.showAcceptInviteButton = true;
-              }
+            //check if already have invite from that agent
+            var alreadyAccepted = _.findWhere(me.acceptedInvites, {owner: invite.owner});
+            if (alreadyAccepted) {
+              me.showMessageThatAlreadyAccepted = true;
+              //noinspection JSValidateTypes
+              toastr.warning("This invite already accepted");
+              return;
+            }
+            if (invite.owner === agent && invite.status === 'accepted') {
+              me.showDisableInviteButton = true;
+            } else if (invite.owner === agent && invite.status === 'open') {
+              me.showDeleteInviteButton = true;
+            } else if (invite.status === 'open' && !(invite.owner === agent)) {
+              me.showAcceptInviteButton = true;
             } else {
               me.showDisableInviteButton = false;
               me.showAcceptInviteButton = false;
@@ -108,7 +110,7 @@
               filterAgentInvites(me.agentInvites);
             }
 
-            if (invite.owner === agent  && invite.acceptor) {
+            if (invite.owner === agent && invite.acceptor) {
               toastr.success(gettextCatalog.getString("Your created invite was accepted"));
             }
             else if (invite.acceptor == agent) {

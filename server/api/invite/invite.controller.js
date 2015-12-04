@@ -22,53 +22,29 @@ exports.index = (req, res, next) => {
       return next(new HttpError(404, 'agents not found'));
     }
     var agentIds = _.pluck(agents, 'id');
-    if (req.query.code) {
-      Invite.scan({'code': req.query.code, 'isDeleted': false}, function (err, invites) {
-        if (err) {
-          return next(new HttpError(500, err));
-        }
-        if (!invites || invites.length === 0) {
-          return next(new HttpError(404, 'invites not found'));
-        }
-        var invite = invites[0];
-        if (invite.status === 'open') {
-          return res.json(200, invite);
-        } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status) >= 0) {
-          if (_.include(agentIds, invite.acceptor) || _.include(agentIds, invite.owner)) {
-            return res.json(200, invite);
-          } else {
-            return next(new HttpError(401, 'Access denied!'));
-          }
-        } else {
-          return res.json(404);
-        }
+    if (agentIds.length) {
+      let tempStr = '';
+      let attrVal = {};
+      agentIds.forEach(function (id, index) {
+        let key = ':val' + index;
+        tempStr += key + ',';
+        attrVal[key] = id;
       });
-    } else {
-      // on get without code get only invites where user id in owner or acceptor
-      if (agentIds.length) {
-        let tempStr = '';
-        let attrVal = {};
-        agentIds.forEach(function (id, index) {
-          let key = ':val' + index;
-          tempStr += key + ',';
-          attrVal[key] = id;
+      attrVal[':false'] = 'false';
+      tempStr = tempStr.slice(0, -1);
+      let expression = '#owner IN (' + tempStr + ') AND #isDeleted = :false OR #acceptor IN (' + tempStr + ') AND #isDeleted = :false';
+      InviteVogels.scan()
+        .filterExpression(expression)
+        .expressionAttributeValues(attrVal)
+        .expressionAttributeNames({'#owner': 'owner', '#acceptor': 'acceptor', '#isDeleted': 'isDeleted'})
+        .exec(function (err, invites) {
+          if (err) {
+            return next(new HttpError(500, err));
+          }
+          return res.json(200, invites.Items);
         });
-        attrVal[':false'] = 'false';
-        tempStr = tempStr.slice(0, -1);
-        let expression = '#owner IN (' + tempStr + ') AND #isDeleted = :false OR #acceptor IN (' + tempStr + ') AND #isDeleted = :false';
-        InviteVogels.scan()
-          .filterExpression(expression)
-          .expressionAttributeValues(attrVal)
-          .expressionAttributeNames({'#owner': 'owner', '#acceptor': 'acceptor', '#isDeleted': 'isDeleted'})
-          .exec(function (err, invites) {
-            if (err) {
-              return next(new HttpError(500, err));
-            }
-            return res.json(200, invites.Items);
-          });
-      } else {
-        return res.json([]);
-      }
+    } else {
+      return res.json([]);
     }
   });
 };
@@ -101,6 +77,42 @@ exports.show = (req, res, next) => {
     return res.json(invite);
   });
 };
+
+exports.findByCode = (req, res, next) => {
+  // get agents that belongs to user
+  Agent.scan({authId: req.authId, isDeleted: false}, (err, agents) => {
+    if (err) {
+      return next(new HttpError(500, err));
+    }
+    if (!agents) {
+      return next(new HttpError(404, 'agents not found'));
+    }
+    var agentIds = _.pluck(agents, 'id');
+    if (req.params.code) {
+      Invite.scan({'code': req.params.code, 'isDeleted': false}, function (err, invites) {
+        if (err) {
+          return next(new HttpError(500, err));
+        }
+        if (!invites || invites.length === 0) {
+          return next(new HttpError(404, 'invites not found'));
+        }
+        var invite = invites[0];
+        if (invite.status === 'open') {
+          return res.json(200, invite);
+        } else if (['accepted', 'disabled', 'deleted'].indexOf(invite.status) >= 0) {
+          if (_.include(agentIds, invite.acceptor) || _.include(agentIds, invite.owner)) {
+            return res.json(200, invite);
+          } else {
+            return next(new HttpError(401, 'Access denied!'));
+          }
+        } else {
+          return res.json(404);
+        }
+      });
+    }
+  });
+};
+
 
 // Creates a new invite in the DB.
 exports.create = (req, res, next) => {
