@@ -2,12 +2,12 @@
 
 (function () {
   angular.module('debtApp')
-    .factory('Modal', ['$rootScope', '$modal', function ($rootScope, $modal) {
+    .service('Modal', ['$rootScope', '$uibModal', function ($rootScope, $uibModal) {
       /**
        * Opens a modal
        * @param  {Object} scope      - an object to be merged with modal's scope
        * @param  {String} modalClass - (optional) class(es) to be applied to the modal
-       * @return {Object}            - the instance $modal.open() returns
+       * @return {Object}            - the instance $uibModal.open() returns
        */
       function openModal(scope, modalClass) {
         var modalScope = $rootScope.$new();
@@ -16,7 +16,7 @@
 
         angular.extend(modalScope, scope);
 
-        return $modal.open({
+        return $uibModal.open({
           templateUrl: 'components/modal/modal.html',
           windowClass: modalClass,
           scope: modalScope
@@ -70,6 +70,26 @@
 
               deleteModal.result.then(function (event) {
                 del.apply(event, args);
+              });
+            };
+          }
+        },
+        info: {
+          show: function (cb) {
+            cb = cb || angular.noop;
+
+            return function (modalData, modalInstance) {
+              modalInstance = openModal({
+                modal: {
+                  dismissable: true,
+                  title: modalData.title || 'Title',
+                  html: modalData.html,
+                  buttons: modalData.buttons
+                }
+              });
+
+              modalInstance.result.then(function (event) {
+                cb.apply(event, args);
               });
             };
           }
