@@ -44,7 +44,15 @@
       }])
     .service('Currency', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'currencies'
+        name: 'currencies',
+        relations: {
+          hasMany: {
+            accounts: {
+              localField: 'accounts',
+              foreignKey: 'currency'
+            }
+          }
+        }
       });
     }])
     .service('Agent', ['DS', function (DS) {
@@ -52,7 +60,7 @@
         name: 'agents',
         relations: {
           hasMany: {
-            invites: [
+            agentInvites: [
               {
                 localField: 'ownerInvites',
                 foreignKey: 'owner'
@@ -61,7 +69,7 @@
                 foreignKey: 'acceptor'
               }
             ],
-            operations: [
+            agentOperations: [
               {
                 localField: 'lenderOperations',
                 foreignKey: 'lender'
@@ -75,7 +83,7 @@
         }
       });
     }])
-    .service('Invite', ['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
+    .service('Invite', ['DS', function (DS) {
       return DS.defineResource({
         name: 'invites',
         relations: {
@@ -197,6 +205,12 @@
                 foreignKey: 'lenderAccount'
               }
             ]
+          },
+          hasOne: {
+            currencies: {
+              localField: 'currencyEntity',
+              localKey: 'currency'
+            }
           }
         }
       })

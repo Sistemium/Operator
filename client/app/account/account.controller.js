@@ -2,11 +2,9 @@
 
 (function () {
   angular.module('debtApp')
-    .controller('AccountCtrl', ['$state', '$stateParams', 'Account',
-      function ($state, $stateParams, Account) {
+    .controller('AccountCtrl', ['$state', '$stateParams', 'Account', 'NgTableOptions',
+      function ($state, $stateParams, Account, NgTableOptions) {
         var me = this;
-        me.accounts = [];
-        me.currencies = [];
         var agentId = $stateParams.agent;
         var accountsPromise = Account.findAll({agent: agentId});
 
@@ -14,12 +12,17 @@
           getData: function () {
             accountsPromise.then(function (res) {
               me.accounts = res;
+              _.forEach(me.accounts, function (item) {
+                item.accountOperations = item.debtorAccountOperations.concat(item.lenderAccountOperations);
+              });
               me.debtorOperations = _.map(me.accounts, function (a) {
                 return a.debtorAccountOperations;
               });
               me.lenderOperations = _.map(me.accounts, function (a) {
                 return a.lenderAccountOperations;
               });
+              me.accountsTableParams = NgTableOptions.setTable(me, me.accounts);
+              me.showSpinner = false;
             });
           },
 
@@ -28,11 +31,29 @@
           },
 
           refresh: function () {
+            me.showSpinner = true;
             me.getData();
+          },
+
+          showAccountOperations: function (accountId) {
+            $state.go('accountOperations', {account: accountId});
           }
         });
 
         me.refresh();
+      }]
+    )
+    .controller('AccountOperationsCtrl', ['accountOperations', 'NgTableOptions', function (accountOperations, NgTableOptions) {
+        var me = this;
+
+        angular.extend(me, {
+          accountOperations: accountOperations,
+          setTableParams: function () {
+            me.accountOperationsTableParams = NgTableOptions.setTable(me, me.accountOperations);
+          }
+        });
+
+        me.setTableParams();
       }]
     )
   ;
