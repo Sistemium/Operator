@@ -15,7 +15,8 @@
       'LocalStorageModule',
       'js-data',
       'ngAnimate',
-      'toastr'
+      'toastr',
+      'ngTable'
     ])
     .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
       function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
