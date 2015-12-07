@@ -12,14 +12,21 @@
         'Currency',
         'toastr',
         'gettextCatalog',
-        function ($rootScope, $scope, $stateParams, CounterAgent, Operation, AgentOperation, Currency, toastr, gettextCatalog) {
+        'NgTableOptions',
+        function ($rootScope
+          , $scope
+          , $stateParams
+          , CounterAgent
+          , Operation
+          , AgentOperation
+          , Currency
+          , toastr
+          , gettextCatalog
+          , NgTableOptions) {
+
           var me = this;
           var lender = 'lender';
-          me.counterAgents = [];
-          me.operations = [];
           me.showSpinner = false;
-          me.agentOperations = [];
-          me.currencies = [];
 
           me.radioModel = lender;
           var agentId = $stateParams.agent;
@@ -29,19 +36,28 @@
               return operation.lenderConfirmedAt && operation.lender === agentId && operation.state === 'waitingForConfirm'
                 || operation.debtorConfirmedAt && operation.debtor === agentId && operation.state === 'waitingForConfirm';
             });
+            me.agentConfirmedOperationsTableParams = NgTableOptions.setTable(me, me.agentConfirmedOperations);
             var withoutAgentConfirmed = _.difference(o, me.agentConfirmedOperations);
-            me.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'})
+            me.waitingForConfirm = _.filter(withoutAgentConfirmed, {'state': 'waitingForConfirm'});
+            me.waitingForConfirmTableParams = NgTableOptions.setTable(me, me.waitingForConfirm);
             me.completedOperations = _.filter(o, {state: 'confirmed'});
+            me.completedOperationsTableParams = NgTableOptions.setTable(me, me.completedOperations);
           }
 
           me.refresh = function () {
             me.agentOperationsPromise = AgentOperation.find(agentId);
             me.counterAgentsPromise = CounterAgent.find(agentId, {bypassCache: true});
-            me.showSpinner = true;
+            var reqCount = 0;
             function getData(promise, promiseCb) {
+              reqCount++;
+              me.showSpinner = true;
               promise.then(function (res) {
                 if (promiseCb) {
                   promiseCb(res);
+                  reqCount--;
+                  if (reqCount === 0) {
+                    me.showSpinner = false;
+                  }
                 }
               });
             }
@@ -61,13 +77,13 @@
             function processAgentOperations(res) {
               me.agentOperations = res;
               filterAgentOperations(res);
-              me.showSpinner = false;
             }
 
             getData(me.agentOperationsPromise, processAgentOperations);
           };
 
           me.saveOperation = function () {
+            me.showSpiner = true;
             var operation = {
               total: me.total,
               currency: me.currency.id,
@@ -87,6 +103,7 @@
 
             Operation.create(operation).then(function () {
               me.showOperationCreateForm = false;
+              me.showSpiner = false;
             }, function () {
               toastr.error(gettextCatalog.getString("Failed on saving operation"));
             });

@@ -1,9 +1,24 @@
-'use strict';
-
 (function () {
+  'use strict';
   angular.module('debtApp')
-    .controller('InviteCtrl', ['$rootScope', '$scope', '$stateParams', 'AgentInvite', 'Invite', 'toastr', 'gettextCatalog',
-        function ($rootScope, $scope, $stateParams, AgentInvite, Invite, toastr, gettextCatalog) {
+    .controller('InviteCtrl',
+      [
+        '$rootScope',
+        '$scope',
+        '$stateParams',
+        'AgentInvite',
+        'Invite',
+        'toastr',
+        'gettextCatalog',
+        'NgTableOptions',
+        function ($rootScope,
+                  $scope,
+                  $stateParams,
+                  AgentInvite,
+                  Invite,
+                  toastr,
+                  gettextCatalog,
+                  NgTableOptions) {
           var me = this;
           me.invite = null;
           me.showSpinner = false;
@@ -13,6 +28,7 @@
           function filterAgentInvites(i) {
             me.acceptedInvites = _.filter(i, {'acceptor': agent});
             me.confirmedInvites = _.filter(i, {'owner': agent, acceptor: !null});
+            me.tableParams = NgTableOptions.setTable(me, i);
           }
 
           me.refresh = function () {
@@ -106,8 +122,10 @@
 
             if (invite.owner === agent || invite.acceptor === agent) {
               var isUpdated = _.find(me.agentInvites, {id: invite.id});
-              isUpdated ? _.merge(invite, isUpdated) : me.agentInvites.push(invite);
-              filterAgentInvites(me.agentInvites);
+              Invite.find(invite.id).then(function (res) {
+                isUpdated ? _.merge(res, isUpdated) : me.agentInvites.push(res);
+                filterAgentInvites(me.agentInvites);
+              });
             }
 
             if (invite.owner === agent && invite.acceptor) {
