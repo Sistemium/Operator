@@ -2,13 +2,14 @@
   h1(translate) Agent's accounts
   a(ui-sref='agent' translate) Back
   .container
-    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0' translate) No accounts
-    p {{ctrl.debtorOperations}}
-    p {{ctrl.lenderOperations}}
-    table.table.table-responsive.table-hover(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
-      thead
-        th(translate) Currencies accounts
-      tbody
-        tr(ng-repeat='account in ctrl.accounts track by account.id')
+    span(us-spinner ng-show='ctrl.showSpinner')
+    p(ng-if='ctrl.accounts && ctrl.accounts.length === 0 && !ctrl.showSpinner' translate) No accounts
+    div(ng-if='ctrl.accounts && ctrl.accounts.length > 0')
+      table.table.table-responsive.table-hover(ng-table='ctrl.accountsTableParams')
+        tr(ng-repeat='account in $data track by account.id')
+          td(title="'Total'|translate") {{account.total}}
+          td(title="'Currency'|translate") {{account.currencyEntity.name}}
           td
-            a(href='' ng-click='ctrl.goToOperations(account.id)') {{account}}
+            a(href='' ng-click='ctrl.showAccountOperations(account.id)' translate) Show all operations of an account
+          td
+            a(href='' ng-click='ctrl.goToOperations(account.id)' translate) Go to agent's operations

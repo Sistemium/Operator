@@ -1,0 +1,9 @@
+.col-md-12
+  h1(translate) Account's operations
+  a(ui-sref='account' translate) Back
+  .container
+    p(ng-if='ctrl.accountOperations && ctrl.accountOperations.length === 0' translate) No accounts
+    div(ng-if='ctrl.accountOperations && ctrl.accountOperations.length > 0')
+      table.table.table-responsive.table-hover(ng-table='ctrl.accountOperationsTableParams')
+        tr(ng-repeat='accountOperation in $data track by accountOperation.id')
+          td {{accountOperation}}
