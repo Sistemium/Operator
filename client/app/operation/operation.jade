@@ -4,40 +4,52 @@
   .container
     .row
       span(us-spinner ng-show='ctrl.showSpinner')
-      p(ng-if='ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
+      p(ng-if='ctrl.counterAgents && ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
       div(ng-if='ctrl.completedOperations && ctrl.completedOperations.length > 0')
         h3(translate) Agent's completed operations
-        table.table.table-responsive.table-hover
-          thead
-          tbody
-            tr(ng-repeat='completedOperation in ctrl.completedOperations track by completedOperation.id')
-              td {{completedOperation}}
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.completedOperationsTableParams')
+          tr(ng-repeat='completedOperation in $data track by completedOperation.id')
+            td(title="'Lender'|translate") {{completedOperation.lenderAgent.name}}
+            td(title="'Debtor'|translate") {{completedOperation.debtorAgent.name}}
+            td(title="'Status'|translate") {{completedOperation.state}}
+            td(title="'Amount'|translate") {{completedOperation.total}}
+            td(title="'Comment'|translate") {{completedOperation.comment}}
+            td
+              a(href='') More details
 
       div(ng-if='ctrl.agentOperations && ctrl.agentConfirmedOperations.length > 0')
         h3(translate) Agent's operation waiting for confirm
-        table.table.table-responsive.table-hover
-          thead
-          tbody
-            tr(ng-repeat='agentConfirmed in ctrl.agentConfirmedOperations track by agentConfirmed.id')
-              td {{agentConfirmed}}
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.agentConfirmedOperationsTableParams')
+          tr(ng-repeat='agentConfirmed in $data track by agentConfirmed.id')
+            td(title="'Lender'|translate") {{agentConfirmed.lenderAgent.name}}
+            td(title="'Debtor'|translate") {{agentConfirmed.debtorAgent.name}}
+            td(title="'Status'|translate") {{agentConfirmed.state}}
+            td(title="'Amount'|translate") {{agentConfirmed.total}}
+            td(title="'Comment'|translate") {{agentConfirmed.comment}}
+            td
+              a(href='') More details
 
       div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
         h3(translate) Waiting for confirmation
-        table.table.table-responsive.table-hover
-          thead
-          tbody
-            tr(ng-repeat='waitingForConfirm in ctrl.waitingForConfirm track by waitingForConfirm.id')
-              td {{waitingForConfirm}}
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.waitingForConfirmTableParams')
+            tr(ng-repeat='waitingForConfirm in $data track by waitingForConfirm.id')
+              td(title="'Lender'|translate") {{waitingForConfirm.lenderAgent.name}}
+              td(title="'Debtor'|translate") {{waitingForConfirm.debtorAgent.name}}
+              td(title="'Status'|translate") {{waitingForConfirm.state}}
+              td(title="'Amount'|translate") {{waitingForConfirm.total}}
+              td(title="'Comment'|translate") {{waitingForConfirm.comment}}
+              td
+                a(href='') More details
               td
                 a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
 
       div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
         h3(translate) Contacts
-        table.table.table-responsive.table-hover
+        table.table.table-responsive.table-bordered.table-striped.table-hover
            thead
            tbody
              tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
-              td {{counterAgent}}
+              td {{counterAgent.name}}
               td
                 a(href='' ng-click='ctrl.createOperation(counterAgent)' translate) Create operation
         form(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')

@@ -16,6 +16,10 @@ msgstr ""
 msgid "Accept"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Acceptor"
+msgstr ""
+
 #: .tmp/app/agent/agent.html:1
 msgid "Accounts |"
 msgstr ""
@@ -95,6 +99,10 @@ msgid "Currency"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
+msgid "Delete"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
 msgid "Delete invite"
 msgstr ""
 
@@ -158,6 +166,10 @@ msgstr ""
 msgid "Operations"
 msgstr ""
 
+#: .tmp/app/invite/invite.html:1
+msgid "Owner"
+msgstr ""
+
 #: .tmp/components/navbar/navbar.html:1
 msgid "Russian"
 msgstr ""
@@ -169,6 +181,10 @@ msgstr ""
 
 #: .tmp/app/invite/invite.html:1
 msgid "Send invite"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
+msgid "Status"
 msgstr ""
 
 #: .tmp/app/operation/operation.html:1
