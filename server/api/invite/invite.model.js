@@ -14,7 +14,6 @@ var Invite = vogels.define('Operator_Invite', {
     isDeleted: Joi.boolean().default(false)
   }
 });
-Invite.log.level('info');
 
 var dynamoose = require('dynamoose'),
   Schema = dynamoose.Schema;
