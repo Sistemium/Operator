@@ -36,20 +36,28 @@
           },
 
           showAccountOperations: function (accountId) {
-            $state.go('accountOperations', {account: accountId});
+            $state.go('accountOperations', {account: accountId, agent: agentId});
           }
         });
 
         me.refresh();
       }]
     )
-    .controller('AccountOperationsCtrl', ['accountOperations', 'NgTableOptions', function (accountOperations, NgTableOptions) {
+    .controller('AccountOperationsCtrl', [
+      '$state',
+      '$stateParams',
+      'accountOperations',
+      'NgTableOptions',
+      function ($state, $stateParams, accountOperations, NgTableOptions) {
         var me = this;
 
         angular.extend(me, {
           accountOperations: accountOperations,
           setTableParams: function () {
             me.accountOperationsTableParams = NgTableOptions.setTable(me, me.accountOperations);
+          },
+          goBack: function () {
+            $state.go('account', {agent: $stateParams.agent});
           }
         });
 

@@ -20,7 +20,9 @@
         resolve:  {
           accountOperations: function ($stateParams, Account) {
             return Account.find($stateParams.account).then(function (res) {
-              return res.debtorAccountOperations.concat(res.lenderAccountOperations);
+              return Account.loadRelations($stateParams.account).then(function () {
+                return res.debtorAccountOperations.concat(res.lenderAccountOperations);
+              });
             });
           }
         }
