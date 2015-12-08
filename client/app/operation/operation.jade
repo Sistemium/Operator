@@ -52,11 +52,11 @@
               td {{counterAgent.name}}
               td
                 a(href='' ng-click='ctrl.createOperation(counterAgent)' translate) Create operation
-        form(ng-show='ctrl.showOperationCreateForm' ng-submit='ctrl.saveOperation()')
+        form(ng-show='ctrl.showOperationCreateForm' name='form' ng-submit='ctrl.saveOperation()')
           legend(translate) New operation
           .form-group
             label(translate) Sum
-            input.form-control(type='text' placeholder="{{'Sum'|translate}}" ng-model='ctrl.total')
+            input.form-control(type='text' placeholder="{{'Sum'|translate}}" ng-model='ctrl.total' required)
           .form-group
             label(translate) Currency
             ui-select(ng-model='ctrl.currency')
@@ -70,5 +70,4 @@
           div.btn-group
             label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'lender'" translate) Lend
             label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'debtor'" translate) Borrow
-
-          button.btn(type='submit' translate) Save
+          button.btn(type='submit' ng-disabled='form.$invalid' translate) Save

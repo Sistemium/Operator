@@ -12,6 +12,12 @@ var CurrencySchema = new Schema({
     type: String,
     required: true
   },
+  isoCode: {
+    type: String
+  },
+  currencySign: {
+    type: String
+  },
   isDeleted: {
     type: Boolean,
     default: false
