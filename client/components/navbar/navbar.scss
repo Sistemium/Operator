@@ -1,0 +1,22 @@
+.connected {
+  color: #4cae4c;
+  margin-top: 15px;
+  animation: blink 2s steps(5, start) infinite;
+  -webkit-animation: blink 2s steps(5, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.disconnected {
+  color: #f00400;
+  margin-top: 15px;
+}

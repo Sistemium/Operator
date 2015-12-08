@@ -40,14 +40,19 @@
       var ioSocket = io('', {
         path: '/socket.io-client'
       });
+      var socketConnected = false;
 
       function initSocket() {
+        var socketConnected = 'socketConnected';
+
         ioSocket.emit('authorize', Auth.getToken(), function (cb) {
           console.log('Socket authorization:', cb);
 
           if (cb.isAuthorized) {
+            $rootScope.$broadcast(socketConnected, true);
             console.log('authorized');
           } else {
+            $rootScope.$broadcast(socketConnected, false);
             console.log('not authorized');
           }
         });
@@ -62,6 +67,7 @@
         });
 
         ioSocket.on('disconnect', function () {
+          $rootScope.$broadcast(socketConnected, false);
           ioSocket.removeAllListeners();
         });
 

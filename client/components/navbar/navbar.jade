@@ -24,3 +24,5 @@ div.navbar.navbar-default(ng-controller='NavbarCtrl as ctrl')
           a(href='' ng-click="ctrl.changeLanguage('ru')" translate) Russian
         li
           a(href='' ng-click="ctrl.changeLanguage('en')" translate) English
+        li
+          span.fa.fa-circle(ng-class="{connected: ctrl.socketConnected, disconnected: !ctrl.socketConnected}")

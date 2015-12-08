@@ -17,7 +17,15 @@ msgid "Accept"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
+msgid "Accepted"
+msgstr ""
+
+#: .tmp/app/invite/invite.html:1
 msgid "Acceptor"
+msgstr ""
+
+#: .tmp/app/account/accountOperations.html:1
+msgid "Account's operations"
 msgstr ""
 
 #: .tmp/app/agent/agent.html:1
@@ -52,7 +60,13 @@ msgstr ""
 msgid "Agents"
 msgstr ""
 
+#: .tmp/app/account/accountOperations.html:1
+#: .tmp/app/operation/operation.html:1
+msgid "Amount"
+msgstr ""
+
 #: .tmp/app/account/account.html:1
+#: .tmp/app/account/accountOperations.html:1
 #: .tmp/app/invite/invite.html:1
 #: .tmp/app/operation/operation.html:1
 msgid "Back"
@@ -70,12 +84,13 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
+#: .tmp/app/account/accountOperations.html:1
 #: .tmp/app/operation/operation.html:1
-msgid "Confirm"
+msgid "Comment"
 msgstr ""
 
-#: .tmp/app/invite/invite.html:1
-msgid "Confirmed"
+#: .tmp/app/operation/operation.html:1
+msgid "Confirm"
 msgstr ""
 
 #: .tmp/app/operation/operation.html:1
@@ -91,11 +106,17 @@ msgid "Create operation"
 msgstr ""
 
 #: .tmp/app/account/account.html:1
-msgid "Currencies accounts"
-msgstr ""
-
 #: .tmp/app/operation/operation.html:1
 msgid "Currency"
+msgstr ""
+
+#: .tmp/app/account/accountOperations.html:1
+#: .tmp/app/operation/operation.html:1
+msgid "Debtor"
+msgstr ""
+
+#: .tmp/app/account/accountOperations.html:1
+msgid "Debtor confirmed at"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
@@ -130,6 +151,10 @@ msgstr ""
 msgid "Get invite by code"
 msgstr ""
 
+#: .tmp/app/account/account.html:1
+msgid "Go to agent's operations"
+msgstr ""
+
 #: .tmp/components/navbar/navbar.html:1
 msgid "Hi,<span></span>{{ctrl.getCurrentUser().body.phoneNumber || ctrl.getCurrentUser().phoneNumber}}"
 msgstr ""
@@ -140,6 +165,15 @@ msgstr ""
 
 #: .tmp/app/operation/operation.html:1
 msgid "Lend"
+msgstr ""
+
+#: .tmp/app/account/accountOperations.html:1
+#: .tmp/app/operation/operation.html:1
+msgid "Lender"
+msgstr ""
+
+#: .tmp/app/account/accountOperations.html:1
+msgid "Lender confirmed at"
 msgstr ""
 
 #: .tmp/components/navbar/navbar.html:1
@@ -155,6 +189,7 @@ msgid "New operation"
 msgstr ""
 
 #: .tmp/app/account/account.html:1
+#: .tmp/app/account/accountOperations.html:1
 msgid "No accounts"
 msgstr ""
 
@@ -183,12 +218,21 @@ msgstr ""
 msgid "Send invite"
 msgstr ""
 
+#: .tmp/app/account/account.html:1
+msgid "Show all operations of an account"
+msgstr ""
+
 #: .tmp/app/invite/invite.html:1
+#: .tmp/app/operation/operation.html:1
 msgid "Status"
 msgstr ""
 
 #: .tmp/app/operation/operation.html:1
 msgid "Sum"
+msgstr ""
+
+#: .tmp/app/account/account.html:1
+msgid "Total"
 msgstr ""
 
 #: .tmp/app/agent/agent.html:1
