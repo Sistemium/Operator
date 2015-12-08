@@ -26,9 +26,10 @@
           var agent = $stateParams.agent;
 
           function filterAgentInvites(i) {
+            me.agentInvitesTableParams = NgTableOptions.setTable(me, i);
             me.acceptedInvites = _.filter(i, {'acceptor': agent});
+            me.acceptedInvitesTableParams = NgTableOptions.setTable(me, me.acceptedInvites);
             me.confirmedInvites = _.filter(i, {'owner': agent, acceptor: !null});
-            me.tableParams = NgTableOptions.setTable(me, i);
           }
 
           me.refresh = function () {
