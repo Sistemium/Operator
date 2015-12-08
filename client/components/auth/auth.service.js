@@ -2,14 +2,17 @@
 
 angular.module('debtApp')
 
-  .factory('Auth', ['$cookieStore', '$http', '$q', function ($cookieStore, $http, $q) {
+  .factory('Auth', ['$http', '$q', 'localStorageService', function ($http, $q, localStorageService) {
     var currentUser = {};
     //TODO remove this hack when authorization will work properly
-    $cookieStore.put('token', 'bb9a72e07b7ea5850278ef4782cc8312658aa1b2');
-    if ($cookieStore.get('token')) {
+    localStorageService.set('token', 'bb9a72e07b7ea5850278ef4782cc8312658aa1b2');
+    if (localStorageService.get('token')) {
       currentUser = $http({
         method: 'GET',
-        url: '/api/auth?token=' + $cookieStore.get('token')
+        url: '/api/auth',
+        headers: {
+          authorization: localStorageService.get('token')
+        }
       });
     }
 
@@ -18,10 +21,8 @@ angular.module('debtApp')
         var cb = callback || angular.noop;
         var deferred = $q.defer();
 
-        $http.post('/api/auth', {
-          token: token
-        }).success(function (data) {
-            $cookieStore.put('token', data.token);
+        $http.post('/api/auth').success(function (data) {
+            localStorageService.set('token', data.token);
             currentUser = data.body;
             deferred.resolve(data);
             return cb();
@@ -36,7 +37,7 @@ angular.module('debtApp')
       },
 
       logout: function () {
-        $cookieStore.remove('token');
+        localStorageService.remove('token');
         currentUser = {};
       },
 
@@ -57,7 +58,7 @@ angular.module('debtApp')
       },
 
       getToken: function () {
-        return $cookieStore.get('token');
+        return localStorageService.get('token');
       },
 
       getCurrentUser: function () {

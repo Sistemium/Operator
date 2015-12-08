@@ -10,6 +10,8 @@
       }])
     .run([
       '$rootScope',
+      '$http',
+      'localStorageService',
       'Agent',
       'Currency',
       'Invite',
@@ -17,30 +19,30 @@
       'Account',
       'Auth',
       'messageBus',
-      function ($rootScope, Agent, Currency, Invite, Operation, Account, Auth, messageBus) {
-        Auth.isLoggedInAsync(function (isLoggedIn) {
-          if (isLoggedIn) {
-            //register socket events
-            messageBus.initSocket();
+      function ($rootScope
+        , $http
+        , localStorageService
+        , Agent
+        , Currency
+        , Invite
+        , Operation
+        , Account
+        , Auth
+        , messageBus) {
+        $http.defaults.headers.common.authorization = localStorageService.get('token');
+          Auth.isLoggedInAsync(function (isLoggedIn) {
+            if (isLoggedIn) {
+              //register socket events
+              messageBus.initSocket();
 
-            // initially fetch data and inject in stores
-            Agent.findAll().then(function (res) {
-              console.log(res);
-            });
-            Currency.findAll().then(function (res) {
-              console.log(res);
-            });
-            Invite.findAll().then(function (res) {
-              console.log(res);
-            });
-            Operation.findAll().then(function (res) {
-              console.log(res);
-            });
-            Account.findAll().then(function (res) {
-              console.log(res);
-            })
-          }
-        });
+              // initially fetch data and inject in stores
+              Agent.findAll();
+              Currency.findAll();
+              Invite.findAll();
+              Operation.findAll();
+              Account.findAll();
+            }
+          });
       }])
     .service('Currency', ['DS', function (DS) {
       return DS.defineResource({
