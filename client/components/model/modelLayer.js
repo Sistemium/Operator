@@ -8,7 +8,10 @@
           basePath: '/api'
         });
       }])
-    .run([
+    .run(['DataConnect', function (DataConnect) {
+      DataConnect.init();
+    }])
+    .service('DataConnect', [
       '$rootScope',
       '$http',
       'localStorageService',
@@ -30,6 +33,8 @@
         , Auth
         , messageBus) {
         $http.defaults.headers.common.authorization = localStorageService.get('token');
+
+        function init() {
           Auth.isLoggedInAsync(function (isLoggedIn) {
             if (isLoggedIn) {
               //register socket events
@@ -43,6 +48,11 @@
               Account.findAll();
             }
           });
+        }
+
+        return {
+          init: init
+        };
       }])
     .service('Currency', ['DS', function (DS) {
       return DS.defineResource({

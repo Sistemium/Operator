@@ -4,14 +4,13 @@ angular.module('debtApp')
 
   .factory('Auth', ['$http', '$q', 'localStorageService', function ($http, $q, localStorageService) {
     var currentUser = {};
-    //TODO remove this hack when authorization will work properly
-    localStorageService.set('token', 'bb9a72e07b7ea5850278ef4782cc8312658aa1b2');
-    if (localStorageService.get('token')) {
+    var token = localStorageService.get('token');
+    if (token) {
       currentUser = $http({
         method: 'GET',
         url: '/api/auth',
         headers: {
-          authorization: localStorageService.get('token')
+          authorization: token
         }
       });
     }
@@ -21,9 +20,13 @@ angular.module('debtApp')
         var cb = callback || angular.noop;
         var deferred = $q.defer();
 
-        $http.post('/api/auth').success(function (data) {
+        $http.get('/api/auth', {
+          headers: {
+            authorization: token
+          }
+        }).success(function (data) {
             localStorageService.set('token', data.token);
-            currentUser = data.body;
+            currentUser = data;
             deferred.resolve(data);
             return cb();
           }).
@@ -42,14 +45,14 @@ angular.module('debtApp')
       },
 
       isLoggedInAsync: function (cb) {
-        if (!currentUser.hasOwnProperty('token')) {
-          currentUser.success(function (data) {
-            currentUser = data;
+        //TODO: check token expiration
+        if (currentUser.hasOwnProperty('$$state')) {
+          currentUser.then(function (res) {
+            currentUser = res.data;
             cb(true);
-          }).catch(function () {
+          }, function () {
             cb(false);
           });
-          // property of current user
         } else if (currentUser.hasOwnProperty('token')) {
           cb(true);
         } else {

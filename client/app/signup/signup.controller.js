@@ -58,9 +58,9 @@
             smsCode: me.smsCode,
             code: me.code
           };
-          $http.post(authDomain + '/api/pha/token', data)
+          $http.post(authDomain + 'api/pha/token', data)
             .then(function (res) {
-              login(res.code);
+              login(res.data.code);
             }, function (err) {
               if (err.status === 400) {
                 $mdToast.show(createToast('Неправильный телефон'));
