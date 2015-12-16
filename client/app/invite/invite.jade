@@ -43,7 +43,7 @@
             input.form-control(type='text' placeholder="{{'Code'|translate}}" ng-model='ctrl.inviteCode')
           button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()' ng-disabled='!ctrl.inviteCode' translate) Get invite
         .row(ng-show='ctrl.showInvite')
-          | {{ctrl.invite}}
+          | {{ctrl.invite.code}} {{ctrl.invite.status}}
         .row(ng-show='ctrl.showDisableInviteButton')
           button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()' translate) Disable
         .row(ng-show='ctrl.showDeleteInviteButton')

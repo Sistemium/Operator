@@ -64,13 +64,14 @@
 
           me.manageInvite = function (invite) {
             //check if already have invite from that agent
-            var alreadyAccepted = _.findWhere(me.acceptedInvites, {owner: invite.owner});
+            var alreadyAccepted = _.findWhere(me.acceptedInvites, {owner: invite.owner, acceptor: invite.acceptor});
             if (alreadyAccepted) {
               me.showMessageThatAlreadyAccepted = true;
               //noinspection JSValidateTypes
               toastr.warning("This invite already accepted");
               return;
             }
+
             if (invite.owner === agent && invite.status === 'accepted') {
               me.showDisableInviteButton = true;
             } else if (invite.owner === agent && invite.status === 'open') {
@@ -120,6 +121,8 @@
 
           $rootScope.$on('invite:save', function (event, invite) {
             event.preventDefault();
+
+            console.log(invite);
 
             if (invite.owner === agent || invite.acceptor === agent) {
               var isUpdated = _.find(me.agentInvites, {id: invite.id});

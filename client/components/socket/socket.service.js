@@ -22,6 +22,11 @@
             $rootScope.$emit('operation:save', data);
             break;
           }
+          case 'contacts':
+          {
+            $rootScope.$emit('contact:save', data);
+            break;
+          }
         }
       });
 

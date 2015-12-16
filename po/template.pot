@@ -40,6 +40,10 @@ msgstr ""
 msgid "Agent name"
 msgstr ""
 
+#: client/app/agent/agent.controller.js:62
+msgid "Agent was created"
+msgstr ""
+
 #: .tmp/app/account/account.html:1
 msgid "Agent's accounts"
 msgstr ""
@@ -97,6 +101,14 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
+#: client/app/invite/invite.controller.js:109
+msgid "Could not accept invite"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:99
+msgid "Could not disable invite"
+msgstr ""
+
 #: .tmp/app/invite/invite.html:1
 msgid "Create invite"
 msgstr ""
@@ -139,8 +151,20 @@ msgstr ""
 msgid "Disable invite"
 msgstr ""
 
-#: .tmp/components/navbar/navbar.html:1
-msgid "English"
+#: client/app/operation/operation.controller.js:108
+msgid "Failed on saving operation"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:51
+msgid "Failed to create invite"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:90
+msgid "Failed to delete invite"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:61
+msgid "Failed to get invite by code"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
@@ -157,6 +181,10 @@ msgstr ""
 
 #: .tmp/components/navbar/navbar.html:1
 msgid "Hi,<span></span>{{ctrl.getCurrentUser().body.phoneNumber || ctrl.getCurrentUser().phoneNumber}}"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:88
+msgid "Invite was successfully deleted"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
@@ -197,16 +225,20 @@ msgstr ""
 msgid "No agents"
 msgstr ""
 
+#: client/app/operation/operation.controller.js:125
+msgid "Operation confirmation failed"
+msgstr ""
+
+#: client/app/operation/operation.controller.js:138
+msgid "Operation saved"
+msgstr ""
+
 #: .tmp/app/operation/operation.html:1
 msgid "Operations"
 msgstr ""
 
 #: .tmp/app/invite/invite.html:1
 msgid "Owner"
-msgstr ""
-
-#: .tmp/components/navbar/navbar.html:1
-msgid "Russian"
 msgstr ""
 
 #: .tmp/app/agent/agent.html:1
@@ -247,6 +279,18 @@ msgstr ""
 msgid "Welcome, it is your debts management app"
 msgstr ""
 
+#: client/app/invite/invite.controller.js:138
+msgid "You accepted the invite"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:141
+msgid "You created the invite"
+msgstr ""
+
 #: .tmp/app/operation/operation.html:1
 msgid "You do not have contacts"
+msgstr ""
+
+#: client/app/invite/invite.controller.js:135
+msgid "Your created invite was accepted"
 msgstr ""

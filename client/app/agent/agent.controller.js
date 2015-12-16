@@ -57,8 +57,10 @@
 
         $rootScope.$on('agent:save', function (event, data) {
           event.preventDefault();
-          me.agents.push(data);
+          if (!(_.find(me.agents, {id: data.id}))) {
+            me.agents.push(data);
             toastr.success(gettextCatalog.getString("Agent was created"));
+          }
         });
       }]
     )

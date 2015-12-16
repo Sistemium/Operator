@@ -516,7 +516,10 @@
       nggettext_extract: {
         pot: {
           files: {
-            'po/template.pot': ['{.tmp,<%= yeoman.client %>}/{app,components}/**/*.html']
+            'po/template.pot': [
+              '{.tmp,<%= yeoman.client %>}/{app,components}/**/*.html',
+              '{.tmp,<%= yeoman.client %>}/{app,components}/**/*.js'
+            ]
           }
         }
       },
@@ -684,7 +687,7 @@
       }
 
       else grunt.task.run([
-          'test:server'
+          'test:server',
           //'test:client'
         ]);
     });
@@ -703,9 +706,9 @@
       'copy:dist',
       'cdnify',
       'cssmin',
-      //'uglify',
+      'uglify',
       'rev',
-      //'usemin'
+      'usemin'
     ]);
 
     grunt.registerTask('default', [

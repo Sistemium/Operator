@@ -7,7 +7,7 @@ var Agent = require('../agent/agent.model');
 var Contact = require('../contact/contact.model');
 var crypto = require('crypto');
 var uuid = require('node-uuid');
-var inviteSocket = require('../../socket/socket');
+var socketService = require('../../socket/socket');
 var async = require('async');
 var HttpError = require('../../components/errors/httpError').HttpError;
 
@@ -155,7 +155,7 @@ exports.create = (req, res, next) => {
           let socketData = _.extend(invite, {
             resource: 'invites'
           });
-          inviteSocket.save(socketData, (socket) => {
+          socketService.save(socketData, (socket) => {
             return agents.reduce((curr, next) => {
               return socket.authData.id === next || curr;
             }, false);
@@ -244,13 +244,23 @@ exports.update = (req, res, next) => {
           console.log('Contacts created for agent and counter agent');
           //TODO sync counterAgents
           // send counterAgents to created contacts
+          let socketData = _.extend(contacts, {
+            resource: 'contacts'
+          });
+
+          socketService.save(socketData, (socket) => {
+            let sendMessage = agents.reduce((curr, next) => {
+              return socket.authData.id === next || curr;
+            }, false);
+            return sendMessage;
+          })
         });
       }
       //return socket only where socket authId equal invite owner or acceptor authId
       let socketData = _.extend(updated, {
         resource: 'invites'
       });
-      inviteSocket.save(socketData, (socket) => {
+      socketService.save(socketData, (socket) => {
         console.info('Check socket have access to emit event...');
         console.info(JSON.stringify(agents));
         console.info('###################');
@@ -318,7 +328,7 @@ exports.destroy = (req, res, next) => {
             resource: 'invites',
             id: invite.id
           });
-          inviteSocket.remove(socketData, function (socket) {
+          socketService.remove(socketData, function (socket) {
             return agents.reduce(function (curr, next) {
               return socket.authData.id === next || curr;
             }, false);

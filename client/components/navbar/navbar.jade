@@ -21,8 +21,10 @@ div.navbar.navbar-default(ng-controller='NavbarCtrl as ctrl')
         li(ng-class="{active: ctrl.isActive('/logout')}")
           a(href='' ng-click='ctrl.logout()' translate) Logout
         li
-          a(href='' ng-click="ctrl.changeLanguage('ru')" translate) Russian
+          a(href='' ng-click="ctrl.changeLanguage('ru')")
+            span.flag-icon.flag-icon-ru
         li
-          a(href='' ng-click="ctrl.changeLanguage('en')" translate) English
+          a(href='' ng-click="ctrl.changeLanguage('en')")
+            span.flag-icon.flag-icon-us
         li
           span.fa.fa-circle(ng-class="{connected: ctrl.socketConnected, disconnected: !ctrl.socketConnected}")

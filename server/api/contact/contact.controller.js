@@ -1,27 +1,28 @@
 'use strict';
 
-var _ = require('lodash');
-var Contact = require('./contact.model');
-var Agent = require('../agent/agent.model');
-var Invite = require('../invite/invite.model').dynamoose;
-var q = require('q');
-var uuid = require('node-uuid');
+let _ = require('lodash');
+let Contact = require('./contact.model');
+let Agent = require('../agent/agent.model');
+let Invite = require('../invite/invite.model').dynamoose;
+let q = require('q');
+let uuid = require('node-uuid');
+let HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of contacts
-exports.index = function (req, res) {
+exports.index = function (req, res, next) {
   Contact.scan({isDeleted: false}, function (err, contacts) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     return res.json(200, contacts);
   });
 };
 
 // Get a single contact
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!contact || !contact.isDeleted) {
       return res.send(404);
@@ -31,14 +32,14 @@ exports.show = function (req, res) {
 };
 
 // Creates a new contact in the DB.
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   if (req.body && Object.prototype.toString.call(req.body) === '[object Array]') {
     var createdItems = [];
     _.each(req.body, function (item) {
       checkCanModify(res, item, function () {
         Contact.create(item, function (err, contact) {
           if (err) {
-            handleError(res, err);
+            return next(new HttpError(500, err));
           }
           createdItems.push(contact);
         });
@@ -51,11 +52,11 @@ exports.create = function (req, res) {
       invite.acceptor = cntInfo.owner;
       Invite.update({id: invite.id}, invite, function(err) {
         if (err) {
-          handleError(res, err);
+          return next(new HttpError(500, err));
         }
         Contact.create(req.body, function (err, contact) {
           if (err) {
-            handleError(res, err);
+            return next(new HttpError(500, err));
           }
           var respondingContact = {
             id: uuid.v4(),
@@ -65,7 +66,7 @@ exports.create = function (req, res) {
           };
           Contact.create(respondingContact, function (err, resContact) {
             if (err) {
-              handleError(res, err);
+              return next(new HttpError(500, err));
             }
             if (resContact) {
               return res.json(201, contact);
@@ -78,13 +79,13 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing contact in the DB.
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
   if (req.body.id) {
     delete req.body.id;
   }
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!contact) {
       return res.send(404);
@@ -95,7 +96,7 @@ exports.update = function (req, res) {
     restoreDeleted(contact);
     Contact.update({id: updated.id}, updated, function (err) {
       if (err) {
-        handleError(res, err);
+        return next(new HttpError(500, err));
       }
       return res.json(200, contact);
     });
@@ -103,10 +104,10 @@ exports.update = function (req, res) {
 };
 
 // Deletes a contact from the DB.
-exports.destroy = function (req, res) {
+exports.destroy = function (req, res, next) {
   Contact.get(req.params.id, function (err, contact) {
     if (err) {
-      handleError(res, err);
+      return next(new HttpError(500, err));
     }
     if (!contact || contact.isDeleted) {
       return res.send(404);
@@ -115,7 +116,7 @@ exports.destroy = function (req, res) {
       contact.isDeleted = true;
       Contact.update({id: contact.id}, contact, function (err) {
         if (err) {
-          handleError(res, err);
+          return next(new HttpError(500, err));
         }
         return res.send(204);
       });
@@ -183,8 +184,4 @@ function checkInvite(inviteCode) {
     deferred.resolve(invite);
   });
   return deferred.promise;
-}
-
-function handleError(res, err) {
-  return res.send(500, err);
 }

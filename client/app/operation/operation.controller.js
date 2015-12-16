@@ -138,6 +138,12 @@
               toastr.success(gettextCatalog.getString("Operation saved"));
             }
           });
+
+          $rootScope.$on('contact:save', function (event, contacts) {
+            event.preventDefault();
+
+            console.log(contacts);
+          });
         }]
     )
   ;
