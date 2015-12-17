@@ -118,6 +118,8 @@
               Operation.create(operation).then(function () {
                 me.showOperationCreateForm = false;
                 me.showSpiner = false;
+                me.showOperationCreateForm = false;
+                me.chosenContact = undefined;
               }, function () {
                 toastr.error(gettextCatalog.getString("Failed on saving operation"));
               });
