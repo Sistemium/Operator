@@ -92,7 +92,21 @@
               }
             ]
           }
-        }
+        },
+        validate: function (Agent, agent, cb) {
+          var agentSchema = {
+            name: {
+              presence: true
+            }
+          };
+
+          var err = validate(agent, agentSchema);
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, agent);
+          }
+        },
       });
     }])
     .service('Invite', ['DS', function (DS) {
@@ -162,10 +176,34 @@
             }
           }
         },
+        validate: function (Operation, operation, cb) {
+          var operationSchema = {
+            lender: {
+              presence: true
+            },
+            debtor: {
+              presence: true
+            },
+            total: {
+              presence: true
+            }
+          };
+
+          var err = validate(operation, operationSchema);
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, operation);
+          }
+        },
         afterInject: function (res, array) {
           _.each(array, function (i) {
-            i.lenderConfirmedAt = moment(i.lenderConfirmedAt);
-            i.debtorConfirmedAt = moment(i.debtorConfirmedAt);
+            if (i.hasOwnProperty('lenderConfirmedAt')) {
+              i.lenderConfirmedAt = moment(+i.lenderConfirmedAt);
+            }
+            if (i.hasOwnProperty('debtorConfirmedAt')) {
+              i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
+            }
           });
           console.log(array);
           return array;
@@ -204,10 +242,34 @@
             }
           }
         },
+        validate: function (Operation, operation, cb) {
+          var operationSchema = {
+            lender: {
+              presence: true
+            },
+            debtor: {
+              presence: true
+            },
+            total: {
+              presence: true
+            }
+          };
+
+          var err = validate(operation, operationSchema);
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, operation);
+          }
+        },
         afterInject: function (res, array) {
           _.each(array, function (i) {
-            i.lenderConfirmedAt = moment(Number(i.lenderConfirmedAt));
-            i.debtorConfirmedAt = moment(Number(i.debtorConfirmedAt));
+            if (i.hasOwnProperty('lenderConfirmedAt')) {
+              i.lenderConfirmedAt = moment(+i.lenderConfirmedAt);
+            }
+            if (i.hasOwnProperty('debtorConfirmedAt')) {
+              i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
+            }
           });
           return array;
         }
