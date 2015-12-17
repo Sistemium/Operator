@@ -151,7 +151,7 @@ msgstr ""
 msgid "Disable invite"
 msgstr ""
 
-#: client/app/operation/operation.controller.js:123
+#: client/app/operation/operation.controller.js:122
 msgid "Failed on saving operation"
 msgstr ""
 
@@ -225,11 +225,11 @@ msgstr ""
 msgid "No agents"
 msgstr ""
 
-#: client/app/operation/operation.controller.js:142
+#: client/app/operation/operation.controller.js:141
 msgid "Operation confirmation failed"
 msgstr ""
 
-#: client/app/operation/operation.controller.js:160
+#: client/app/operation/operation.controller.js:158
 msgid "Operation saved"
 msgstr ""
 

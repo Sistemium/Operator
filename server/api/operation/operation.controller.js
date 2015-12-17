@@ -7,7 +7,7 @@ var Agent = require('../agent/agent.model');
 var Account = require('../account/account.model');
 var async = require('async');
 var uuid = require('node-uuid');
-var operationSocket = require('../../socket/socket');
+var socketService = require('../../socket/socket');
 var HttpError = require('../../components/errors/httpError').HttpError;
 var changelog = require('../../components/changelogs/changelog');
 var operationChangelog = changelog.operationChangelog();
@@ -93,7 +93,7 @@ exports.create = function (req, res, next) {
 
       operationChangelog.push(`${changeRecord.guid}:${changeRecord.id}`);
       // check if operation belongs to socket
-      operationSocket.save(_.extend(operation, {
+      socketService.save(_.extend(operation, {
         changelogGuid: changeRecord.guid,
         resource: 'operations'
       }), function (socket) {
@@ -147,8 +147,10 @@ exports.update = function (req, res, next) {
               /**
                * When creating account for debtor total should be positive
                */
+              console.log(req.authId);
               debtorAccount = {
                 id: uuid.v4(),
+                authId: req.authId,
                 agent: updated.debtor,
                 currency: updated.currency,
                 total: updated.total
@@ -158,6 +160,14 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.log('Account was created: ' + JSON.stringify(debtorAccount));
+                let socketData = _.extend(debtorAccount, {
+                  resource: 'accounts'
+                });
+                socketService.save(socketData, (socket) => {
+                  console.log(`Account emitted with ${socketData}`);
+                  return socket.authData.id === debtorAccount.authId;
+                });
+
                 resolve(debtorAccount.id);
               });
             } else {
@@ -171,6 +181,12 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was updated ' + JSON.stringify(debtorAccount));
+                let socketData = _.extend(debtorAccount, {
+                  resource: 'accounts'
+                });
+                socketService.save(socketData, (socket) => {
+                  return socket.authData.id === debtorAccount.authId;
+                });
                 resolve(id);
               });
             }
@@ -196,6 +212,7 @@ exports.update = function (req, res, next) {
                */
               lenderAccount = {
                 id: uuid.v4(),
+                authId: req.authId,
                 agent: updated.lender,
                 currency: updated.currency,
                 total: -updated.total
@@ -205,6 +222,12 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was created ' + JSON.stringify(lenderAccount));
+                let socketData = _.extend(lenderAccount, {
+                  resource: 'accounts'
+                });
+                socketService.save(socketData, (socket) => {
+                  return socket.authData.id === socketData.authId;
+                });
                 resolve(lenderAccount.id);
               });
             } else {
@@ -217,6 +240,12 @@ exports.update = function (req, res, next) {
                   return next(new HttpError(500, err));
                 }
                 console.info('Account was updated ' + JSON.stringify(lenderAccount));
+                let socketData = _.extend(lenderAccount, {
+                  resource: 'accounts'
+                });
+                socketService.save(socketData, (socket) => {
+                  return socket.authData.id === socketData.authId;
+                });
                 resolve(id);
               });
             }
@@ -248,7 +277,7 @@ exports.update = function (req, res, next) {
             let socketData = _.extend(updated, {
               resource: 'operations'
             });
-            operationSocket.save(socketData, (socket) => {
+            socketService.save(socketData, (socket) => {
               console.info('Check socket have access to emit event...');
               console.info(JSON.stringify(agents));
               console.info('###################');
@@ -275,6 +304,7 @@ exports.update = function (req, res, next) {
           try {
             let lenderAccountId, debtorAccountId;
             if (updated.state === 'confirmed') {
+              console.log(req.authId);
               debtorAccountId = yield checkDebtorAccount();
               lenderAccountId = yield checkLenderAccount();
             }
@@ -318,7 +348,7 @@ exports.destroy = function (req, res, next) {
       let socketData = _.extend(operation, {
         resource: 'operations'
       });
-      operationSocket.remove(socketData, function (socket) {
+      socketService.remove(socketData, function (socket) {
         // TODO: query operation agents
         return socket.authData.id === agents[0].authId || socket.authData.id === agents[1].authId;
       });

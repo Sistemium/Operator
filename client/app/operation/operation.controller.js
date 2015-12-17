@@ -98,7 +98,6 @@
               operation.lenderConfirmedAt = Date.now();
               operation.lender = agentId;
               operation.lenderName = Agent.get(agentId).name;
-              debugger;
               operation.debtor = me.chosenContact.id;
               Agent.find(operation.debtor).then(function (agent) {
                 operation.debtorName = agent.name;
@@ -107,7 +106,7 @@
             } else {
               operation.debtorConfirmedAt = Date.now();
               operation.debtor = agentId;
-              operation.debtorName = Agent.get(agentId);
+              operation.debtorName = Agent.get(agentId).name;
               operation.lender = me.chosenContact.id;
               Agent.find(operation.lender).then(function (agent) {
                 operation.lenderName = agent.name;
@@ -152,7 +151,6 @@
               return i.id === data.lender || i.id === data.debtor;
             });
 
-            debugger;
             if (isUserAgent) {
               var isForUpdate = _.find(me.agentOperations, {id: data.id});
               !isForUpdate ? me.agentOperations.push(data) : _.merge(isForUpdate, data);
@@ -161,9 +159,14 @@
             }
           });
 
-          $rootScope.$on('contact:save', function (event, contacts) {
+          $rootScope.$on('contact:save', function (event) {
             event.preventDefault();
-            console.log(contacts);
+            getData(me.counterAgentsPromise, function (res) {
+              res = _.filter(res, function (i) {
+                return i.id !== agentId;
+              });
+              me.counterAgents = res;
+            });
           });
         }]
     )

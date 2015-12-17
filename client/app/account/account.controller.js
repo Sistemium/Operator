@@ -2,8 +2,18 @@
 
 (function () {
   angular.module('debtApp')
-    .controller('AccountCtrl', ['$state', '$stateParams', 'Account', 'NgTableOptions',
-      function ($state, $stateParams, Account, NgTableOptions) {
+    .controller('AccountCtrl', [
+      '$rootScope'
+      , '$state'
+      , '$stateParams'
+      , 'Account'
+      , 'NgTableOptions'
+      , function ($rootScope
+        , $state
+        , $stateParams
+        , Account
+        , NgTableOptions) {
+
         var me = this;
         var agentId = $stateParams.agent;
         var accountsPromise = Account.findAll({agent: agentId});
@@ -41,6 +51,18 @@
         });
 
         me.refresh();
+
+        $rootScope.$on('account:save', function (event) {
+          event.preventDefault();
+
+          me.refresh();
+        });
+
+        $rootScope.$on('account:remove', function (e) {
+          e.preventDefault();
+
+          me.refresh();
+        })
       }]
     )
     .controller('AccountOperationsCtrl', [

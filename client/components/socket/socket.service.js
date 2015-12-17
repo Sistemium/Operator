@@ -27,6 +27,11 @@
             $rootScope.$emit('contact:save', data);
             break;
           }
+          case 'accounts':
+          {
+            $rootScope.$emit('account:save', data);
+            break;
+          }
         }
       });
 

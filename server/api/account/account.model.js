@@ -12,6 +12,10 @@ var AccountSchema = new Schema({
     type: String,
     required: true
   },
+  authId: {
+    type: String,
+    required: true
+  },
   total: {
     type: Number,
     required: true
