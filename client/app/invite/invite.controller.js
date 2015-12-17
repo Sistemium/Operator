@@ -8,6 +8,7 @@
         '$stateParams',
         'AgentInvite',
         'Invite',
+        'Agent',
         'toastr',
         'gettextCatalog',
         'NgTableOptions',
@@ -16,6 +17,7 @@
                   $stateParams,
                   AgentInvite,
                   Invite,
+                  Agent,
                   toastr,
                   gettextCatalog,
                   NgTableOptions) {
@@ -43,7 +45,8 @@
 
           me.sendInvite = function () {
             var invite = {
-              owner: agent
+              owner: agent,
+              ownerName: Agent.get(agent).name
             };
             Invite.create(invite).then(function (res) {
               me.inviteCode = res.code;
@@ -104,6 +107,7 @@
           me.acceptInvite = function () {
             //accept invite
             me.invite.acceptor = agent;
+            me.invite.acceptorName = Agent.get(agent).name;
             Invite.update(me.invite.id, me.invite).then(function () {
               me.reset();
             }, function () {

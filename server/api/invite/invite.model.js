@@ -11,7 +11,9 @@ var Invite = vogels.define('Operator_Invite', {
     owner: Joi.string().required(),
     acceptor: Joi.string(),
     status: Joi.string().required(),
-    isDeleted: Joi.boolean().default(false)
+    isDeleted: Joi.boolean().default(false),
+    acceptorName: Joi.string(),
+    ownerName: Joi.string()
   }
 });
 
@@ -30,6 +32,12 @@ var InviteSchema = new Schema({
   owner: {
     type: String,
     required: true
+  },
+  acceptorName: {
+    type: String
+  },
+  ownerName: {
+    type: String
   },
   acceptor: {
     type: String

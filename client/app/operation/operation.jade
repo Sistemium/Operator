@@ -9,8 +9,8 @@
         h3(translate) Agent's completed operations
         table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.completedOperationsTableParams')
           tr(ng-repeat='completedOperation in $data track by completedOperation.id')
-            td(title="'Lender'|translate") {{completedOperation.lenderAgent.name}}
-            td(title="'Debtor'|translate") {{completedOperation.debtorAgent.name}}
+            td(title="'Lender'|translate") {{completedOperation.lenderName}}
+            td(title="'Debtor'|translate") {{completedOperation.debtorName}}
             td(title="'Status'|translate") {{completedOperation.state}}
             td(title="'Amount'|translate") {{completedOperation.total}}
             td(title="'Comment'|translate") {{completedOperation.comment}}
@@ -21,8 +21,8 @@
         h3(translate) Agent's operation waiting for confirm
         table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.agentConfirmedOperationsTableParams')
           tr(ng-repeat='agentConfirmed in $data track by agentConfirmed.id')
-            td(title="'Lender'|translate") {{agentConfirmed.lenderAgent.name}}
-            td(title="'Debtor'|translate") {{agentConfirmed.debtorAgent.name}}
+            td(title="'Lender'|translate") {{agentConfirmed.lenderName}}
+            td(title="'Debtor'|translate") {{agentConfirmed.debtorName}}
             td(title="'Status'|translate") {{agentConfirmed.state}}
             td(title="'Amount'|translate") {{agentConfirmed.total}}
             td(title="'Comment'|translate") {{agentConfirmed.comment}}
@@ -33,8 +33,8 @@
         h3(translate) Waiting for confirmation
         table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.waitingForConfirmTableParams')
             tr(ng-repeat='waitingForConfirm in $data track by waitingForConfirm.id')
-              td(title="'Lender'|translate") {{waitingForConfirm.lenderAgent.name}}
-              td(title="'Debtor'|translate") {{waitingForConfirm.debtorAgent.name}}
+              td(title="'Lender'|translate") {{waitingForConfirm.lenderName}}
+              td(title="'Debtor'|translate") {{waitingForConfirm.debtorName}}
               td(title="'Status'|translate") {{waitingForConfirm.state}}
               td(title="'Amount'|translate") {{waitingForConfirm.total}}
               td(title="'Comment'|translate") {{waitingForConfirm.comment}}

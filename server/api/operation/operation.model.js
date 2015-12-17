@@ -19,7 +19,9 @@ var Operation = vogels.define('Operator_Operation', {
     state: Joi.string(),
     isDeleted: Joi.boolean().default(false),
     lenderConfirmedAt: Joi.string(),
-    debtorConfirmedAt: Joi.string()
+    debtorConfirmedAt: Joi.string(),
+    debtorName: Joi.string().required(),
+    lenderName: Joi.string().required()
   }
 });
 
@@ -84,6 +86,12 @@ var OperationSchema = new Schema({
     type: String
   },
   debtorConfirmedAt: {
+    type: String
+  },
+  debtorName: {
+    type: String
+  },
+  lenderName: {
     type: String
   }
 });

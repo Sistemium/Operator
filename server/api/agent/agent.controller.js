@@ -25,9 +25,6 @@ exports.show = function (req, res, next) {
     if (err) {
       return next(new HttpError(500, err));
     }
-    if (agent && agent.authId !== req.authId) {
-      return next(401);
-    }
     if (!agent || agent.isDeleted) {
       return next(404);
     }

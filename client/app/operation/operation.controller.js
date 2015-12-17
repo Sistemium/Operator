@@ -10,6 +10,7 @@
         'Operation',
         'AgentOperation',
         'Currency',
+        'Agent',
         'toastr',
         'gettextCatalog',
         'NgTableOptions',
@@ -20,6 +21,7 @@
           , Operation
           , AgentOperation
           , Currency
+          , Agent
           , toastr
           , gettextCatalog
           , NgTableOptions) {
@@ -31,7 +33,7 @@
           me.radioModel = lender;
           var agentId = $stateParams.agent;
 
-          function filterAgentOperations (o) {
+          function filterAgentOperations(o) {
             me.agentConfirmedOperations = _.filter(o, function (operation) {
               return operation.lenderConfirmedAt && operation.lender === agentId && operation.state === 'waitingForConfirm'
                 || operation.debtorConfirmedAt && operation.debtor === agentId && operation.state === 'waitingForConfirm';
@@ -48,6 +50,7 @@
             me.agentOperationsPromise = AgentOperation.find(agentId);
             me.counterAgentsPromise = CounterAgent.find(agentId, {bypassCache: true});
             var reqCount = 0;
+
             function getData(promise, promiseCb) {
               reqCount++;
               me.showSpinner = true;
@@ -94,19 +97,32 @@
             if (me.radioModel === lender) {
               operation.lenderConfirmedAt = Date.now();
               operation.lender = agentId;
+              operation.lenderName = Agent.get(agentId).name;
+              debugger;
               operation.debtor = me.chosenContact.id;
+              Agent.find(operation.debtor).then(function (agent) {
+                operation.debtorName = agent.name;
+                createOperation(operation);
+              });
             } else {
               operation.debtorConfirmedAt = Date.now();
-              operation.lender = me.chosenContact.id;
               operation.debtor = agentId;
+              operation.debtorName = Agent.get(agentId);
+              operation.lender = me.chosenContact.id;
+              Agent.find(operation.lender).then(function (agent) {
+                operation.lenderName = agent.name;
+                createOperation(operation);
+              });
             }
 
-            Operation.create(operation).then(function () {
-              me.showOperationCreateForm = false;
-              me.showSpiner = false;
-            }, function () {
-              toastr.error(gettextCatalog.getString("Failed on saving operation"));
-            });
+            function createOperation(operation) {
+              Operation.create(operation).then(function () {
+                me.showOperationCreateForm = false;
+                me.showSpiner = false;
+              }, function () {
+                toastr.error(gettextCatalog.getString("Failed on saving operation"));
+              });
+            }
           };
 
           me.createOperation = function (counterAgent) {
@@ -121,7 +137,8 @@
               operation.debtorConfirmedAt = Date.now();
             }
 
-            Operation.update(operation.id, operation).then(function () {}, function () {
+            Operation.update(operation.id, operation).then(function () {
+            }, function () {
               toastr.error(gettextCatalog.getString("Operation confirmation failed"));
             });
           };
@@ -131,7 +148,12 @@
           $rootScope.$on('operation:save', function (event, data) {
             event.preventDefault();
 
-            if (data.lender === agentId || data.debtor === agentId) {
+            var isUserAgent = _.find(Agent.getAll(), function (i) {
+              return i.id === data.lender || i.id === data.debtor;
+            });
+
+            debugger;
+            if (isUserAgent) {
               var isForUpdate = _.find(me.agentOperations, {id: data.id});
               !isForUpdate ? me.agentOperations.push(data) : _.merge(isForUpdate, data);
               filterAgentOperations(me.agentOperations);
@@ -141,7 +163,6 @@
 
           $rootScope.$on('contact:save', function (event, contacts) {
             event.preventDefault();
-
             console.log(contacts);
           });
         }]
