@@ -161,6 +161,14 @@
               localKey: 'currency'
             }
           }
+        },
+        afterInject: function (res, array) {
+          _.each(array, function (i) {
+            i.lenderConfirmedAt = moment(i.lenderConfirmedAt);
+            i.debtorConfirmedAt = moment(i.debtorConfirmedAt);
+          });
+          console.log(array);
+          return array;
         }
       });
     }])
@@ -195,6 +203,13 @@
               localKey: 'currency'
             }
           }
+        },
+        afterInject: function (res, array) {
+          _.each(array, function (i) {
+            i.lenderConfirmedAt = moment(Number(i.lenderConfirmedAt));
+            i.debtorConfirmedAt = moment(Number(i.debtorConfirmedAt));
+          });
+          return array;
         }
       });
     }])
