@@ -81,8 +81,15 @@
           ioSocket.removeAllListeners();
         });
 
+        ioSocket.on('connect', function () {
+          ioSocket.removeAllListeners();
+          $rootScope.$broadcast(socketConnected, true);
+          initSocket();
+        });
+
         ioSocket.on('reconnect', function () {
           ioSocket.removeAllListeners();
+          $rootScope.$broadcast(socketConnected, true);
           initSocket();
         })
       }
