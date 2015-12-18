@@ -1,12 +1,13 @@
 'use strict';
-var authUrl = 'http://localhost:8999/api/auth';
-var sockets = [];
-var request = require('request');
+let _ = require('lodash')
+  , authUrl = 'http://localhost:8999/api/auth'
+  , sockets = []
+  , request = require('request');
 
 
-var authByToken = function (token, cb) {
+let authByToken = function (token, cb) {
   if (token) {
-    var options = {
+    let options = {
       url: authUrl,
       headers: {
         authorization: token
@@ -18,12 +19,13 @@ var authByToken = function (token, cb) {
   }
 };
 
-
-var unRegister = function(socket) {
-  var idx = sockets.indexOf(socket);
-  if (idx>-1) {
-    sockets.splice(idx,1);
+let unRegister = function (socket) {
+  let idx = sockets.indexOf(socket);
+  console.log(sockets.length);
+  if (idx > -1) {
+    sockets.splice(idx, 1);
   }
+  console.log(sockets.length);
 };
 
 exports.sockets = function () {
@@ -39,9 +41,11 @@ exports.registerSocket = function (socket, cb) {
       );
       cb(false);
     } else {
-      //maybe only ad authId to the socket instead of body object
+      //maybe only add authId to the socket instead of body object
+      console.log(sockets.length);
       socket.authData = response.body;
       sockets.push(socket);
+      console.log(sockets.length);
       cb(true);
     }
   });

@@ -1,17 +1,17 @@
 'use strict';
 
-var _ = require('lodash');
-var Operation = require('./operation.model').dynamoose;
-var OperationVogels = require('./operation.model').vogels;
-var Agent = require('../agent/agent.model');
-var Account = require('../account/account.model');
-var async = require('async');
-var uuid = require('node-uuid');
-var socketService = require('../../socket/socket');
-var HttpError = require('../../components/errors/httpError').HttpError;
-var changelog = require('../../components/changelogs/changelog');
-var operationChangelog = changelog.operationChangelog();
-var co = require('co');
+let _ = require('lodash')
+  , Operation = require('./operation.model').dynamoose
+  , OperationVogels = require('./operation.model').vogels
+  , Agent = require('../agent/agent.model')
+  , Account = require('../account/account.model')
+  , async = require('async')
+  , uuid = require('node-uuid')
+  , socketService = require('../../socket/socket')
+  , HttpError = require('../../components/errors/httpError').HttpError
+  , changelog = require('../../components/changelogs/changelog')
+  , operationChangelog = changelog.operationChangelog()
+  , co = require('co');
 
 // Get list of operations
 // Get only operations which initiator or executor belongs to user agents

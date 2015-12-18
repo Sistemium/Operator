@@ -26,8 +26,8 @@ module.exports = function (app) {
   app.set('views', config.root + '/server/views');
   app.set('view engine', 'jade');
   app.use(compression());
-  app.use(bodyParser.urlencoded({extended: false}));
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended: false}));
   app.use(methodOverride());
   app.set('redisdb', config.redis[env]);
   //app.use(cookieParser());
@@ -52,6 +52,22 @@ module.exports = function (app) {
     app.use(express.static(path.join(config.root, 'public')));
     app.set('appPath', config.root + '/public');
     app.use(morgan('dev'));
+    app.use(cookieParser(config.secrets.session));
+    app.use(session({
+      resave: true,
+      saveUninitialized: true,
+      store: new RedisStore({
+        host: 'localhost',
+        port: 6379
+      }),
+      secret: config.secrets.session,
+      cookie: {
+        path: '/',
+        maxAge: 3600000
+      }
+    }));
+    app.use(csrf());
+    app.use(helmet());
   }
 
   if ('development' === env || 'test' === env) {
@@ -60,6 +76,22 @@ module.exports = function (app) {
     app.use(express.static(path.join(config.root, 'client')));
     app.set('appPath', 'client');
     app.use(morgan('dev'));
+    //app.use(cookieParser());
+    //app.use(session({
+    //  resave: true,
+    //  saveUninitialized: true,
+    //  store: new RedisStore({
+    //    host: 'localhost',
+    //    port: 6379
+    //  }),
+    //  secret: config.secrets.session,
+    //  cookie: {
+    //    path: '/',
+    //    maxAge: 3600000
+    //  }
+    //}));
+    //app.use(csrf());
+    app.use(helmet());
     app.use(function (err, req, res, next) {
       if (typeof err === 'number') {
         err = new HttpError(err);

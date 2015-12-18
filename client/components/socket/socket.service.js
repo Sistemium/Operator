@@ -46,26 +46,15 @@
         }
       });
     }])
-    .service('messageBus', ['$rootScope', 'DS', 'Auth', function ($rootScope, DS, Auth) {
+    .service('messageBus', ['$rootScope', '$window', 'DS', 'Auth', function ($rootScope, $window, DS, Auth) {
       var ioSocket = io('', {
-        path: '/socket.io-client'
+        path: '/socket.io-client',
+        'sync disconnect on unload': true
       });
       var socketConnected = false;
 
       function initSocket() {
         var socketConnected = 'socketConnected';
-
-        ioSocket.emit('authorize', Auth.getToken(), function (cb) {
-          console.log('Socket authorization:', cb);
-
-          if (cb.isAuthorized) {
-            $rootScope.$broadcast(socketConnected, true);
-            console.log('authorized');
-          } else {
-            $rootScope.$broadcast(socketConnected, false);
-            console.log('not authorized');
-          }
-        });
 
         ioSocket.on('save', function (data) {
           $rootScope.$broadcast('save', data);
@@ -82,16 +71,18 @@
         });
 
         ioSocket.on('connect', function () {
-          ioSocket.removeAllListeners();
-          $rootScope.$broadcast(socketConnected, true);
-          initSocket();
-        });
+          ioSocket.emit('authorize', Auth.getToken(), function (cb) {
+            console.log('Socket authorization:', cb);
 
-        ioSocket.on('reconnect', function () {
-          ioSocket.removeAllListeners();
-          $rootScope.$broadcast(socketConnected, true);
-          initSocket();
-        })
+            if (cb.isAuthorized) {
+              $rootScope.$broadcast(socketConnected, true);
+              console.log('authorized');
+            } else {
+              $rootScope.$broadcast(socketConnected, false);
+              console.log('not authorized');
+            }
+          });
+        });
       }
 
       return {
