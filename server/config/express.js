@@ -4,16 +4,21 @@
 
 'use strict';
 
-var express = require('express');
-var favicon = require('serve-favicon');
-var morgan = require('morgan');
-var compression = require('compression');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
-var errorHandler = require('errorhandler');
-var path = require('path');
-var config = require('./environment');
-var HttpError = require('../components/errors/httpError').HttpError;
+let express = require('express')
+  , favicon = require('serve-favicon')
+  , morgan = require('morgan')
+  , compression = require('compression')
+  , bodyParser = require('body-parser')
+  , methodOverride = require('method-override')
+  , errorHandler = require('errorhandler')
+  , path = require('path')
+  , config = require('./environment')
+  , HttpError = require('../components/errors/httpError').HttpError
+  , cookieParser = require('cookie-parser')
+  , session = require('express-session')
+  , csrf = require('csurf')
+  , helmet = require('helmet')
+  , RedisStore = require('connect-redis')(session);
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -25,6 +30,22 @@ module.exports = function (app) {
   app.use(bodyParser.json());
   app.use(methodOverride());
   app.set('redisdb', config.redis[env]);
+  //app.use(cookieParser());
+  //app.use(session({
+  //  resave: true,
+  //  saveUninitialized: true,
+  //  store: new RedisStore({
+  //    host: 'localhost',
+  //    port: 6379
+  //  }),
+  //  secret: config.secrets.session,
+  //  cookie: {
+  //    path: '/',
+  //    maxAge: 3600000
+  //  }
+  //}));
+  //app.use(csrf());
+  app.use(helmet());
 
   if ('production' === env) {
     app.use(favicon(path.join(config.root, 'public', 'favicon.ico')));

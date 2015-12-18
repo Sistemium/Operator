@@ -25,7 +25,7 @@ var all = {
 
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
-    session: 'operation-secret'
+    session: requiredProcessEnv('SESSION_SECRET')
   },
 
   redis: {
