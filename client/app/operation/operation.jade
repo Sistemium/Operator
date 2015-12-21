@@ -30,7 +30,7 @@
             td(title="'Amount'|translate") {{agentConfirmed.total}}
             td(title="'Comment'|translate") {{agentConfirmed.comment}}
             td
-              a(ui-sref='.moreDetails') More details
+              a(href='' ng-click='ctrl.showMoreDetails(agentConfirmed.id)') More details
 
       div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
         h3(translate) Waiting for confirmation
@@ -42,7 +42,7 @@
               td(title="'Amount'|translate") {{waitingForConfirm.total}}
               td(title="'Comment'|translate") {{waitingForConfirm.comment}}
               td
-                a(ui-sref='.moreDetails') More details
+                a(href='' ng-click='ctrl.showMoreDetails(waitingForConfirm.id)') More details
               td
                 a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
 

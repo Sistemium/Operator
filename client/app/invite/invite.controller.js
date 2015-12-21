@@ -5,6 +5,7 @@
       [
         '$rootScope',
         '$scope',
+        '$http',
         '$stateParams',
         'AgentInvite',
         'Invite',
@@ -14,6 +15,7 @@
         'NgTableOptions',
         function ($rootScope,
                   $scope,
+                  $http,
                   $stateParams,
                   AgentInvite,
                   Invite,
@@ -119,6 +121,23 @@
             me.showDisableInviteButton = false;
             me.showAcceptInviteButton = false;
             me.inviteCode = null;
+          };
+
+          me.sendEmail = function () {
+            $http({
+              method: 'GET',
+              url: '/api/invites/sendEmail',
+              params: {
+                inviteCode: me.inviteCode,
+                toEmail: me.toEmail
+              }
+            }).then(function () {
+              me.inviteCode = undefined;
+              toastr.success(gettextCatalog.getString('Email was successfully sent!'));
+            }, function (err) {
+              console.error(err);
+              toastr.error(gettextCatalog.getString('Error occurred'));
+            });
           };
 
           me.refresh();

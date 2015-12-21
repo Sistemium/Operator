@@ -160,7 +160,7 @@
               return;
             }
             me.showOperationDetails = true;
-            me.detailedOperation = _.find(me.completedOperations, {id: id});
+            me.detailedOperation = _.find(me.agentOperations, {id: id});
 
             me.detailedOperation.currency = me.detailedOperation.currencyEntity ? me.detailedOperation.currencyEntity.name : undefined;
           };

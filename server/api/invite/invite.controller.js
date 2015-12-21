@@ -1,15 +1,16 @@
 'use strict';
 
-var _ = require('lodash');
-var Invite = require('./invite.model').dynamoose;
-var InviteVogels = require('./invite.model').vogels;
-var Agent = require('../agent/agent.model');
-var Contact = require('../contact/contact.model');
-var crypto = require('crypto');
-var uuid = require('node-uuid');
-var socketService = require('../../socket/socket');
-var async = require('async');
-var HttpError = require('../../components/errors/httpError').HttpError;
+let _ = require('lodash');
+let Invite = require('./invite.model').dynamoose;
+let InviteVogels = require('./invite.model').vogels;
+let Agent = require('../agent/agent.model');
+let Contact = require('../contact/contact.model');
+let crypto = require('crypto');
+let uuid = require('node-uuid');
+let socketService = require('../../socket/socket');
+let async = require('async');
+let config = require('../../config/environment');
+let HttpError = require('../../components/errors/httpError').HttpError;
 
 // Get list of invites
 exports.index = (req, res, next) => {
@@ -342,6 +343,26 @@ exports.destroy = (req, res, next) => {
       return next(new HttpError(500, err));
     }
     return res.send(204);
+  });
+};
+
+exports.sendEmail = (req, res, next) => {
+
+  let sendgrid = require('sendgrid')(config.secrets.sendgrid);
+  sendgrid.send({
+    to: req.query.toEmail,
+    from: 'kovalevskij.albert@gmail.com', // register app email for sending emails
+    subject: 'Invitation to the Debtzzz',
+    text: `Hello, it is your code to the Debtzzz app:
+      ${req.query.inviteCode}
+    `
+  }, function (err, json) {
+    if (err) {
+      console.error(err);
+      return next(new HttpError(500, err));
+    }
+    console.log(json);
+    return res.json(200, json);
   });
 };
 

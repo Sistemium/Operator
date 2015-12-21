@@ -33,8 +33,12 @@
                   a(href='' ng-click='ctrl.disableInvite(invite.id)' translate) Disable invite
       div
         h3(translate) Create invite
-        button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()' translate) Send invite
-
+        button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()' translate) Create invite
+      form(name='form' ng-submit='ctrl.sendEmail()' ng-show='ctrl.inviteCode')
+        .form-group
+          label.control-label(translate for='toEmail') Email
+          input.form-control(name='toEmail' type='email' placeholder="{{'Enter address for email sending'|translate}}" ng-model='ctrl.toEmail')
+        button.btn.btn-primary(type='submit' ng-disabled='!ctrl.toEmail' translate) Send invite via email
       div
         h3(translate) Get invite by code
         form.form-inline

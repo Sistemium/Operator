@@ -7,6 +7,7 @@ var auth = require('../../auth/auth.service');
 var router = express.Router();
 
 router.get('/', auth.isAuthenticated, controller.index);
+router.get('/sendEmail', auth.isAuthenticated, controller.sendEmail);
 router.get('/:id', auth.isAuthenticated, controller.show);
 router.get('/agentInvites/:agent', auth.isAuthenticated, controller.agentInvites);
 router.get('/:code/findByCode', auth.isAuthenticated, controller.findByCode);
