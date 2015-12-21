@@ -204,6 +204,9 @@
             if (i.hasOwnProperty('debtorConfirmedAt')) {
               i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
             }
+            if (i.hasOwnProperty('remindDuration')) {
+              i.remindDuration = moment(+i.remindDuration);
+            }
           });
           console.log(array);
           return array;
@@ -269,6 +272,9 @@
             }
             if (i.hasOwnProperty('debtorConfirmedAt')) {
               i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
+            }
+            if (i.hasOwnProperty('remindDuration')) {
+              i.remindDuration = moment(+i.remindDuration);
             }
           });
           return array;

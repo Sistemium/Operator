@@ -1,7 +1,10 @@
 .col-md-12
   h1(translate) Operations
   a(ui-sref='agent' translate) Back
-  .container
+  .container.margin-bottom
+    .row(ng-show='ctrl.showOperationDetails')
+      form
+        formly-form(model='ctrl.detailedOperation' fields='ctrl.operationFields')
     .row
       span(us-spinner ng-show='ctrl.showSpinner')
       p(ng-if='ctrl.counterAgents && ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
@@ -15,7 +18,7 @@
             td(title="'Amount'|translate") {{completedOperation.total}}
             td(title="'Comment'|translate") {{completedOperation.comment}}
             td
-              a(href='') More details
+              a(href='' ng-click='ctrl.showMoreDetails(completedOperation.id)') More details
 
       div(ng-if='ctrl.agentOperations && ctrl.agentConfirmedOperations.length > 0')
         h3(translate) Agent's operation waiting for confirm
@@ -27,7 +30,7 @@
             td(title="'Amount'|translate") {{agentConfirmed.total}}
             td(title="'Comment'|translate") {{agentConfirmed.comment}}
             td
-              a(href='') More details
+              a(ui-sref='.moreDetails') More details
 
       div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
         h3(translate) Waiting for confirmation
@@ -39,7 +42,7 @@
               td(title="'Amount'|translate") {{waitingForConfirm.total}}
               td(title="'Comment'|translate") {{waitingForConfirm.comment}}
               td
-                a(href='') More details
+                a(ui-sref='.moreDetails') More details
               td
                 a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
 

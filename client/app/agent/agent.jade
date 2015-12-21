@@ -1,6 +1,6 @@
 .col-md-12
   h1(translate) User's agents
-  .container
+  .container.margin-bottom
     span(us-spinner ng-show='ctrl.showSpinner')
     p(ng-if='ctrl.agents && ctrl.agents.length === 0' translate) No agents
     table.table.table-responsive.table-striped.table-bordered.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')

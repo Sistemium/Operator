@@ -14,6 +14,7 @@
         'toastr',
         'gettextCatalog',
         'NgTableOptions',
+        'OperationFields',
         function ($rootScope
           , $scope
           , $stateParams
@@ -24,7 +25,8 @@
           , Agent
           , toastr
           , gettextCatalog
-          , NgTableOptions) {
+          , NgTableOptions
+          , OperationFields) {
 
           var me = this;
           var lender = 'lender';
@@ -32,6 +34,8 @@
 
           me.radioModel = lender;
           var agentId = $stateParams.agent;
+
+          me.operationFields = OperationFields.getFields();
 
           function filterAgentOperations(o) {
             me.agentConfirmedOperations = _.filter(o, function (operation) {
@@ -127,6 +131,11 @@
           };
 
           me.createOperation = function (counterAgent) {
+            if (me.chosenContact && me.chosenContact.id === counterAgent.id) {
+              me.showOperationCreateForm = false;
+              me.chosenContact = undefined;
+              return;
+            }
             me.showOperationCreateForm = true;
             me.chosenContact = counterAgent;
           };
@@ -142,6 +151,18 @@
             }, function () {
               toastr.error(gettextCatalog.getString("Operation confirmation failed"));
             });
+          };
+
+          me.showMoreDetails = function (id) {
+            if (me.detailedOperation && me.detailedOperation.id === id) {
+              me.showOperationDetails = false;
+              me.detailedOperation = undefined;
+              return;
+            }
+            me.showOperationDetails = true;
+            me.detailedOperation = _.find(me.completedOperations, {id: id});
+
+            me.detailedOperation.currency = me.detailedOperation.currencyEntity ? me.detailedOperation.currencyEntity.name : undefined;
           };
 
           me.refresh();

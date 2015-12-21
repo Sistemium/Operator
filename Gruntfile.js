@@ -60,6 +60,10 @@
         }
       },
       watch: {
+        bower: {
+          files: ['bower.json'],
+          tasks: ['wiredep']
+        },
         injectJS: {
           files: [
             '<%= yeoman.client %>/{app,components}/**/*.js',
@@ -234,7 +238,12 @@
         target: {
           src: '<%= yeoman.client %>/index.html',
           ignorePath: '<%= yeoman.client %>/',
-          exclude: [/bootstrap-sass-official/, /bootstrap.js/, '/json3/', '/es5-shim/', /bootstrap.css/, /font-awesome.css/]
+          exclude: [/bootstrap-sass-official/
+            , 'bower_components/bootstrap/dist/js'
+            , '/json3/'
+            , '/es5-shim/'
+            , /bootstrap.css/
+            , /font-awesome.css/]
         }
       },
 

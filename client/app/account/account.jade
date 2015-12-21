@@ -1,7 +1,7 @@
 .col-md-12
   h1(translate) Agent's accounts
   a(ui-sref='agent' translate) Back
-  .container
+  .container.margin-bottom
     span(us-spinner ng-show='ctrl.showSpinner')
     p(ng-if='ctrl.accounts && ctrl.accounts.length === 0 && !ctrl.showSpinner' translate) No accounts
     div(ng-if='ctrl.accounts && ctrl.accounts.length > 0')

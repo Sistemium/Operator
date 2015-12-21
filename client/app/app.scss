@@ -29,6 +29,10 @@ $fa-font-path: "/bower_components/font-awesome/fonts";
   padding-bottom: 60px;
 }
 
+.margin-bottom {
+  margin-bottom: 10%;
+}
+
 // Component styles are injected through grunt
 // injector
 @import 'account/account.scss';

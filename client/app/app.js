@@ -16,7 +16,9 @@
       'js-data',
       'ngAnimate',
       'toastr',
-      'ngTable'
+      'ngTable',
+      'formly',
+      'formlyBootstrap'
     ])
     .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
       function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
