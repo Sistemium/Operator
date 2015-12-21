@@ -21,11 +21,9 @@ let authByToken = function (token, cb) {
 
 let unRegister = function (socket) {
   let idx = sockets.indexOf(socket);
-  console.log(sockets.length);
   if (idx > -1) {
     sockets.splice(idx, 1);
   }
-  console.log(sockets.length);
 };
 
 exports.sockets = function () {
@@ -42,10 +40,10 @@ exports.registerSocket = function (socket, cb) {
       cb(false);
     } else {
       //maybe only add authId to the socket instead of body object
-      console.log(sockets.length);
+
       socket.authData = response.body;
       sockets.push(socket);
-      console.log(sockets.length);
+      console.log(`${sockets.length} connected sockets`);
       cb(true);
     }
   });

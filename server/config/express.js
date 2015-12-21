@@ -29,6 +29,7 @@ module.exports = function (app) {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: false}));
   app.use(methodOverride());
+  app.use(require('express-domain-middleware'));
   app.set('redisdb', config.redis[env]);
   //app.use(cookieParser());
   //app.use(session({
