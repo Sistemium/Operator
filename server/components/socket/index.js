@@ -24,6 +24,7 @@ let unRegister = function (socket) {
   if (idx > -1) {
     sockets.splice(idx, 1);
   }
+  console.info(`${sockets.length} connected sockets`);
 };
 
 exports.sockets = function () {

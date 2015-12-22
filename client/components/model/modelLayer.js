@@ -38,7 +38,7 @@
           Auth.isLoggedInAsync(function (isLoggedIn) {
             if (isLoggedIn) {
               //register socket events
-              messageBus.initSocket();
+              messageBus.connect();
 
               // initially fetch data and inject in stores
               Agent.findAll();

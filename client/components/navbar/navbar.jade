@@ -26,5 +26,18 @@ div.navbar.navbar-default(ng-controller='NavbarCtrl as ctrl')
         li
           a(href='' ng-click="ctrl.changeLanguage('en')")
             span.flag-icon.flag-icon-us
-        li
-          span.fa.fa-circle(ng-class="{connected: ctrl.socketConnected, disconnected: !ctrl.socketConnected}")
+        li.dropdown
+          a.dropdown-toggle(
+            data-toggle="dropdown"
+            href=''
+            role='button'
+            aria-haspopup='true'
+            aria-expanded='false'
+          )
+            span.fa.fa-circle(ng-class="{connected: ctrl.socketConnected, disconnected: !ctrl.socketConnected}")
+            span.caret
+          ul.dropdown-menu
+            li(ng-show='ctrl.socketConnected')
+              a(href='' ng-click='ctrl.disconnect()' translate) Disconnect
+            li(ng-hide='ctrl.socketConnected')
+              a(href='' ng-click='ctrl.connect()' translate) Connect

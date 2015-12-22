@@ -9,12 +9,14 @@
         , 'gettextCatalog'
         , 'Auth'
         , 'localStorageService'
+        , 'messageBus'
         , function ($rootScope
           , $state
           , $location
           , gettextCatalog
           , Auth
-          , localStorageService) {
+          , localStorageService
+          , messageBus) {
 
           var me = this;
           me.menu = [];
@@ -31,6 +33,14 @@
           me.logout = function () {
             Auth.logout();
             $state.go('signup');
+          };
+
+          me.disconnect = function () {
+            messageBus.disconnect();
+          };
+
+          me.connect = function () {
+            messageBus.connect();
           };
 
           me.isActive = function (route) {

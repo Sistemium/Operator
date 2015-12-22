@@ -36,7 +36,22 @@
       yeoman: {
         // configurable paths
         client: require('./bower.json').appPath || 'client',
-        dist: 'dist'
+        dist: 'dist',
+        server: 'server'
+      },
+      babel: {
+        options: {
+          sourceMap: true,
+          presets: ['es2015']
+        },
+        client: {
+          files: [{
+            expand: true,
+            cwd: '<%= yeoman.client %>',
+            src: ['{app,components}/**/!(*.spec).js'],
+            dest: '.tmp'
+          }]
+        }
       },
       express: {
         options: {
@@ -60,16 +75,19 @@
         }
       },
       watch: {
+        babel: {
+          files: ['<%= yeoman.client %>/{app,components}/**/!(*.spec|*.mock).js'],
+          tasks: ['newer:babel:client']
+        },
         bower: {
           files: ['bower.json'],
           tasks: ['wiredep']
         },
         injectJS: {
           files: [
-            '<%= yeoman.client %>/{app,components}/**/*.js',
-            '!<%= yeoman.client %>/{app,components}/**/*.spec.js',
-            '!<%= yeoman.client %>/{app,components}/**/*.mock.js',
-            '!<%= yeoman.client %>/app/app.js'],
+            '<%= yeoman.client %>/{app,components}/**/!(*.spec|*.mock).js',
+            '!<%= yeoman.client %>/app/app.js'
+          ],
           tasks: ['injector:scripts']
         },
         injectCss: {
@@ -239,7 +257,6 @@
           src: '<%= yeoman.client %>/index.html',
           ignorePath: '<%= yeoman.client %>/',
           exclude: [/bootstrap-sass-official/
-            , 'bower_components/bootstrap/dist/js'
             , '/json3/'
             , '/es5-shim/'
             , /bootstrap.css/
@@ -361,6 +378,36 @@
         }
       },
 
+      // Run some tasks in parallel to speed up the build process
+      concurrent: {
+        server: [
+          'newer:babel:client',
+          'jade',
+          'sass'
+        ],
+        test: [
+          'newer:babel:client',
+          'jade',
+          'sass',
+        ],
+        debug: {
+          tasks: [
+            'nodemon',
+            'node-inspector'
+          ],
+          options: {
+            logConcurrentOutput: true
+          }
+        },
+        dist: [
+          'newer:babel:client',
+          'jade',
+          'sass',
+          'imagemin',
+          'svgmin'
+        ]
+      },
+
       // Copies remaining files to places other tasks can use
       copy: {
         dist: {
@@ -418,33 +465,6 @@
             branch: 'master'
           }
         }
-      },
-
-      // Run some tasks in parallel to speed up the build process
-      concurrent: {
-        server: [
-          'jade',
-          'sass',
-        ],
-        test: [
-          'jade',
-          'sass',
-        ],
-        debug: {
-          tasks: [
-            'nodemon',
-            'node-inspector'
-          ],
-          options: {
-            logConcurrentOutput: true
-          }
-        },
-        dist: [
-          'jade',
-          'sass',
-          'imagemin',
-          'svgmin'
-        ]
       },
 
       // Test settings
@@ -546,20 +566,28 @@
         // Inject application script files into index.html (doesn't include bower)
         scripts: {
           options: {
-            transform: function (filePath) {
-              filePath = filePath.replace('/client/', '');
+            transform: function(filePath) {
+              var yoClient = grunt.config.get('yeoman.client');
+              filePath = filePath.replace('/' + yoClient + '/', '');
               filePath = filePath.replace('/.tmp/', '');
               return '<script src="' + filePath + '"></script>';
+            },
+            sort: function(a, b) {
+              var module = /\.module\.js$/;
+              var aMod = module.test(a);
+              var bMod = module.test(b);
+              // inject *.module.js first
+              return (aMod === bMod) ? 0 : (aMod ? -1 : 1);
             },
             starttag: '<!-- injector:js -->',
             endtag: '<!-- endinjector -->'
           },
           files: {
             '<%= yeoman.client %>/index.html': [
-              ['{.tmp,<%= yeoman.client %>}/{app,components}/**/*.js',
-                '!{.tmp,<%= yeoman.client %>}/app/app.js',
-                '!{.tmp,<%= yeoman.client %>}/{app,components}/**/*.spec.js',
-                '!{.tmp,<%= yeoman.client %>}/{app,components}/**/*.mock.js']
+              [
+                '.tmp/{app,components}/**/!(*.spec|*.mock).js',
+                '!{.tmp,<%= yeoman.client %>}/app/app.js'
+              ]
             ]
           }
         },
