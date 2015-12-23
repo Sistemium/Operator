@@ -7,7 +7,6 @@ var HttpError = require('../../components/errors/httpError').HttpError;
 
 exports.getAll = function (owner, next) {
   Contact.scan({owner: owner, isDeleted: false}, function (err, contacts) {
-    console.log('GET counter agents ' + JSON.stringify(contacts));
     if (err) {
       return next(new HttpError(500, err));
     }

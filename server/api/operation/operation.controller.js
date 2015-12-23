@@ -159,12 +159,12 @@ exports.update = function (req, res, next) {
                 if (err) {
                   return next(new HttpError(500, err));
                 }
-                console.log('Account was created: ' + JSON.stringify(debtorAccount));
+                console.info('Account was created: ' + JSON.stringify(debtorAccount));
                 let socketData = _.extend(debtorAccount, {
                   resource: 'accounts'
                 });
                 socketService.save(socketData, (socket) => {
-                  console.log(`Account emitted with ${socketData}`);
+                  console.info(`Account emitted with ${socketData}`);
                   return socket.authData.id === debtorAccount.authId;
                 });
 

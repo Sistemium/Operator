@@ -96,6 +96,7 @@
       let socketConnected = 'socketConnected';
 
       function connect() {
+        console.log('connecting to socket...');
         ioSocket.connect();
         ioSocket.on('connect', function () {
           ioSocket.emit('authorize', Auth.getToken(), function (cb) {

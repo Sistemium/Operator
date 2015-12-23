@@ -68,7 +68,6 @@ module.exports = function (app) {
       }
     }));
     app.use(csrf());
-    app.use(helmet());
   }
 
   if ('development' === env || 'test' === env) {
@@ -93,7 +92,6 @@ module.exports = function (app) {
     //  }
     //}));
     //app.use(csrf());
-    app.use(helmet());
     app.use(function (err, req, res, next) {
       if (typeof err === 'number') {
         err = new HttpError(err);

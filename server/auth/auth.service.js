@@ -52,9 +52,7 @@ function isAuthenticated(req, res, next) {
     //  }
     //}
 
-    //if (inMemoryAccount && !(tokenExpiresIn < 1)) {
     if (inMemoryAccount) {
-      console.log('Already authorized');
       req.authId = req.body.authId = inMemoryAccount.body.id;
       req.account = inMemoryAccount;
       next();
