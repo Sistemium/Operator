@@ -10,6 +10,7 @@ var uuid = require('node-uuid');
 
 // Get list of agents
 exports.index = function (req, res, next) {
+
   Agent.scan({authId: req.authId, isDeleted: false}, function (err, agents) {
     if (err) {
       return next(new HttpError(500, err));

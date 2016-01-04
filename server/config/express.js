@@ -18,7 +18,8 @@ let express = require('express')
   , session = require('express-session')
   , csrf = require('csurf')
   , helmet = require('helmet')
-  , RedisStore = require('connect-redis')(session);
+  , RedisStore = require('connect-redis')(session)
+  , dyngodb = require('express-dyngodb');
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -26,6 +27,7 @@ module.exports = function (app) {
   app.set('views', config.root + '/server/views');
   app.set('view engine', 'jade');
   app.use(compression());
+  app.use(dyngodb());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: false}));
   app.use(methodOverride());
