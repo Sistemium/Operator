@@ -210,6 +210,20 @@
           });
           console.log(array);
           return array;
+        },
+        beforeUpdate: function (res, obj) {
+          if (obj.hasOwnProperty('lenderConfirmedAt')) {
+            obj.lenderConfirmedAt = obj.lenderConfirmedAt._i;
+          }
+          if (obj.hasOwnProperty('debtorConfirmedAt')) {
+            var isNumber = typeof obj.debtorConfirmedAt;
+            obj.debtorConfirmedAt = isNumber === "number" ? obj.debtorConfirmedAt : obj.debtorConfirmedAt._i;
+          }
+          if (obj.hasOwnProperty('remindDuration')) {
+            obj.remindDuration = obj.remindDuration._i;
+          }
+
+          return obj;
         }
       });
     }])
@@ -278,6 +292,37 @@
             }
           });
           return array;
+        },
+        beforeUpdate: function (res, obj, cb) {
+
+          var isNumber;
+          if (obj.hasOwnProperty('lenderConfirmedAt')) {
+            isNumber = typeof obj.lenderConfirmedAt;
+            obj.lenderConfirmedAt = isNumber === "number" ? obj.lenderConfirmedAt : obj.lenderConfirmedAt._i;
+          }
+          if (obj.hasOwnProperty('debtorConfirmedAt')) {
+            isNumber = typeof obj.debtorConfirmedAt;
+            obj.debtorConfirmedAt = isNumber === "number" ? obj.debtorConfirmedAt : obj.debtorConfirmedAt._i;
+          }
+          if (obj.hasOwnProperty('remindDuration')) {
+            isNumber = typeof obj.remindDuration;
+            obj.remindDuration = isNumber === "number" ? obj.remindDuration : obj.remindDuration._i;
+          }
+
+          cb(null, obj);
+        },
+        afterUpdate: function (res, obj, cb) {
+          if (obj.hasOwnProperty('lenderConfirmedAt')) {
+            obj.lenderConfirmedAt = moment(+obj.lenderConfirmedAt);
+          }
+          if (obj.hasOwnProperty('debtorConfirmedAt')) {
+            obj.debtorConfirmedAt = moment(+obj.debtorConfirmedAt);
+          }
+          if (obj.hasOwnProperty('remindDuration')) {
+            obj.remindDuration = moment(+obj.remindDuration);
+          }
+
+          cb(null, obj);
         }
       });
     }])
