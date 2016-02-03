@@ -30,8 +30,6 @@
     "request": "^2.64.0",
     "sendgrid": "^2.0.0",
     "serve-favicon": "~2.0.1",
-    "socket.io": "^1.0.6",
-    "socket.io-client": "^1.0.6",
     "vogels": "^2.1.2"
   },
   "devDependencies": {
@@ -102,10 +100,5 @@
     "test": "grunt test",
     "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
   },
-  "private": true,
-  "config": {
-    "ghooks": {
-      "pre-commit": "npm run test"
-    }
-  }
+  "private": true
 }

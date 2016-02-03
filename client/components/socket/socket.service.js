@@ -3,49 +3,6 @@
 
 (function () {
   angular.module('debtApp')
-    .run(['$rootScope', function ($rootScope) {
-      $rootScope.$on('save', function (event, data) {
-        event.preventDefault();
-        switch (data.resource) {
-          case 'invites':
-          {
-            $rootScope.$emit('invite:save', data);
-            break;
-          }
-          case 'agents':
-          {
-            $rootScope.$emit('agent:save', data);
-            break;
-          }
-          case 'operations':
-          {
-            $rootScope.$emit('operation:save', data);
-            break;
-          }
-          case 'contacts':
-          {
-            $rootScope.$emit('contact:save', data);
-            break;
-          }
-          case 'accounts':
-          {
-            $rootScope.$emit('account:save', data);
-            break;
-          }
-        }
-      });
-
-      $rootScope.$on('remove', function (event, data) {
-        event.preventDefault();
-        switch (data.resource) {
-          case 'invites':
-          {
-            $rootScope.$emit('invite:remove', data);
-            break;
-          }
-        }
-      });
-    }])
     .factory('Socket', ['$rootScope', function ($rootScope) {
       let socket = null;
 
@@ -54,26 +11,26 @@
       }
 
       return {
-        on: function (eventName, callback) {
-          if (!listenerExists(eventName)) {
-            socket.on(eventName, function () {
-              let args = arguments;
-              $rootScope.$apply(function () {
-                callback.apply(socket, args);
-              });
-            });
-          }
-        },
-        emit: function (eventName, data, callback) {
-          socket.emit(eventName, data, function () {
-            let args = arguments;
-            $rootScope.$apply(function () {
-              if (callback) {
-                callback.apply(socket, args);
-              }
-            });
-          })
-        },
+        //on: function (eventName, callback) {
+        //  if (!listenerExists(eventName)) {
+        //    socket.on(eventName, function () {
+        //      let args = arguments;
+        //      $rootScope.$apply(function () {
+        //        callback.apply(socket, args);
+        //      });
+        //    });
+        //  }
+        //},
+        //emit: function (eventName, data, callback) {
+        //  socket.emit(eventName, data, function () {
+        //    let args = arguments;
+        //    $rootScope.$apply(function () {
+        //      if (callback) {
+        //        callback.apply(socket, args);
+        //      }
+        //    });
+        //  })
+        //},
         removeAllListeners: function () {
           socket.removeAllListeners();
         },
@@ -81,10 +38,8 @@
           return socket !== null;
         },
         connect: function () {
-          socket = io.connect('', {
-            path: '/socket.io-client',
-            forceNew: true
-          });
+          socket = io.sails.connect('http://localhost:1337');
+          console.log(socket);
         },
         disconnect: function () {
           socket.io.disconnect();
@@ -99,6 +54,7 @@
         console.log('connecting to socket...');
         ioSocket.connect();
         ioSocket.on('connect', function () {
+          //TODO authorization for the socket
           ioSocket.emit('authorize', Auth.getToken(), function (cb) {
             console.log(`Socket authorization: ${cb}`);
 
