@@ -5,7 +5,7 @@
       function (DSProvider, DSHttpAdapterProvider) {
         angular.extend(DSProvider.defaults, {});
         angular.extend(DSHttpAdapterProvider.defaults, {
-          basePath: '/api'
+          basePath: 'http://localhost:1337'
         });
       }])
     .run(['DataConnect', function (DataConnect) {
@@ -42,10 +42,10 @@
 
               // initially fetch data and inject in stores
               Agent.findAll();
-              Currency.findAll();
-              Invite.findAll();
-              Operation.findAll();
-              Account.findAll();
+              //Currency.findAll();
+              //Invite.findAll();
+              //Operation.findAll();
+              //Account.findAll();
             }
           });
         }
@@ -56,7 +56,7 @@
       }])
     .service('Currency', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'currencies',
+        name: 'currency',
         relations: {
           hasMany: {
             accounts: {
@@ -69,7 +69,7 @@
     }])
     .service('Agent', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'agents',
+        name: 'agent',
         relations: {
           hasMany: {
             agentInvites: [
@@ -111,7 +111,7 @@
     }])
     .service('Invite', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'invites',
+        name: 'invite',
         relations: {
           belongsTo: {
             agents: [
@@ -131,105 +131,105 @@
         }
       });
     }])
-    .service('AgentInvite', ['DS', function (DS) {
-      return DS.defineResource({
-        name: 'agentInvites',
-        endpoint: '/invites/agentInvites',
-        relations: {
-          belongsTo: {
-            agents: [
-              {
-                localField: 'ownerAgent',
-                localKey: 'owner'
-              },
-              {
-                localField: 'acceptorAgent',
-                localKey: 'acceptor'
-              }
-            ]
-
-          }
-        }
-      });
-    }])
-    .service('AgentOperation', ['DS', function (DS) {
-      return DS.defineResource({
-        name: 'agentOperations',
-        endpoint: '/operations/agentOperations',
-        relations: {
-          belongsTo: {
-            agents: [
-              {
-                localField: 'lenderAgent',
-                localKey: 'lender'
-              },
-              {
-                localField: 'debtorAgent',
-                localKey: 'debtor'
-              }
-            ]
-          },
-          hasOne: {
-            currencies: {
-              localField: 'currencyEntity',
-              localKey: 'currency'
-            }
-          }
-        },
-        validate: function (Operation, operation, cb) {
-          var operationSchema = {
-            lender: {
-              presence: true
-            },
-            debtor: {
-              presence: true
-            },
-            total: {
-              presence: true
-            }
-          };
-
-          var err = validate(operation, operationSchema);
-          if (err) {
-            cb(err);
-          } else {
-            cb(null, operation);
-          }
-        },
-        afterInject: function (res, array) {
-          _.each(array, function (i) {
-            if (i.hasOwnProperty('lenderConfirmedAt')) {
-              i.lenderConfirmedAt = moment(+i.lenderConfirmedAt);
-            }
-            if (i.hasOwnProperty('debtorConfirmedAt')) {
-              i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
-            }
-            if (i.hasOwnProperty('remindDuration')) {
-              i.remindDuration = moment(+i.remindDuration);
-            }
-          });
-          console.log(array);
-          return array;
-        },
-        beforeUpdate: function (res, obj) {
-          if (obj.hasOwnProperty('lenderConfirmedAt')) {
-            obj.lenderConfirmedAt = obj.lenderConfirmedAt._i;
-          }
-          if (obj.hasOwnProperty('debtorConfirmedAt')) {
-            var isNumber = typeof obj.debtorConfirmedAt;
-            obj.debtorConfirmedAt = isNumber === "number" ? obj.debtorConfirmedAt : obj.debtorConfirmedAt._i;
-          }
-          if (obj.hasOwnProperty('remindDuration')) {
-            obj.remindDuration = obj.remindDuration._i;
-          }
-
-          return obj;
-        }
-      });
-    }])
+    //.service('AgentInvite', ['DS', function (DS) {
+    //  return DS.defineResource({
+    //    name: 'agentInvites',
+    //    endpoint: '/invite/agentInvite',
+    //    relations: {
+    //      belongsTo: {
+    //        agents: [
+    //          {
+    //            localField: 'ownerAgent',
+    //            localKey: 'owner'
+    //          },
+    //          {
+    //            localField: 'acceptorAgent',
+    //            localKey: 'acceptor'
+    //          }
+    //        ]
+    //
+    //      }
+    //    }
+    //  });
+    //}])
+    //.service('AgentOperation', ['DS', function (DS) {
+    //  return DS.defineResource({
+    //    name: 'agentOperations',
+    //    endpoint: '/operations/agentOperations',
+    //    relations: {
+    //      belongsTo: {
+    //        agents: [
+    //          {
+    //            localField: 'lenderAgent',
+    //            localKey: 'lender'
+    //          },
+    //          {
+    //            localField: 'debtorAgent',
+    //            localKey: 'debtor'
+    //          }
+    //        ]
+    //      },
+    //      hasOne: {
+    //        currencies: {
+    //          localField: 'currencyEntity',
+    //          localKey: 'currency'
+    //        }
+    //      }
+    //    },
+    //    validate: function (Operation, operation, cb) {
+    //      var operationSchema = {
+    //        lender: {
+    //          presence: true
+    //        },
+    //        debtor: {
+    //          presence: true
+    //        },
+    //        total: {
+    //          presence: true
+    //        }
+    //      };
+    //
+    //      var err = validate(operation, operationSchema);
+    //      if (err) {
+    //        cb(err);
+    //      } else {
+    //        cb(null, operation);
+    //      }
+    //    },
+    //    afterInject: function (res, array) {
+    //      _.each(array, function (i) {
+    //        if (i.hasOwnProperty('lenderConfirmedAt')) {
+    //          i.lenderConfirmedAt = moment(+i.lenderConfirmedAt);
+    //        }
+    //        if (i.hasOwnProperty('debtorConfirmedAt')) {
+    //          i.debtorConfirmedAt = moment(+i.debtorConfirmedAt);
+    //        }
+    //        if (i.hasOwnProperty('remindDuration')) {
+    //          i.remindDuration = moment(+i.remindDuration);
+    //        }
+    //      });
+    //      console.log(array);
+    //      return array;
+    //    },
+    //    beforeUpdate: function (res, obj) {
+    //      if (obj.hasOwnProperty('lenderConfirmedAt')) {
+    //        obj.lenderConfirmedAt = obj.lenderConfirmedAt._i;
+    //      }
+    //      if (obj.hasOwnProperty('debtorConfirmedAt')) {
+    //        var isNumber = typeof obj.debtorConfirmedAt;
+    //        obj.debtorConfirmedAt = isNumber === "number" ? obj.debtorConfirmedAt : obj.debtorConfirmedAt._i;
+    //      }
+    //      if (obj.hasOwnProperty('remindDuration')) {
+    //        obj.remindDuration = obj.remindDuration._i;
+    //      }
+    //
+    //      return obj;
+    //    }
+    //  });
+    //}])
     .service('Operation', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'operations',
+        name: 'operation',
         relations: {
           belongsTo: {
             agents: [
@@ -328,12 +328,12 @@
     }])
     .service('CounterAgent', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'counterAgents'
+        name: 'counterAgent'
       });
     }])
     .service('Account', ['DS', function (DS) {
       return DS.defineResource({
-        name: 'accounts',
+        name: 'account',
         relations: {
           hasMany: {
             operations: [
