@@ -1,0 +1,56 @@
+.col-md-12
+  h1(translate) Invites
+  a(ui-sref='agent' translate) Back
+  .container.margin-bottom
+    .row
+      span(us-spinner ng-show='ctrl.showSpinner')
+      div(ng-if='ctrl.agentInvites && ctrl.agentInvites.length')
+        h3(translate) Agent's invites
+        table.table.table-responsive.table-striped.table-bordered.table-hover(ng-table="ctrl.agentInvitesTableParams")
+          tr(ng-repeat='invite in $data track by invite.id')
+            td(title="'Owner'|translate") {{invite.ownerName}}
+            td(title="'Acceptor'|translate") {{invite.acceptorName}}
+            td(title="'Code'|translate") {{invite.code}}
+            td(title="'Status'|translate") {{invite.status}}
+            td
+              span(ng-if="invite.status === 'open'")
+                a(href='' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete invite
+              span(ng-if="invite.status === 'accepted'")
+                a(href='' ng-click='ctrl.disableInvite(invite.id)' translate) Disable invite
+
+      div(ng-if='ctrl.acceptedInvites && ctrl.acceptedInvites.length > 0')
+        h3(translate) Accepted
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.acceptedInvitesTableParams')
+            tr(ng-repeat='invite in $data track by invite.id')
+              td(title="'Owner'|translate") {{invite.ownerName}}
+              td(title="'Acceptor'|translate") {{invite.acceptorName}}
+              td(title="'Code'|translate") {{invite.code}}
+              td(title="'Status'|translate") {{invite.status}}
+              td
+                span(ng-if="invite.status === 'open'")
+                  a(href='' ng-click='ctrl.deleteInvite(invite.id)' translate) Delete invite
+                span(ng-if="invite.status === 'accepted'")
+                  a(href='' ng-click='ctrl.disableInvite(invite.id)' translate) Disable invite
+      div
+        h3(translate) Create invite
+        button.btn.btn-primary(type='button' ng-click='ctrl.sendInvite()' translate) Create invite
+      form(name='form' ng-submit='ctrl.sendEmail()' ng-show='ctrl.inviteCode')
+        .form-group
+          label.control-label(translate for='toEmail') Email
+          input.form-control(name='toEmail' type='email' placeholder="{{'Enter address for email sending'|translate}}" ng-model='ctrl.toEmail')
+        button.btn.btn-primary(type='submit' ng-disabled='!ctrl.toEmail' translate) Send invite via email
+      div
+        h3(translate) Get invite by code
+        form.form-inline
+          .form-group
+            label(translate) Code
+            input.form-control(type='text' placeholder="{{'Code'|translate}}" ng-model='ctrl.inviteCode')
+          button.btn.btn-primary(type='button' ng-click='ctrl.getInviteByCode()' ng-disabled='!ctrl.inviteCode' translate) Get invite
+        .row(ng-show='ctrl.showInvite')
+          | {{ctrl.invite.code}} {{ctrl.invite.status}}
+        .row(ng-show='ctrl.showDisableInviteButton')
+          button.btn.btn-primary(type='button' ng-click='ctrl.disableInvite()' translate) Disable
+        .row(ng-show='ctrl.showDeleteInviteButton')
+          button.btn.btn-primary(type='button' ng-click='ctrl.deleteInvite()' translate) Delete
+        .row(ng-show='ctrl.showAcceptInviteButton')
+          button.btn.btn-primary(type='button' ng-click='ctrl.acceptInvite()' translate) Accept

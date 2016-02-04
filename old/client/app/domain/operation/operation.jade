@@ -1,0 +1,76 @@
+.col-md-12
+  h1(translate) Operations
+  a(ui-sref='agent' translate) Back
+  .container.margin-bottom
+    .row(ng-show='ctrl.showOperationDetails')
+      form
+        formly-form(model='ctrl.detailedOperation' fields='ctrl.operationFields')
+    .row
+      span(us-spinner ng-show='ctrl.showSpinner')
+      p(ng-if='ctrl.counterAgents && ctrl.counterAgents.length === 0 && !ctrl.showSpinner' translate) You do not have contacts
+      div(ng-if='ctrl.completedOperations && ctrl.completedOperations.length > 0')
+        h3(translate) Agent's completed operations
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.completedOperationsTableParams')
+          tr(ng-repeat='completedOperation in $data track by completedOperation.id')
+            td(title="'Lender'|translate") {{completedOperation.lenderName}}
+            td(title="'Debtor'|translate") {{completedOperation.debtorName}}
+            td(title="'Status'|translate") {{completedOperation.state}}
+            td(title="'Amount'|translate") {{completedOperation.total}}
+            td(title="'Comment'|translate") {{completedOperation.comment}}
+            td
+              a(href='' ng-click='ctrl.showMoreDetails(completedOperation.id)') More details
+
+      div(ng-if='ctrl.agentOperations && ctrl.agentConfirmedOperations.length > 0')
+        h3(translate) Agent's operation waiting for confirm
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.agentConfirmedOperationsTableParams')
+          tr(ng-repeat='agentConfirmed in $data track by agentConfirmed.id')
+            td(title="'Lender'|translate") {{agentConfirmed.lenderName}}
+            td(title="'Debtor'|translate") {{agentConfirmed.debtorName}}
+            td(title="'Status'|translate") {{agentConfirmed.state}}
+            td(title="'Amount'|translate") {{agentConfirmed.total}}
+            td(title="'Comment'|translate") {{agentConfirmed.comment}}
+            td
+              a(href='' ng-click='ctrl.showMoreDetails(agentConfirmed.id)') More details
+
+      div(ng-if='ctrl.agentOperations && ctrl.waitingForConfirm.length > 0')
+        h3(translate) Waiting for confirmation
+        table.table.table-responsive.table-hover.table-striped.table-bordered(ng-table='ctrl.waitingForConfirmTableParams')
+            tr(ng-repeat='waitingForConfirm in $data track by waitingForConfirm.id')
+              td(title="'Lender'|translate") {{waitingForConfirm.lenderName}}
+              td(title="'Debtor'|translate") {{waitingForConfirm.debtorName}}
+              td(title="'Status'|translate") {{waitingForConfirm.state}}
+              td(title="'Amount'|translate") {{waitingForConfirm.total}}
+              td(title="'Comment'|translate") {{waitingForConfirm.comment}}
+              td
+                a(href='' ng-click='ctrl.showMoreDetails(waitingForConfirm.id)') More details
+              td
+                a(href='' ng-click='ctrl.confirmOperation(waitingForConfirm)' translate) Confirm
+
+      div(ng-if='ctrl.counterAgents && ctrl.counterAgents.length > 0')
+        h3(translate) Contacts
+        table.table.table-responsive.table-bordered.table-striped.table-hover
+           thead
+           tbody
+             tr(ng-repeat='counterAgent in ctrl.counterAgents track by counterAgent.id')
+              td {{counterAgent.name}}
+              td
+                a(href='' ng-click='ctrl.createOperation(counterAgent)' translate) Create operation
+        form(ng-show='ctrl.showOperationCreateForm' name='form' ng-submit='ctrl.saveOperation()')
+          legend(translate) New operation
+          .form-group
+            label(translate) Sum
+            input.form-control(type='text' placeholder="{{'Sum'|translate}}" ng-model='ctrl.total' required)
+          .form-group
+            label(translate) Currency
+            ui-select(ng-model='ctrl.currency')
+              ui-select-match
+                span(ng-bind='$select.selected.name')
+              ui-select-choices(repeat='item in ctrl.currencies')
+                span(ng-bind='item.name')
+          .form-group
+            label(translate) Description
+            input.form-control(type='text' placeholder="{{'Description'|translate}}" ng-model='ctrl.comment')
+          div.btn-group
+            label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'lender'" translate) Lend
+            label.btn.btn-primary(ng-model='ctrl.radioModel', uib-btn-radio="'debtor'" translate) Borrow
+          button.btn(type='submit' ng-disabled='form.$invalid' translate) Save

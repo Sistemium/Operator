@@ -1,0 +1,43 @@
+$fa-font-path: "/bower_components/font-awesome/fonts";
+
+@import '../bower_components/font-awesome/scss/font-awesome';
+
+/**
+ * App-wide Styles
+ */
+
+.browsehappy {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+.fixed-bottom {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  z-index: 1000;
+  height: 60px;
+  width: 100%;
+  background-color: #f5f5f5;
+}
+
+.viewport-root {
+  padding-bottom: 60px;
+}
+
+.margin-bottom {
+  margin-bottom: 10%;
+}
+
+// Component styles are injected through grunt
+// injector
+@import 'core/auth/login/login.scss';
+@import 'domain/account/account.scss';
+@import 'domain/agent/agent.scss';
+@import 'domain/invite/invite.scss';
+@import 'domain/main/main.scss';
+@import 'domain/operation/operation.scss';
+@import 'domain/signup/signup.scss';
+// endinjector

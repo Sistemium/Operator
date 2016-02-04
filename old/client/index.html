@@ -1,0 +1,183 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <base href="/">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- build:css(client) app/vendor.css -->
+  <!-- bower:css -->
+  <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+  <link rel="stylesheet" href="bower_components/ui-select/dist/select.css" />
+  <link rel="stylesheet" href="bower_components/angular-toastr/dist/angular-toastr.css" />
+  <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.min.css" />
+  <link rel="stylesheet" href="bower_components/flag-icon-css/css/flag-icon.min.css" />
+  <link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.css" />
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css({.tmp,client}) app/app.css -->
+  <link rel="stylesheet" href="app/app.css">
+  <!-- injector:css -->
+  <!-- endinjector -->
+  <!-- endbuild -->
+</head>
+<body ng-app="frontend" ng-cloak>
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+  your browser</a> to improve your experience.</p>
+<![endif]-->
+<!-- Add your site or application content here -->
+
+<div ng-include="'layout.html'"></div>
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+    a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+  ga('create', 'UA-XXXXX-X');
+  ga('send', 'pageview');
+</script>
+
+<script>
+  (function onLoad() {
+    var io;
+    Object.defineProperty(window, 'io', {
+      get: function get() {
+        return io;
+      },
+      set: function set(value) {
+        var sails;
+        io = value;
+        Object.defineProperty(io, 'sails', {
+          get: function get() {
+            return sails;
+          },
+          set: function set(value) {
+            sails = value;
+            sails.url = 'http://localhost:1337';
+          }
+        });
+      }
+    });
+  })();
+</script>
+
+<!--[if lt IE 9]>
+<script src="bower_components/es5-shim/es5-shim.js"></script>
+<script src="bower_components/json3/lib/json3.min.js"></script>
+<![endif]-->
+<!-- build:js({client,node_modules}) app/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<script src="bower_components/angular-moment/angular-moment.js"></script>
+<script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-bootstrap-show-errors/src/showErrors.js"></script>
+<script src="bower_components/angular-ui-utils/ui-utils.js"></script>
+<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+<script src="bower_components/lodash/dist/lodash.compat.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-gettext/dist/angular-gettext.js"></script>
+<script src="bower_components/node-uuid/uuid.js"></script>
+<script src="bower_components/ui-select/dist/select.js"></script>
+<script src="bower_components/js-data/dist/js-data.js"></script>
+<script src="bower_components/js-data-http/dist/js-data-http.js"></script>
+<script src="bower_components/js-data-angular/dist/js-data-angular.js"></script>
+<script src="bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
+<script src="bower_components/ng-table/dist/ng-table.min.js"></script>
+<script src="bower_components/validate/validate.js"></script>
+<script src="bower_components/api-check/dist/api-check.js"></script>
+<script src="bower_components/angular-formly/dist/formly.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-formly-templates-bootstrap/dist/angular-formly-templates-bootstrap.js"></script>
+<script src="bower_components/sails.io.js/dist/sails.io.js"></script>
+<script src="bower_components/angularSails/dist/ngsails.io.js"></script>
+<script src="bower_components/angular-loading-bar/build/loading-bar.js"></script>
+<script src="bower_components/bootbox/bootbox.js"></script>
+<script src="bower_components/ngBootbox/dist/ngBootbox.js"></script>
+<script src="bower_components/ngstorage/ngStorage.js"></script>
+<script src="bower_components/highcharts/highcharts.js"></script>
+<script src="bower_components/highcharts/highcharts-more.js"></script>
+<script src="bower_components/highcharts/modules/exporting.js"></script>
+<script src="bower_components/highcharts-ng/dist/highcharts-ng.js"></script>
+<!-- endbower -->
+
+<!-- build:js({.tmp,client}) app/app.js -->
+<script src="app/app.js"></script>
+<!-- injector:js -->
+<script src="app/core/libraries/LoDash.js"></script>
+<script src="app/core/auth/auth.js"></script>
+<script src="app/core/auth/login/login.js"></script>
+<script src="app/core/auth/services/AuthService.js"></script>
+<script src="app/core/auth/services/UserService.js"></script>
+<script src="app/core/auth/services/services.js"></script>
+<script src="app/core/components/FocusOn.js"></script>
+<script src="app/core/components/components.js"></script>
+<script src="app/core/constants/AccessLevels.js"></script>
+<script src="app/core/constants/BackendConfig.js"></script>
+<script src="app/core/core.js"></script>
+<script src="app/core/dependencies/dependencies.js"></script>
+<script src="app/core/constants/AccessLevels.js"></script>
+<script src="app/core/constants/BackendConfig.js"></script>
+<script src="app/core/core.js"></script>
+<script src="app/core/dependencies/dependencies.js"></script>
+<script src="app/core/filters/filters.js"></script>
+<script src="app/core/interceptors/AuthInterceptor.js"></script>
+<script src="app/core/interceptors/ErrorInterceptor.js"></script>
+<script src="app/core/interceptors/interceptors.js"></script>
+<script src="app/core/layout/layout-controllers.js"></script>
+<script src="app/core/layout/layout-directives.js"></script>
+<script src="app/core/layout/layout-services.js"></script>
+<script src="app/core/layout/layout.js"></script>
+<script src="app/core/auth/login/login-controllers.js"></script>
+<script src="app/core/libraries/libraries.js"></script>
+<script src="app/core/models/DataModel.js"></script>
+<script src="app/core/models/models.js"></script>
+<script src="app/core/services/DataService.js"></script>
+<script src="app/core/services/HttpStatusService.js"></script>
+<script src="app/core/services/ListConfigService.js"></script>
+<script src="app/core/services/MessageService.js"></script>
+<script src="app/core/services/SocketHelperService.js"></script>
+<script src="app/core/services/services.js"></script>
+<script src="app/domain/account/account.controller.js"></script>
+<script src="app/domain/account/account.js"></script>
+<script src="app/domain/agent/agent.controller.js"></script>
+<script src="app/domain/agent/agent.js"></script>
+<script src="app/domain/domain.js"></script>
+<script src="app/domain/invite/invite.controller.js"></script>
+<script src="app/domain/invite/invite.js"></script>
+<script src="app/domain/main/main.js"></script>
+<script src="app/domain/operation/OperationFields.js"></script>
+<script src="app/domain/operation/operation.controller.js"></script>
+<script src="app/domain/operation/operation.js"></script>
+<script src="app/domain/signup/signup.controller.js"></script>
+<script src="app/domain/signup/signup.js"></script>
+<script src="components/translations.js"></script>
+<!-- endinjector -->
+<!-- endbuild -->
+
+</body>
+</html>

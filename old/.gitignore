@@ -9,5 +9,3 @@ dist
 npm-debug.log
 *.log
 *.mo
-node_modules
-config.json
