@@ -1,6 +1,9 @@
 ../node_modules/grunt-contrib-watch/node_modules/tiny-lr-fork/node_modules/noptify/node_modules/nopt/node_modules
 public
 .tmp
+new/.tmp
+new/bower_components
+new/node_modules
 .sass-cache
 .idea
 client/bower_components

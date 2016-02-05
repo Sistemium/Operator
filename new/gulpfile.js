@@ -14,6 +14,8 @@ var bower = require('./bower');
 var mainBowerFiles = require('main-bower-files');
 var historyApiFallback = require('connect-history-api-fallback');
 var isWatching = false;
+var jade = require('gulp-jade');
+
 
 var htmlminOpts = {
   removeComments: true,
@@ -94,12 +96,20 @@ gulp.task('scripts-dist', ['templates-dist'], function() {
 /**
  * Templates
  */
-gulp.task('templates', function() {
+gulp.task('templates', ['jade'], function() {
   return templateFiles().pipe(buildTemplates());
 });
 
-gulp.task('templates-dist', function() {
+gulp.task('templates-dist', ['jade'], function() {
   return templateFiles({min: true}).pipe(buildTemplates());
+});
+
+gulp.task('jade', function () {
+  gulp.src('./src/app/**/*.jade')
+  .pipe(jade({
+    pretty: true
+  }))
+  .pipe(gulp.dest('./.tmp/jade'))
 });
 
 /**
@@ -213,6 +223,8 @@ gulp.task('production', g.serve({
  */
 gulp.task('serve', ['watch']);
 
+gulp.task('jade-watch', ['templates']);
+
 gulp.task('watch', ['statics', 'default'], function() {
   isWatching = true;
 
@@ -225,6 +237,7 @@ gulp.task('watch', ['statics', 'default'], function() {
     }
   });
 
+  gulp.watch('./src/app/**/*.jade', ['jade-watch']);
   gulp.watch('./src/app/index.html', ['index']);
   gulp.watch(['./src/app/**/*.html', '!./src/app/index.html'], ['templates']);
   gulp.watch(['./src/app/**/*.scss'], ['csslint', 'scsslint']).on('change', function(evt) {
@@ -313,7 +326,7 @@ function appFiles() {
  * All AngularJS templates/partials as a stream
  */
 function templateFiles(opt) {
-  return gulp.src(['./src/app/**/*.html', '!./src/app/index.html'], opt)
+  return gulp.src(['./.tmp/jade/**/*.html', './src/app/**/*.html', '!./src/app/index.html'], opt)
     .pipe(opt && opt.min ? g.htmlmin(htmlminOpts) : noop())
   ;
 }
