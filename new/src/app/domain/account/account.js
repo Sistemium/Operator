@@ -4,19 +4,31 @@
   angular.module('frontend.domain')
     .config(['$stateProvider', function ($stateProvider) {
       $stateProvider
-        .state('account', {
+        .state('domain.account', {
           url: '/:agent/accounts',
-          templateUrl: 'app/domain/account/account.html',
-          controller: 'AccountCtrl',
-          controllerAs: 'ctrl',
-          authorize: true
+          data: {
+            access: 0
+          },
+          views: {
+            'content@': {
+              templateUrl: '/frontend/domain/account/account.html',
+              controller: 'AccountCtrl',
+              controllerAs: 'ctrl'
+            }
+          }
         })
-      .state('accountOperations', {
+      .state('domain.accountOperations', {
         url: '/:agent/:account/operations',
-        templateUrl: 'app/domain/domain/account/accountOperations.html',
-        controller: 'AccountOperationsCtrl',
-        controllerAs: 'ctrl',
-        authorize: true,
+        data: {
+          access: 0
+        },
+        views: {
+          'content@': {
+            templateUrl: '/frontend/domain/account/accountOperations.html',
+            controller: 'AccountOperationsCtrl',
+            controllerAs: 'ctrl'
+          }
+        }
         //resolve:  {
         //  //accountOperations: function ($stateParams, Account) {
         //  //  return Account.find($stateParams.account).then(function (res) {

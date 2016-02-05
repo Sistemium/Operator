@@ -4,11 +4,13 @@
   angular.module('frontend.domain')
     .config(['$stateProvider', function ($stateProvider) {
       $stateProvider
-        .state('operation', {
+        .state('domain.operation', {
           url: '/:agent/operation',
-          templateUrl: 'app/domain/operation/operation.html',
-          controller: 'OperationCtrl',
-          controllerAs: 'ctrl'
+          views: {
+            templateUrl: 'frontend/domain/operation/operation.html',
+            controller: 'OperationCtrl',
+            controllerAs: 'ctrl'
+          }
         });
     }])
   ;

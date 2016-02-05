@@ -4,11 +4,15 @@
   angular.module('frontend.domain')
     .config(['$stateProvider', function ($stateProvider) {
       $stateProvider
-        .state('signup', {
+        .state('domain.signup', {
           url: '/signup',
-          templateUrl: 'app/domain/signup/signup.html',
-          controller: 'SignupCtrl',
-          controllerAs: 'ctrl'
+          views: {
+            'content@': {
+              templateUrl: 'frontend/domain/signup/signup.html',
+              controller: 'SignupCtrl',
+              controllerAs: 'ctrl'
+            }
+          }
         });
     }])
   ;

@@ -4,12 +4,18 @@
   angular.module('frontend.domain')
     .config(['$stateProvider', function ($stateProvider) {
       $stateProvider
-        .state('agent', {
+        .state('domain.agent', {
           url: '/agent',
-          templateUrl: 'app/domain/agent/agent.html',
-          controller: 'AgentCtrl',
-          controllerAs: 'ctrl',
-          authenticate: true
+          data: {
+            access: 0
+          },
+          views: {
+            'content@': {
+              templateUrl: '/frontend/domain/agent/agent.html',
+              controller: 'AgentCtrl',
+              controllerAs: 'ctrl'
+            }
+          }
         });
     }])
   ;

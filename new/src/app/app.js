@@ -109,7 +109,7 @@
         ;
 
         // For any unmatched url, redirect to /about
-        $urlRouterProvider.otherwise('/about');
+        $urlRouterProvider.otherwise('/main');
       }
     ])
   ;
