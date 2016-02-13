@@ -7,7 +7,7 @@
         .state('domain.operation', {
           url: '/:agent/operation',
           views: {
-            templateUrl: 'frontend/domain/operation/operation.html',
+            templateUrl: '/frontend/domain/operation/operation.html',
             controller: 'OperationCtrl',
             controllerAs: 'ctrl'
           }

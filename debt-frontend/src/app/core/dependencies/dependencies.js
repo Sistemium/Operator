@@ -10,6 +10,7 @@
 
   angular.module('frontend.core.dependencies', [
     'angular-loading-bar',
+    'uuid4',
     'ngAnimate',
     'ngSanitize',
     'ngBootbox',
@@ -22,6 +23,8 @@
     'toastr',
     'xeditable',
     'sails.io',
-    'highcharts-ng'
+    'highcharts-ng',
+    'gettext',
+    'ngTable'
   ]);
 }());

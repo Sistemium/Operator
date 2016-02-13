@@ -4,10 +4,8 @@
   angular.module('frontend.domain')
     .controller('OperationCtrl',
       [
-        //'$rootScope',
         //'$scope',
         //'$stateParams',
-        //'toastr',
         //'gettextCatalog',
         //'NgTableOptions',
         //'OperationFields',

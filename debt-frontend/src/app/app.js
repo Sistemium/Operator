@@ -3,13 +3,14 @@
  *
  * This is the main file for the 'Frontend' application.
  */
-(function() {
+(function () {
   'use strict';
 
   // Create frontend module and specify dependencies for that
   angular.module('frontend', [
     'frontend-templates',
     'frontend.core',
+    'frontend.examples',
     'frontend.domain',
     'frontend.admin'
   ]);
@@ -28,12 +29,10 @@
       '$tooltipProvider', 'cfpLoadingBarProvider',
       'toastrConfig',
       'AccessLevels',
-      function config(
-        $stateProvider, $locationProvider, $urlRouterProvider, $httpProvider, $sailsSocketProvider,
-        $tooltipProvider, cfpLoadingBarProvider,
-        toastrConfig,
-        AccessLevels
-      ) {
+      function config($stateProvider, $locationProvider, $urlRouterProvider, $httpProvider, $sailsSocketProvider,
+                      $tooltipProvider, cfpLoadingBarProvider,
+                      toastrConfig,
+                      AccessLevels) {
         $httpProvider.defaults.useXDomain = true;
 
         delete $httpProvider.defaults.headers.common['X-Requested-With'];
@@ -108,7 +107,7 @@
           })
         ;
 
-        // For any unmatched url, redirect to /about
+        // For any unmatched url, redirect to /main
         $urlRouterProvider.otherwise('/main');
       }
     ])
@@ -120,14 +119,12 @@
    */
   angular.module('frontend')
     .run([
-      '$rootScope', '$state', '$injector',
+      '$rootScope', '$state', '$injector', '$localStorage',
       'editableOptions',
-      'AuthService',
-      function run(
-        $rootScope, $state, $injector,
-        editableOptions,
-        AuthService
-      ) {
+      'AuthService', 'gettextCatalog',
+      function run($rootScope, $state, $injector, $localStorage,
+                   editableOptions,
+                   AuthService, gettextCatalog) {
         // Set usage of Bootstrap 3 CSS with angular-xeditable
         editableOptions.theme = 'bs3';
 
@@ -161,6 +158,15 @@
 
           return $state.go('error');
         });
+
+        // enable debugging mode to show untranslated strings
+        gettextCatalog.debug = true;
+        var lang =  $localStorage.chosen_language;
+        if (lang) {
+          gettextCatalog.setCurrentLanguage(lang);
+        } else {
+          gettextCatalog.setCurrentLanguage('en');
+        }
       }
     ])
   ;

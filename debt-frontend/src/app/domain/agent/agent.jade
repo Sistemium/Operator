@@ -1,14 +1,13 @@
 .col-md-12
   h1(translate) User's agents
   .container.margin-bottom
-    span(us-spinner ng-show='ctrl.showSpinner')
-    p(ng-if='ctrl.agents && ctrl.agents.length === 0' translate) No agents
-    table.table.table-responsive.table-striped.table-bordered.table-hover(ng-if='ctrl.agents && ctrl.agents.length > 0')
+    p(ng-if='ctrl.items && ctrl.items.length === 0' translate) No agents
+    table.table.table-responsive.table-striped.table-bordered.table-hover(ng-if='ctrl.items && ctrl.items.length > 0')
       thead
         th(translate) Agent name
         th(colspan='2')
       tbody
-        tr(ng-repeat='agent in ctrl.agents track by agent.id')
+        tr(ng-repeat='agent in ctrl.items track by agent.id')
           td
             | {{agent.name}}
           td
@@ -16,7 +15,8 @@
               span(translate) Accounts |
             a(href='' ng-click='ctrl.goToInvites(agent.id)')
               span(translate) | Invites |
-            a(href='' ng-click='ctrl.goToOperations(agent.id)' translate) | Operations
+            a(href='' ng-click='ctrl.goToOperations(agent.id)')
+              span(translate) | Operations
     form(role='form' name='form' ng-submit='ctrl.save(form)')
       fieldset
         legend(translate)

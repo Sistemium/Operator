@@ -13,7 +13,15 @@
             'content@': {
               templateUrl: '/frontend/domain/agent/agent.html',
               controller: 'AgentCtrl',
-              controllerAs: 'ctrl'
+              controllerAs: 'ctrl',
+              resolve: {
+                _items: [
+                  'AgentModel',
+                  function resolve(AgentModel) {
+                    return AgentModel.load();
+                  }
+                ]
+              }
             }
           }
         });
